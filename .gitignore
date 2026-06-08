@@ -1,0 +1,47 @@
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+out/
+release/
+
+# Electron-builder artifacts
+release/
+
+# Rebrickable CSV data files (user-downloaded, large)
+csv/
+
+# SQLite database files (user data, not committed)
+*.db
+*.db-journal
+*.db-wal
+*.db-shm
+
+# OS files
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# IDE / Editor
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Logs
+*.log
+*.log.*
+
+# Lint cache
+.eslintcache
+
+# Environment files
+.env
+.env.*
+!.env.example
+
+# Package lock (using npm — keep package-lock.json)
+# Uncomment if using pnpm:
+# pnpm-lock.yaml

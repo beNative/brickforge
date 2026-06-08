@@ -1,0 +1,105 @@
+import { contextBridge, ipcRenderer } from 'electron'
+import { electronAPI } from '@electron-toolkit/preload'
+
+// Custom APIs for renderer
+const api = {
+  importCsv: (filePath: string, type: string) => 
+    ipcRenderer.invoke('import-csv', filePath, type),
+
+  selectCsvFile: () => 
+    ipcRenderer.invoke('select-csv-file'),
+
+  minimizeWindow: () => 
+    ipcRenderer.invoke('window-minimize'),
+
+  maximizeWindow: () => 
+    ipcRenderer.invoke('window-maximize'),
+
+  closeWindow: () => 
+    ipcRenderer.invoke('window-close'),
+  
+  onImportProgress: (callback: (data: { type: string; current: number }) => void) => {
+    const listener = (_event: any, data: any) => callback(data)
+    ipcRenderer.on('import-progress', listener)
+    return () => {
+      ipcRenderer.removeListener('import-progress', listener)
+    }
+  },
+  
+  searchSets: (query: string) => 
+    ipcRenderer.invoke('search-sets', query),
+  
+  getSetDetails: (setNum: string) => 
+    ipcRenderer.invoke('get-set-details', setNum),
+  
+  createSession: (input: any) => 
+    ipcRenderer.invoke('create-session', input),
+  
+  getSession: (sessionId: number) => 
+    ipcRenderer.invoke('get-session', sessionId),
+  
+  updateCountedQty: (itemId: number, countedQty: number | null) => 
+    ipcRenderer.invoke('update-counted-qty', itemId, countedQty),
+  
+  updateItemNotes: (itemId: number, notes: string | null) => 
+    ipcRenderer.invoke('update-item-notes', itemId, notes),
+  
+  updateSessionNotes: (sessionId: number, notes: string | null) => 
+    ipcRenderer.invoke('update-session-notes', sessionId, notes),
+  
+  updateSessionStatus: (sessionId: number, status: string) => 
+    ipcRenderer.invoke('update-session-status', sessionId, status),
+  
+  duplicateSession: (sessionId: number, newName: string) => 
+    ipcRenderer.invoke('duplicate-session', sessionId, newName),
+  
+  deleteSession: (sessionId: number) => 
+    ipcRenderer.invoke('delete-session', sessionId),
+  
+  saveSetNotes: (setNum: string, notes: string) => 
+    ipcRenderer.invoke('save-set-notes', setNum, notes),
+  
+  getCollectionOverview: () => 
+    ipcRenderer.invoke('get-collection-overview'),
+  
+  getRecentSessions: () => 
+    ipcRenderer.invoke('get-recent-sessions'),
+  
+  getGeneralStats: () => 
+    ipcRenderer.invoke('get-general-stats'),
+  
+  exportMissingParts: (sessionId: number, format: 'csv' | 'json', filter: string) => 
+    ipcRenderer.invoke('export-missing-parts', sessionId, format, filter),
+
+  addToCollection: (setNum: string) =>
+    ipcRenderer.invoke('add-to-collection', setNum),
+
+  removeFromCollection: (setNum: string) =>
+    ipcRenderer.invoke('remove-from-collection', setNum),
+
+  isSetInCollection: (setNum: string) =>
+    ipcRenderer.invoke('is-set-in-collection', setNum),
+
+  getSetParts: (setNum: string) =>
+    ipcRenderer.invoke('get-set-parts', setNum),
+
+  readDocument: (docName: 'manual' | 'changelog') =>
+    ipcRenderer.invoke('read-document', docName)
+}
+
+// Use `contextBridge` APIs to expose Electron APIs to
+// renderer only if context isolation is enabled, otherwise
+// just add to the DOM global.
+if (process.contextIsolated) {
+  try {
+    contextBridge.exposeInMainWorld('electron', electronAPI)
+    contextBridge.exposeInMainWorld('api', api)
+  } catch (error) {
+    console.error(error)
+  }
+} else {
+  // @ts-ignore (define in dts)
+  window.electron = electronAPI
+  // @ts-ignore (define in dts)
+  window.api = api
+}

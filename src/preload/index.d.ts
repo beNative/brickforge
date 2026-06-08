@@ -1,0 +1,41 @@
+import { ElectronAPI } from '@electron-toolkit/preload'
+
+export interface BrickForgeAPI {
+  importCsv: (filePath: string, type: string) => Promise<{ success: boolean; error?: string; result?: any }>
+  selectCsvFile: () => Promise<string | null>
+  minimizeWindow: () => Promise<void>
+  maximizeWindow: () => Promise<void>
+  closeWindow: () => Promise<void>
+  onImportProgress: (callback: (data: { type: string; current: number }) => void) => () => void
+  searchSets: (query: string) => Promise<{ success: boolean; error?: string; sets?: any[] }>
+  getSetDetails: (setNum: string) => Promise<{ success: boolean; error?: string; details?: any }>
+  createSession: (input: any) => Promise<{ success: boolean; error?: string; sessionId?: number }>
+  getSession: (sessionId: number) => Promise<{ success: boolean; error?: string; session?: any; items?: any[]; progress?: any }>
+  updateCountedQty: (itemId: number, countedQty: number | null) => Promise<{ success: boolean; error?: string }>
+  updateItemNotes: (itemId: number, notes: string | null) => Promise<{ success: boolean; error?: string }>
+  updateSessionNotes: (sessionId: number, notes: string | null) => Promise<{ success: boolean; error?: string }>
+  updateSessionStatus: (sessionId: number, status: string) => Promise<{ success: boolean; error?: string }>
+  duplicateSession: (sessionId: number, newName: string) => Promise<{ success: boolean; error?: string; sessionId?: number }>
+  deleteSession: (sessionId: number) => Promise<{ success: boolean; error?: string }>
+  saveSetNotes: (setNum: string, notes: string) => Promise<{ success: boolean; error?: string }>
+  getCollectionOverview: () => Promise<{ success: boolean; error?: string; collection?: any[] }>
+  getRecentSessions: () => Promise<{ success: boolean; error?: string; sessions?: any[] }>
+  getGeneralStats: () => Promise<{ success: boolean; error?: string; stats?: any }>
+  exportMissingParts: (
+    sessionId: number,
+    format: 'csv' | 'json',
+    filter: 'all_missing' | 'non_spares_missing' | 'spares_missing'
+  ) => Promise<{ success: boolean; error?: string; filePath?: string; canceled?: boolean }>
+  addToCollection: (setNum: string) => Promise<{ success: boolean; error?: string }>
+  removeFromCollection: (setNum: string) => Promise<{ success: boolean; error?: string }>
+  isSetInCollection: (setNum: string) => Promise<{ success: boolean; error?: string; isIn?: boolean }>
+  getSetParts: (setNum: string) => Promise<{ success: boolean; error?: string; parts?: any[] }>
+  readDocument: (docName: 'manual' | 'changelog') => Promise<{ success: boolean; content?: string; error?: string }>
+}
+
+declare global {
+  interface Window {
+    electron: ElectronAPI
+    api: BrickForgeAPI
+  }
+}
