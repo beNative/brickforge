@@ -1,4 +1,4 @@
-import { app, shell, BrowserWindow, ipcMain } from 'electron'
+import { app, shell, BrowserWindow, ipcMain, protocol } from 'electron'
 import { join } from 'path'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import icon from '../../resources/icon.png?asset'
@@ -9,6 +9,13 @@ import { registerSetHandlers } from './ipc/setHandlers'
 import { registerSessionHandlers } from './ipc/sessionHandlers'
 import { registerExportHandlers } from './ipc/exportHandlers'
 import { registerDocumentHandlers } from './ipc/documentHandlers'
+import { registerImageHandlers } from './ipc/imageHandlers'
+import { getCachedImage } from './services/imageService'
+
+// Register custom protocol scheme BEFORE app is ready
+protocol.registerSchemesAsPrivileged([
+  { scheme: 'brickforge', privileges: { standard: true, secure: true, supportFetchAPI: true } }
+])
 
 function createWindow(): void {
   // Create the browser window.
@@ -69,6 +76,31 @@ app.whenReady().then(() => {
   registerSessionHandlers()
   registerExportHandlers()
   registerDocumentHandlers()
+  registerImageHandlers()
+
+  // Register custom protocol handler for serving cached images from SQLite
+  protocol.handle('brickforge', (request) => {
+    try {
+      const url = new URL(request.url)
+      const originalUrl = url.searchParams.get('url')
+      if (!originalUrl) {
+        return new Response('Missing url parameter', { status: 400 })
+      }
+
+      const cached = getCachedImage(originalUrl)
+      if (!cached) {
+        return new Response('Image not cached', { status: 404 })
+      }
+
+      return new Response(new Uint8Array(cached.data), {
+        status: 200,
+        headers: { 'Content-Type': cached.contentType }
+      })
+    } catch (error) {
+      console.error('brickforge:// protocol error:', error)
+      return new Response('Internal error', { status: 500 })
+    }
+  })
 
   // Window Controls IPC Handlers
   ipcMain.handle('window-minimize', (event) => {

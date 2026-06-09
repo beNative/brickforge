@@ -31,6 +31,12 @@ export interface BrickForgeAPI {
   isSetInCollection: (setNum: string) => Promise<{ success: boolean; error?: string; isIn?: boolean }>
   getSetParts: (setNum: string) => Promise<{ success: boolean; error?: string; parts?: any[] }>
   readDocument: (docName: 'manual' | 'changelog') => Promise<{ success: boolean; content?: string; error?: string }>
+  downloadSetImages: (setNum: string) => Promise<{ success: boolean; error?: string; stats?: { total: number; downloaded: number; failed: number; skipped: number } }>
+  downloadCollectionImages: () => Promise<{ success: boolean; error?: string; stats?: { totalSets: number; totalImages: number; totalDownloaded: number; totalFailed: number } }>
+  getImageCacheStats: () => Promise<{ success: boolean; error?: string; stats?: { totalImages: number; totalSizeBytes: number } }>
+  clearImageCache: () => Promise<{ success: boolean; error?: string }>
+  onImageDownloadProgress: (callback: (data: { setNum: string; total: number; completed: number; failed: number; phase: string }) => void) => () => void
+  onCollectionImageDownloadProgress: (callback: (data: { totalSets: number; completedSets: number; currentSet: string; imageProgress: any }) => void) => () => void
 }
 
 declare global {

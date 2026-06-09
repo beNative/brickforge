@@ -84,7 +84,35 @@ const api = {
     ipcRenderer.invoke('get-set-parts', setNum),
 
   readDocument: (docName: 'manual' | 'changelog') =>
-    ipcRenderer.invoke('read-document', docName)
+    ipcRenderer.invoke('read-document', docName),
+
+  downloadSetImages: (setNum: string) =>
+    ipcRenderer.invoke('download-set-images', setNum),
+
+  downloadCollectionImages: () =>
+    ipcRenderer.invoke('download-collection-images'),
+
+  getImageCacheStats: () =>
+    ipcRenderer.invoke('get-image-cache-stats'),
+
+  clearImageCache: () =>
+    ipcRenderer.invoke('clear-image-cache'),
+
+  onImageDownloadProgress: (callback: (data: any) => void) => {
+    const listener = (_event: any, data: any) => callback(data)
+    ipcRenderer.on('image-download-progress', listener)
+    return () => {
+      ipcRenderer.removeListener('image-download-progress', listener)
+    }
+  },
+
+  onCollectionImageDownloadProgress: (callback: (data: any) => void) => {
+    const listener = (_event: any, data: any) => callback(data)
+    ipcRenderer.on('collection-image-download-progress', listener)
+    return () => {
+      ipcRenderer.removeListener('collection-image-download-progress', listener)
+    }
+  }
 }
 
 // Use `contextBridge` APIs to expose Electron APIs to

@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { Search, Layers, Play, AlertCircle, Loader2, Plus, Check } from 'lucide-react'
+import CachedImage from '../components/CachedImage'
 
 interface SetSearchPageProps {
   preselectedSetNum: string | null
@@ -97,6 +98,8 @@ export default function SetSearchPage({
         const res = await window.api.addToCollection(selectedSet.set_num)
         if (res.success) {
           setIsInCollection(true)
+          // Auto-download images for the newly added set
+          window.api.downloadSetImages(selectedSet.set_num).catch(() => {})
         } else {
           alert(res.error || 'Failed to add set to collection.')
         }
@@ -213,7 +216,7 @@ export default function SetSearchPage({
             >
               <div className="set-card-img-container">
                 {set.image_url ? (
-                  <img src={set.image_url} alt={set.name} className="set-card-img" />
+                  <CachedImage url={set.image_url} alt={set.name} className="set-card-img" />
                 ) : (
                   <Layers size={48} style={{ color: '#475569' }} />
                 )}
@@ -235,8 +238,8 @@ export default function SetSearchPage({
           <div className="glass-panel" style={{ padding: '24px', position: 'sticky', top: '24px', display: 'flex', flexDirection: 'column', gap: '20px' }}>
             <div style={{ textAlign: 'center', background: 'var(--bg-main)', padding: '16px', borderRadius: '12px', border: '1px solid var(--border-glass)' }}>
               {selectedSet.image_url ? (
-                <img 
-                  src={selectedSet.image_url} 
+                <CachedImage 
+                  url={selectedSet.image_url} 
                   alt={selectedSet.name} 
                   style={{ maxWidth: '100%', maxHeight: '180px', objectFit: 'contain', filter: 'drop-shadow(0 10px 15px rgba(0,0,0,0.6))' }} 
                 />

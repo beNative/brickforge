@@ -9,8 +9,10 @@ import {
   X,
   Loader2,
   Check,
-  FileText
+  FileText,
+  Download
 } from 'lucide-react'
+import CachedImage from '../components/CachedImage'
 
 interface CollectionOverviewPageProps {
   onNavigateToSession: (sessionId: number) => void
@@ -21,6 +23,10 @@ export default function CollectionOverviewPage({
 }: CollectionOverviewPageProps) {
   const [collection, setCollection] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
+
+  // Image download state
+  const [imageDownloading, setImageDownloading] = useState(false)
+  const [imageProgress, setImageProgress] = useState<{ completed: number; total: number } | null>(null)
 
   // Filters state (Main Dashboard)
   const [searchQuery, setSearchQuery] = useState('')
@@ -255,6 +261,8 @@ export default function CollectionOverviewPage({
         const res = await window.api.addToCollection(setNum)
         if (res.success) {
           await loadCollection()
+          // Auto-download images for the newly added set
+          window.api.downloadSetImages(setNum).catch(() => {})
         }
       }
     } catch (err: any) {
@@ -322,6 +330,30 @@ export default function CollectionOverviewPage({
         <button className="btn btn-primary" onClick={() => { setIsAddModalOpen(true); setAddSearchResults([]); setAddSearchQuery(''); setAddError(null); }}>
           <Plus size={16} />
           <span>Add Set</span>
+        </button>
+        <button 
+          className="btn btn-secondary" 
+          onClick={async () => {
+            setImageDownloading(true)
+            setImageProgress(null)
+            const unsub = window.api.onCollectionImageDownloadProgress((data) => {
+              setImageProgress({ completed: data.completedSets, total: data.totalSets })
+            })
+            try {
+              await window.api.downloadCollectionImages()
+            } finally {
+              unsub()
+              setImageDownloading(false)
+              setImageProgress(null)
+            }
+          }}
+          disabled={imageDownloading}
+        >
+          <Download size={16} />
+          <span>{imageDownloading 
+            ? `Downloading${imageProgress ? ` (${imageProgress.completed}/${imageProgress.total})` : '...'}` 
+            : 'Download Images'}
+          </span>
         </button>
       </div>
 
@@ -396,11 +428,10 @@ export default function CollectionOverviewPage({
                     <td>
                       <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
                         {set.image_url ? (
-                          <img 
-                            src={set.image_url} 
+                          <CachedImage 
+                            url={set.image_url} 
                             alt={set.name} 
                             style={{ width: '40px', height: '40px', objectFit: 'contain', background: 'rgba(0,0,0,0.3)', padding: '2px', borderRadius: '4px' }} 
-                            onClick={(e) => { e.stopPropagation(); handleOpenDetails(set); }}
                           />
                         ) : (
                           <div style={{ width: '40px', height: '40px', background: 'var(--bg-main)', borderRadius: '4px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
@@ -527,7 +558,7 @@ export default function CollectionOverviewPage({
                   >
                     <div style={{ display: 'flex', gap: '12px', alignItems: 'center', minWidth: 0, flex: 1 }}>
                       {s.image_url ? (
-                        <img src={s.image_url} alt={s.name} style={{ width: '48px', height: '48px', objectFit: 'contain', background: 'rgba(0,0,0,0.2)', padding: '2px', borderRadius: '6px' }} />
+                        <CachedImage url={s.image_url} alt={s.name} style={{ width: '48px', height: '48px', objectFit: 'contain', background: 'rgba(0,0,0,0.2)', padding: '2px', borderRadius: '6px' }} />
                       ) : (
                         <div style={{ width: '48px', height: '48px', background: 'var(--border-glass)', borderRadius: '6px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                           <Layers size={18} />
@@ -578,8 +609,8 @@ export default function CollectionOverviewPage({
                 {/* Large Set Image */}
                 <div style={{ textAlign: 'center', background: 'var(--bg-main)', padding: '16px', borderRadius: '12px', border: '1px solid var(--border-glass)' }}>
                   {selectedSetDetails.image_url ? (
-                    <img 
-                      src={selectedSetDetails.image_url} 
+                    <CachedImage 
+                      url={selectedSetDetails.image_url} 
                       alt={selectedSetDetails.name} 
                       style={{ maxWidth: '100%', maxHeight: '150px', objectFit: 'contain', filter: 'drop-shadow(0 6px 10px rgba(0,0,0,0.3))' }} 
                     />
@@ -862,7 +893,7 @@ export default function CollectionOverviewPage({
                               {/* Part Image */}
                               <div style={{ width: '40px', height: '40px', background: 'rgba(255,255,255,0.02)', border: '1px solid var(--border-glass)', borderRadius: '6px', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden' }}>
                                 {p.img_url ? (
-                                  <img src={p.img_url} alt={p.part_name} style={{ maxWidth: '90%', maxHeight: '90%', objectFit: 'contain' }} />
+                                  <CachedImage url={p.img_url} alt={p.part_name} style={{ maxWidth: '90%', maxHeight: '90%', objectFit: 'contain' }} />
                                 ) : (
                                   <Layers size={16} style={{ color: '#64748b' }} />
                                 )}

@@ -102,6 +102,14 @@ CREATE TABLE IF NOT EXISTS user_collection (
   FOREIGN KEY (set_num) REFERENCES sets(set_num) ON DELETE CASCADE
 );
 
+CREATE TABLE IF NOT EXISTS image_cache (
+  url TEXT PRIMARY KEY,
+  image_data BLOB NOT NULL,
+  content_type TEXT NOT NULL,
+  size_bytes INTEGER NOT NULL,
+  cached_at TEXT NOT NULL
+);
+
 
 -- Recommended Indexes
 CREATE INDEX IF NOT EXISTS idx_sets_name ON sets(name);

@@ -11,6 +11,7 @@ import {
   HelpCircle
 } from 'lucide-react'
 import { TECHNIC_GROUPS } from '../../../shared/constants/technicGroups'
+import CachedImage from '../components/CachedImage'
 
 interface InventorySessionPageProps {
   sessionId: number
@@ -502,7 +503,7 @@ export default function InventorySessionPage({
                 <div key={item.id} className="glass-panel part-card" style={{ borderColor: hasCounted ? 'rgba(255,255,255,0.08)' : 'rgba(59,130,246,0.3)' }}>
                   <div className="part-card-img-container">
                     {item.source_img_url ? (
-                      <img src={item.source_img_url} alt={item.part_name} className="part-card-img" />
+                      <CachedImage url={item.source_img_url} alt={item.part_name} className="part-card-img" />
                     ) : (
                       <HelpCircle size={40} style={{ color: '#475569' }} />
                     )}
@@ -640,7 +641,7 @@ export default function InventorySessionPage({
                 <div key={item.id} className="part-row">
                   <div className="part-row-img">
                     {item.source_img_url ? (
-                      <img src={item.source_img_url} alt={item.part_name} />
+                      <CachedImage url={item.source_img_url} alt={item.part_name} style={{ maxWidth: '85%', maxHeight: '85%', objectFit: 'contain' }} />
                     ) : (
                       <HelpCircle size={20} style={{ color: '#475569' }} />
                     )}
