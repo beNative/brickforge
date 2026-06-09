@@ -29,6 +29,43 @@ export default function ImportPage({ onImportSuccess }: ImportPageProps) {
   ])
 
   const [globalImporting, setGlobalImporting] = useState(false)
+  const [cacheStats, setCacheStats] = useState<{ totalImages: number; totalSizeBytes: number } | null>(null)
+  const [clearingCache, setClearingCache] = useState(false)
+
+  const loadCacheStats = async () => {
+    try {
+      const res = await window.api.getImageCacheStats()
+      if (res.success && res.stats) {
+        setCacheStats(res.stats)
+      }
+    } catch (e) {
+      console.error('Failed to load cache stats', e)
+    }
+  }
+
+  useEffect(() => {
+    loadCacheStats()
+  }, [])
+
+  const handleClearCache = async () => {
+    if (!window.confirm('Are you sure you want to clear the entire image cache? All cached offline images will be permanently deleted.')) {
+      return
+    }
+    setClearingCache(true)
+    try {
+      const res = await window.api.clearImageCache()
+      if (res.success) {
+        alert('Image cache cleared successfully.')
+        loadCacheStats()
+      } else {
+        alert('Failed to clear image cache: ' + res.error)
+      }
+    } catch (e: any) {
+      alert('Error: ' + e.message)
+    } finally {
+      setClearingCache(false)
+    }
+  }
 
   // Register progress listener
   useEffect(() => {
@@ -278,6 +315,48 @@ export default function ImportPage({ onImportSuccess }: ImportPageProps) {
             <p style={{ fontSize: '13px', color: 'var(--text-secondary)', lineHeight: 1.6 }}>
               The importer parses CSV tables inside transaction batches. This process is very fast, but files like <strong>inventory_parts.csv</strong> can contain millions of rows and take about 10-20 seconds to stream.
             </p>
+          </div>
+
+          <div className="glass-panel" style={{ padding: '24px' }}>
+            <h3 style={{ fontSize: '15px', marginBottom: '12px', fontWeight: 700 }}>Offline Image Cache</h3>
+            <p style={{ fontSize: '13px', color: 'var(--text-secondary)', lineHeight: 1.6, marginBottom: '12px' }}>
+              Images for sets and parts in your collection can be cached locally inside the SQLite database for offline access.
+            </p>
+            {cacheStats ? (
+              <div style={{ fontSize: '13px', display: 'flex', flexDirection: 'column', gap: '6px', marginBottom: '16px' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                  <span style={{ color: 'var(--text-secondary)' }}>Cached Images:</span>
+                  <span style={{ fontWeight: 600 }}>{cacheStats.totalImages}</span>
+                </div>
+                <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                  <span style={{ color: 'var(--text-secondary)' }}>Disk Usage:</span>
+                  <span style={{ fontWeight: 600 }}>{(cacheStats.totalSizeBytes / (1024 * 1024)).toFixed(2)} MB</span>
+                </div>
+              </div>
+            ) : (
+              <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '13px', color: 'var(--text-secondary)', marginBottom: '16px' }}>
+                <Loader2 className="animate-spin" size={14} />
+                <span>Loading cache stats...</span>
+              </div>
+            )}
+            <div style={{ display: 'flex', gap: '10px' }}>
+              <button
+                className="btn btn-secondary btn-sm"
+                onClick={loadCacheStats}
+                disabled={clearingCache}
+                style={{ flex: 1 }}
+              >
+                Refresh
+              </button>
+              <button
+                className="btn btn-secondary btn-sm"
+                onClick={handleClearCache}
+                disabled={clearingCache || !cacheStats || cacheStats.totalImages === 0}
+                style={{ flex: 1, borderColor: '#ef4444', color: '#fca5a5' }}
+              >
+                {clearingCache ? 'Clearing...' : 'Clear Cache'}
+              </button>
+            </div>
           </div>
         </div>
       </div>

@@ -12,6 +12,7 @@ Welcome to **BrickForge**! This visual inventory-checking tool runs fully offlin
 5. [Counting Parts (Inventory Sessions)](#5-counting-parts-inventory-sessions)
 6. [Exporting Missing Parts](#6-exporting-missing-parts)
 7. [Light & Dark Mode Themes](#7-light--dark-mode-themes)
+8. [Offline Image Cache & Sync](#8-offline-image-cache--sync)
 
 ---
 
@@ -130,3 +131,26 @@ If you finish counting and have missing pieces, you can generate an export file 
 BrickForge adapts dynamically to your environment. Click the **Sun / Moon icon** at the bottom of the left sidebar navigation to toggle between:
 *   **Dark Mode (Default):** Premium, glow-effects glassmorphic cards over deep blue-black backdrops.
 *   **Light Mode:** High-contrast, sleek off-white panels with slate text and vibrant accents.
+
+---
+
+## 8. Offline Image Cache & Sync
+
+To support fully offline usage (e.g., in basements or areas without internet access), BrickForge features a built-in image caching system.
+
+### How it Works
+* **Automatic Download:** When you add a new set to your collection, BrickForge automatically triggers background downloads of the main set image and all individual part images.
+* **SQLite BLOB Storage:** The downloaded files are stored as binary BLOBs inside your local SQLite database (`brickforge.db`).
+* **Custom Protocol:** When displaying images, the application attempts to fetch them from the local database first using the `brickforge://` protocol. It only falls back to fetching online from Rebrickable's CDN if the image is not yet cached locally.
+
+### Syncing Existing Collection
+If you imported sets prior to this feature, you can cache their images in bulk:
+1. Navigate to the **Collection** page.
+2. Click the **Download Images** button in the header.
+3. This downloads all missing set and part images in your collection. You will see a live progress display showing completed sets, downloaded images, and any failed requests.
+
+### Cache Stats & Purging
+To check your database space usage or purge the cache:
+1. Navigate to the **Import Data** tab.
+2. View the **Offline Image Cache** sidebar widget to see the total number of cached images and their total size on disk (MB).
+3. Click **Clear Cache** to wipe the local image BLOBs and revert the application to loading images online.
