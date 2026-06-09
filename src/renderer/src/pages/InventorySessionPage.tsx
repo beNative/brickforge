@@ -12,6 +12,7 @@ import {
 } from 'lucide-react'
 import { TECHNIC_GROUPS } from '../../../shared/constants/technicGroups'
 import CachedImage from '../components/CachedImage'
+import Tooltip from '../components/Tooltip'
 
 interface InventorySessionPageProps {
   sessionId: number
@@ -331,9 +332,11 @@ export default function InventorySessionPage({
       {/* Header Bar */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '24px', gap: '16px' }}>
         <div style={{ display: 'flex', gap: '16px', alignItems: 'center' }}>
-          <button className="btn btn-secondary btn-icon-only" onClick={onBackToHome}>
-            <ArrowLeft size={18} />
-          </button>
+          <Tooltip content="Back to Dashboard">
+            <button className="btn btn-secondary btn-icon-only" onClick={onBackToHome}>
+              <ArrowLeft size={18} />
+            </button>
+          </Tooltip>
           <div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
               <h1 style={{ margin: 0, fontSize: '22px' }}>{session.name}</h1>
@@ -361,20 +364,24 @@ export default function InventorySessionPage({
           </select>
 
           {session.status !== 'completed' && (
-            <button 
-              className="btn btn-secondary btn-sm" 
-              onClick={handleQuickComplete}
-              style={{ background: 'rgba(16,185,129,0.15)', borderColor: 'rgba(16,185,129,0.2)', color: '#a7f3d0' }}
-            >
-              <Check size={14} />
-              <span>Quick Complete</span>
-            </button>
+            <Tooltip content="Set all parts present & complete session">
+              <button 
+                className="btn btn-secondary btn-sm" 
+                onClick={handleQuickComplete}
+                style={{ background: 'rgba(16,185,129,0.15)', borderColor: 'rgba(16,185,129,0.2)', color: '#a7f3d0' }}
+              >
+                <Check size={14} />
+                <span>Quick Complete</span>
+              </button>
+            </Tooltip>
           )}
 
-          <button className="btn btn-secondary btn-sm" onClick={() => setIsExportOpen(true)}>
-            <Download size={14} />
-            <span>Export Missing</span>
-          </button>
+          <Tooltip content="Export list of missing parts">
+            <button className="btn btn-secondary btn-sm" onClick={() => setIsExportOpen(true)}>
+              <Download size={14} />
+              <span>Export Missing</span>
+            </button>
+          </Tooltip>
         </div>
       </div>
 
@@ -498,20 +505,24 @@ export default function InventorySessionPage({
           </div>
 
           <div style={{ display: 'flex', gap: '4px', border: '1px solid var(--border-glass)', borderRadius: '8px', padding: '4px', background: 'rgba(0,0,0,0.2)' }}>
-            <button 
-              className={`btn btn-secondary btn-icon-only btn-sm ${viewMode === 'grid' ? 'active' : ''}`}
-              style={{ background: viewMode === 'grid' ? 'var(--primary)' : 'transparent', border: 'none', padding: '6px', borderRadius: '6px' }}
-              onClick={() => setViewMode('grid')}
-            >
-              <Grid size={16} />
-            </button>
-            <button 
-              className={`btn btn-secondary btn-icon-only btn-sm ${viewMode === 'list' ? 'active' : ''}`}
-              style={{ background: viewMode === 'list' ? 'var(--primary)' : 'transparent', border: 'none', padding: '6px', borderRadius: '6px' }}
-              onClick={() => setViewMode('list')}
-            >
-              <List size={16} />
-            </button>
+            <Tooltip content="Grid view">
+              <button 
+                className={`btn btn-secondary btn-icon-only btn-sm ${viewMode === 'grid' ? 'active' : ''}`}
+                style={{ background: viewMode === 'grid' ? 'var(--primary)' : 'transparent', border: 'none', padding: '6px', borderRadius: '6px' }}
+                onClick={() => setViewMode('grid')}
+              >
+                <Grid size={16} />
+              </button>
+            </Tooltip>
+            <Tooltip content="List view">
+              <button 
+                className={`btn btn-secondary btn-icon-only btn-sm ${viewMode === 'list' ? 'active' : ''}`}
+                style={{ background: viewMode === 'list' ? 'var(--primary)' : 'transparent', border: 'none', padding: '6px', borderRadius: '6px' }}
+                onClick={() => setViewMode('list')}
+              >
+                <List size={16} />
+              </button>
+            </Tooltip>
           </div>
         </div>
       </div>
@@ -548,7 +559,9 @@ export default function InventorySessionPage({
                   </div>
 
                   <span className="part-card-num">{item.part_num}</span>
-                  <h3 className="part-card-name" title={item.part_name}>{item.part_name || 'Unknown Part'}</h3>
+                  <Tooltip content={item.part_name || 'Unknown Part'}>
+                    <h3 className="part-card-name" style={{ cursor: 'help' }}>{item.part_name || 'Unknown Part'}</h3>
+                  </Tooltip>
                   
                   <div className="part-card-color">
                     <span className="color-swatch" style={{ backgroundColor: `#${item.color_rgb || 'FFFFFF'}` }}></span>
@@ -562,9 +575,11 @@ export default function InventorySessionPage({
                       {item.status.replace('_', ' ')}
                     </span>
                     {item.notes && (
-                      <span style={{ fontSize: '11px', color: '#f59e0b', maxWidth: '100px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }} title={item.notes}>
-                        📝 {item.notes}
-                      </span>
+                      <Tooltip content={item.notes}>
+                        <span style={{ fontSize: '11px', color: '#f59e0b', maxWidth: '100px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', cursor: 'help' }}>
+                          📝 {item.notes}
+                        </span>
+                      </Tooltip>
                     )}
                   </div>
 
@@ -598,27 +613,33 @@ export default function InventorySessionPage({
                   </div>
 
                   <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 1fr 1fr', gap: '6px' }}>
-                    <button 
-                      className="btn btn-secondary btn-sm"
-                      style={{ padding: '4px', fontSize: '11px', background: 'rgba(16,185,129,0.15)', borderColor: 'rgba(16,185,129,0.2)', color: '#a7f3d0' }}
-                      onClick={() => handleQtyChange(item.id, item.expected_qty)}
-                    >
-                      OK
-                    </button>
-                    <button 
-                      className="btn btn-secondary btn-sm"
-                      style={{ padding: '4px', fontSize: '11px', background: 'rgba(239,68,68,0.15)', borderColor: 'rgba(239,68,68,0.2)', color: '#fca5a5' }}
-                      onClick={() => handleQtyChange(item.id, 0)}
-                    >
-                      Miss
-                    </button>
-                    <button 
-                      className="btn btn-secondary btn-sm"
-                      style={{ padding: '4px', fontSize: '11px' }}
-                      onClick={() => handleQtyChange(item.id, null)}
-                    >
-                      Reset
-                    </button>
+                    <Tooltip content="All present">
+                      <button 
+                        className="btn btn-secondary btn-sm"
+                        style={{ padding: '4px', fontSize: '11px', background: 'rgba(16,185,129,0.15)', borderColor: 'rgba(16,185,129,0.2)', color: '#a7f3d0' }}
+                        onClick={() => handleQtyChange(item.id, item.expected_qty)}
+                      >
+                        OK
+                      </button>
+                    </Tooltip>
+                    <Tooltip content="All missing">
+                      <button 
+                        className="btn btn-secondary btn-sm"
+                        style={{ padding: '4px', fontSize: '11px', background: 'rgba(239,68,68,0.15)', borderColor: 'rgba(239,68,68,0.2)', color: '#fca5a5' }}
+                        onClick={() => handleQtyChange(item.id, 0)}
+                      >
+                        Miss
+                      </button>
+                    </Tooltip>
+                    <Tooltip content="Reset count">
+                      <button 
+                        className="btn btn-secondary btn-sm"
+                        style={{ padding: '4px', fontSize: '11px' }}
+                        onClick={() => handleQtyChange(item.id, null)}
+                      >
+                        Reset
+                      </button>
+                    </Tooltip>
                   </div>
 
                   {/* Note editor button/input */}
@@ -726,21 +747,25 @@ export default function InventorySessionPage({
                       </button>
                     </div>
 
-                    <button 
-                      className="btn btn-secondary btn-sm"
-                      style={{ padding: '4px 8px', fontSize: '11px', background: 'rgba(16,185,129,0.15)', borderColor: 'rgba(16,185,129,0.2)', color: '#a7f3d0' }}
-                      onClick={() => handleQtyChange(item.id, item.expected_qty)}
-                    >
-                      OK
-                    </button>
+                    <Tooltip content="All present">
+                      <button 
+                        className="btn btn-secondary btn-sm"
+                        style={{ padding: '4px 8px', fontSize: '11px', background: 'rgba(16,185,129,0.15)', borderColor: 'rgba(16,185,129,0.2)', color: '#a7f3d0' }}
+                        onClick={() => handleQtyChange(item.id, item.expected_qty)}
+                      >
+                        OK
+                      </button>
+                    </Tooltip>
 
-                    <button 
-                      className="btn btn-secondary btn-sm"
-                      style={{ padding: '4px 8px', fontSize: '11px', background: 'rgba(239,68,68,0.15)', borderColor: 'rgba(239,68,68,0.2)', color: '#fca5a5' }}
-                      onClick={() => handleQtyChange(item.id, 0)}
-                    >
-                      Miss
-                    </button>
+                    <Tooltip content="All missing">
+                      <button 
+                        className="btn btn-secondary btn-sm"
+                        style={{ padding: '4px 8px', fontSize: '11px', background: 'rgba(239,68,68,0.15)', borderColor: 'rgba(239,68,68,0.2)', color: '#fca5a5' }}
+                        onClick={() => handleQtyChange(item.id, 0)}
+                      >
+                        Miss
+                      </button>
+                    </Tooltip>
 
                     {isNotesActive ? (
                       <div style={{ display: 'flex', gap: '2px', alignItems: 'center' }}>
@@ -758,13 +783,15 @@ export default function InventorySessionPage({
                         </button>
                       </div>
                     ) : (
-                      <button 
-                        className="btn btn-secondary btn-sm"
-                        style={{ padding: '4px 8px', fontSize: '11px' }}
-                        onClick={() => { setActiveNoteItemId(item.id); setItemNoteText(item.notes || ''); }}
-                      >
-                        {item.notes ? '📝 Edit' : '+ Note'}
-                      </button>
+                      <Tooltip content={item.notes ? "Edit note" : "Add note"}>
+                        <button 
+                          className="btn btn-secondary btn-sm"
+                          style={{ padding: '4px 8px', fontSize: '11px' }}
+                          onClick={() => { setActiveNoteItemId(item.id); setItemNoteText(item.notes || ''); }}
+                        >
+                          {item.notes ? '📝 Edit' : '+ Note'}
+                        </button>
+                      </Tooltip>
                     )}
                   </div>
                 </div>

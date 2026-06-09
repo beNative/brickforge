@@ -13,6 +13,7 @@ import {
   Download
 } from 'lucide-react'
 import CachedImage from '../components/CachedImage'
+import Tooltip from '../components/Tooltip'
 
 interface CollectionOverviewPageProps {
   onNavigateToSession: (sessionId: number) => void
@@ -493,20 +494,22 @@ export default function CollectionOverviewPage({
                     </td>
                     <td style={{ textAlign: 'right' }}>
                       <div style={{ display: 'inline-flex', gap: '6px' }} onClick={(e) => e.stopPropagation()}>
-                        <button 
-                          className="btn btn-secondary btn-sm btn-icon-only"
-                          title="View Details"
-                          onClick={() => handleOpenDetails(set)}
-                        >
-                          <FileText size={14} />
-                        </button>
-                        <button 
-                          className="btn btn-secondary btn-sm btn-icon-only btn-danger"
-                          title="Remove from Collection"
-                          onClick={(e) => handleRemoveFromCollection(e, set.set_num)}
-                        >
-                          <Trash2 size={14} />
-                        </button>
+                        <Tooltip content="View Details">
+                          <button 
+                            className="btn btn-secondary btn-sm btn-icon-only"
+                            onClick={() => handleOpenDetails(set)}
+                          >
+                            <FileText size={14} />
+                          </button>
+                        </Tooltip>
+                        <Tooltip content="Remove from Collection">
+                          <button 
+                            className="btn btn-secondary btn-sm btn-icon-only btn-danger"
+                            onClick={(e) => handleRemoveFromCollection(e, set.set_num)}
+                          >
+                            <Trash2 size={14} />
+                          </button>
+                        </Tooltip>
                       </div>
                     </td>
                   </tr>
@@ -593,66 +596,61 @@ export default function CollectionOverviewPage({
           <div className="glass-panel set-details-modal" onClick={(e) => e.stopPropagation()}>
             {/* Modal Header */}
             <div className="set-details-header">
-              <div>
-                <span className="set-details-badge">{selectedSetDetails.set_num}</span>
-                <h2 className="set-details-title">{selectedSetDetails.name}</h2>
+              <div style={{ display: 'flex', gap: '16px', alignItems: 'center' }}>
+                {selectedSetDetails.image_url ? (
+                  <CachedImage 
+                    url={selectedSetDetails.image_url} 
+                    alt={selectedSetDetails.name} 
+                    style={{ width: '60px', height: '60px', objectFit: 'contain', background: '#ffffff', padding: '4px', borderRadius: '8px', border: '1px solid var(--border-glass)' }} 
+                  />
+                ) : (
+                  <div style={{ width: '60px', height: '60px', background: 'var(--border-glass)', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <Layers size={24} style={{ color: 'var(--text-secondary)' }} />
+                  </div>
+                )}
+                <div>
+                  <span className="set-details-badge">{selectedSetDetails.set_num}</span>
+                  <h2 className="set-details-title" style={{ marginTop: '2px' }}>{selectedSetDetails.name}</h2>
+                </div>
               </div>
-              <button 
-                className="set-details-close-btn" 
-                onClick={() => setDetailsModalOpen(false)}
-                title="Close"
-              >
-                <X size={18} />
-              </button>
+              <Tooltip content="Close details">
+                <button 
+                  className="set-details-close-btn" 
+                  onClick={() => setDetailsModalOpen(false)}
+                >
+                  <X size={16} />
+                </button>
+              </Tooltip>
             </div>
 
             {/* Modal Body Grid */}
-            <div style={{ display: 'grid', gridTemplateColumns: '300px 1fr', gap: '28px', flex: 1, minHeight: 0, overflow: 'hidden' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: '260px 1fr', gap: '20px', flex: 1, minHeight: 0, overflow: 'hidden' }}>
               {/* Left Column (Info Panel) */}
-              <div style={{ overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '24px', paddingRight: '6px' }}>
-                {/* Large Set Image / Styled Placeholder */}
-                <div className="set-details-image-box">
-                  {selectedSetDetails.image_url ? (
-                    <CachedImage 
-                      url={selectedSetDetails.image_url} 
-                      alt={selectedSetDetails.name} 
-                      style={{ maxWidth: '100%', maxHeight: '160px', objectFit: 'contain', filter: 'drop-shadow(0 8px 16px rgba(0,0,0,0.15))' }} 
-                    />
-                  ) : (
-                    <>
-                      <div style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, opacity: 0.03, backgroundImage: 'radial-gradient(var(--text-secondary) 1px, transparent 0)', backgroundSize: '12px 12px' }} />
-                      <Layers size={44} style={{ color: 'var(--primary)', marginBottom: '10px', filter: 'drop-shadow(0 2px 4px rgba(79, 70, 229, 0.2))' }} />
-                      <span style={{ fontSize: '11px', fontWeight: 700, color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.8px' }}>
-                        No Preview Available
-                      </span>
-                    </>
-                  )}
-                </div>
-
-                {/* Metadata Dashboard Grid */}
-                <div className="set-details-grid">
-                  <div className="set-details-card">
-                    <span className="set-details-card-label">Release Year</span>
-                    <span className="set-details-card-value" style={{ color: 'var(--accent)' }}>📅 {selectedSetDetails.year || 'N/A'}</span>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', borderRight: '1px solid var(--border-glass)', paddingRight: '16px' }}>
+                {/* Flat Metadata List */}
+                <div style={{ display: 'flex', flexDirection: 'column' }}>
+                  <div className="set-details-info-row">
+                    <span className="set-details-info-label">Release Year</span>
+                    <span className="set-details-info-value" style={{ color: 'var(--accent)' }}>📅 {selectedSetDetails.year || 'N/A'}</span>
                   </div>
-                  <div className="set-details-card">
-                    <span className="set-details-card-label">Parts Count</span>
-                    <span className="set-details-card-value">🧩 {selectedSetDetails.expected_parts || selectedSetDetails.num_parts || 0}</span>
+                  <div className="set-details-info-row">
+                    <span className="set-details-info-label">Parts Count</span>
+                    <span className="set-details-info-value">🧩 {selectedSetDetails.expected_parts || selectedSetDetails.num_parts || 0}</span>
                   </div>
-                  <div className="set-details-card" style={{ gridColumn: 'span 2' }}>
-                    <span className="set-details-card-label">Unique Catalog Rows</span>
-                    <span className="set-details-card-value">📦 {selectedSetDetails.uniquePartsCount || 0} items</span>
+                  <div className="set-details-info-row">
+                    <span className="set-details-info-label">Unique Catalog Rows</span>
+                    <span className="set-details-info-value">📦 {selectedSetDetails.uniquePartsCount || 0} items</span>
                   </div>
                   
                   {selectedSetDetails.session_status !== 'not_started' && (
                     <>
-                      <div className="set-details-card">
-                        <span className="set-details-card-label">Completeness</span>
-                        <span className="set-details-card-value" style={{ color: 'var(--status-complete)' }}>📈 {selectedSetDetails.completion_percentage}%</span>
+                      <div className="set-details-info-row">
+                        <span className="set-details-info-label">Completeness</span>
+                        <span className="set-details-info-value" style={{ color: 'var(--status-complete)' }}>📈 {selectedSetDetails.completion_percentage}%</span>
                       </div>
-                      <div className="set-details-card">
-                        <span className="set-details-card-label">Missing Parts</span>
-                        <span className="set-details-card-value" style={{ color: selectedSetDetails.missing_required_count > 0 ? 'var(--status-missing)' : 'var(--status-complete)' }}>
+                      <div className="set-details-info-row">
+                        <span className="set-details-info-label">Missing Parts</span>
+                        <span className="set-details-info-value" style={{ color: selectedSetDetails.missing_required_count > 0 ? 'var(--status-missing)' : 'var(--status-complete)' }}>
                           ⚠️ {selectedSetDetails.missing_required_count}
                         </span>
                       </div>
@@ -666,8 +664,8 @@ export default function CollectionOverviewPage({
                   <div style={{ position: 'relative' }}>
                     <textarea 
                       className="form-input" 
-                      rows={3} 
-                      placeholder="General notes about set details, purchase details, box condition, or missing elements..."
+                      rows={5} 
+                      placeholder="General notes about set details..."
                       value={detailsNotes}
                       onChange={(e) => setDetailsNotes(e.target.value)}
                       style={{ fontSize: '13px', resize: 'none', background: 'var(--bg-main)', border: '1px solid var(--border-glass)', paddingBottom: '36px', borderRadius: '10px' }}
@@ -759,30 +757,33 @@ export default function CollectionOverviewPage({
                                 </span>
 
                                 <div style={{ display: 'flex', gap: '6px' }}>
-                                  <button 
-                                    className="btn btn-secondary btn-sm"
-                                    title="Open Session"
-                                    onClick={() => { setDetailsModalOpen(false); onNavigateToSession(s.id); }}
-                                    style={{ padding: '6px 10px' }}
-                                  >
-                                    <Play size={12} fill="currentColor" />
-                                  </button>
-                                  <button 
-                                    className="btn btn-secondary btn-sm"
-                                    title="Duplicate Session"
-                                    onClick={(e) => handleDuplicateSession(e, s.id, s.name)}
-                                    style={{ padding: '6px 10px' }}
-                                  >
-                                    <Copy size={12} />
-                                  </button>
-                                  <button 
-                                    className="btn btn-secondary btn-sm btn-danger"
-                                    title="Delete Session"
-                                    onClick={(e) => handleDeleteSession(e, s.id)}
-                                    style={{ padding: '6px 10px' }}
-                                  >
-                                    <Trash2 size={12} />
-                                  </button>
+                                  <Tooltip content="Open Session">
+                                    <button 
+                                      className="btn btn-secondary btn-sm"
+                                      onClick={() => { setDetailsModalOpen(false); onNavigateToSession(s.id); }}
+                                      style={{ padding: '6px 10px' }}
+                                    >
+                                      <Play size={12} fill="currentColor" />
+                                    </button>
+                                  </Tooltip>
+                                  <Tooltip content="Duplicate Session">
+                                    <button 
+                                      className="btn btn-secondary btn-sm"
+                                      onClick={(e) => handleDuplicateSession(e, s.id, s.name)}
+                                      style={{ padding: '6px 10px' }}
+                                    >
+                                      <Copy size={12} />
+                                    </button>
+                                  </Tooltip>
+                                  <Tooltip content="Delete Session">
+                                    <button 
+                                      className="btn btn-secondary btn-sm btn-danger"
+                                      onClick={(e) => handleDeleteSession(e, s.id)}
+                                      style={{ padding: '6px 10px' }}
+                                    >
+                                      <Trash2 size={12} />
+                                    </button>
+                                  </Tooltip>
                                 </div>
                               </div>
                             </div>
@@ -921,9 +922,11 @@ export default function CollectionOverviewPage({
 
                               {/* Part Name & Number */}
                               <div style={{ minWidth: 0 }}>
-                                <span style={{ fontWeight: 600, display: 'block', textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap' }} title={p.part_name}>
-                                  {p.part_name}
-                                </span>
+                                <Tooltip content={p.part_name}>
+                                  <span style={{ fontWeight: 600, display: 'block', textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap', cursor: 'help' }}>
+                                    {p.part_name}
+                                  </span>
+                                </Tooltip>
                                 <span style={{ fontSize: '11px', color: 'var(--text-secondary)', fontFamily: 'monospace' }}>
                                   {p.part_num}
                                 </span>
@@ -932,25 +935,32 @@ export default function CollectionOverviewPage({
                               {/* Color Swatch & name */}
                               <div style={{ display: 'flex', alignItems: 'center', gap: '8px', minWidth: 0 }}>
                                 {p.color_rgb && (
-                                  <span 
-                                    className="color-swatch" 
-                                    style={{ backgroundColor: `#${p.color_rgb}`, flexShrink: 0 }}
-                                    title={p.color_name}
-                                  />
+                                  <Tooltip content={p.color_name}>
+                                    <span 
+                                      className="color-swatch" 
+                                      style={{ backgroundColor: `#${p.color_rgb}`, flexShrink: 0, cursor: 'help' }}
+                                    />
+                                  </Tooltip>
                                 )}
-                                <span style={{ textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap' }} title={p.color_name}>
-                                  {p.color_name}
-                                </span>
+                                <Tooltip content={p.color_name}>
+                                  <span style={{ textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap', cursor: 'help' }}>
+                                    {p.color_name}
+                                  </span>
+                                </Tooltip>
                               </div>
 
                               {/* Group & Category */}
                               <div style={{ minWidth: 0 }}>
-                                <span style={{ display: 'block', textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap', fontWeight: 500 }} title={p.technic_group_name || 'Other'}>
-                                  📦 {p.technic_group_name || 'Other'}
-                                </span>
-                                <span style={{ fontSize: '11px', color: 'var(--text-secondary)', textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap', display: 'block' }} title={p.part_category_name}>
-                                  {p.part_category_name}
-                                </span>
+                                <Tooltip content={p.technic_group_name || 'Other'}>
+                                  <span style={{ display: 'block', textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap', fontWeight: 500, cursor: 'help' }}>
+                                    📦 {p.technic_group_name || 'Other'}
+                                  </span>
+                                </Tooltip>
+                                <Tooltip content={p.part_category_name}>
+                                  <span style={{ fontSize: '11px', color: 'var(--text-secondary)', textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap', display: 'block', cursor: 'help' }}>
+                                    {p.part_category_name}
+                                  </span>
+                                </Tooltip>
                               </div>
 
                               {/* Quantity and Spare tag */}

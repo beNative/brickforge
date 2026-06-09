@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { Search, Layers, Play, AlertCircle, Loader2, Plus, Check } from 'lucide-react'
 import CachedImage from '../components/CachedImage'
+import Tooltip from '../components/Tooltip'
 
 interface SetSearchPageProps {
   preselectedSetNum: string | null
@@ -235,58 +236,59 @@ export default function SetSearchPage({
 
         {/* Selected Set Details Panel */}
         {selectedSet && (
-          <div className="glass-panel" style={{ padding: '24px', position: 'sticky', top: '24px', display: 'flex', flexDirection: 'column', gap: '20px' }}>
-            <div style={{ textAlign: 'center', background: 'var(--bg-main)', padding: '16px', borderRadius: '12px', border: '1px solid var(--border-glass)' }}>
+          <div style={{ borderLeft: '1px solid var(--border-glass)', paddingLeft: '24px', display: 'flex', flexDirection: 'column', gap: '16px', position: 'sticky', top: '24px' }}>
+            <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
               {selectedSet.image_url ? (
                 <CachedImage 
                   url={selectedSet.image_url} 
                   alt={selectedSet.name} 
-                  style={{ maxWidth: '100%', maxHeight: '180px', objectFit: 'contain', filter: 'drop-shadow(0 10px 15px rgba(0,0,0,0.6))' }} 
+                  style={{ width: '50px', height: '50px', objectFit: 'contain', background: '#ffffff', padding: '4px', borderRadius: '6px', border: '1px solid var(--border-glass)' }} 
                 />
               ) : (
-                <Layers size={64} style={{ color: '#475569' }} />
+                <div style={{ width: '50px', height: '50px', background: 'var(--border-glass)', borderRadius: '6px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <Layers size={20} />
+                </div>
               )}
+              <div style={{ minWidth: 0, flex: 1 }}>
+                <span style={{ fontSize: '12px', fontWeight: 700, color: 'var(--accent)', fontFamily: 'monospace' }}>{selectedSet.set_num}</span>
+                <h2 style={{ fontSize: '16px', fontWeight: 800, margin: '2px 0 0 0', lineHeight: 1.2, textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap' }} title={selectedSet.name}>{selectedSet.name}</h2>
+              </div>
             </div>
 
-            <div>
-              <span style={{ fontSize: '13px', fontWeight: 700, color: 'var(--accent)' }}>{selectedSet.set_num}</span>
-              <h2 style={{ fontSize: '20px', fontWeight: 800, margin: '4px 0 12px 0', lineHeight: 1.3 }}>{selectedSet.name}</h2>
-              
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', fontSize: '13px', borderTop: '1px solid var(--border-glass)', paddingTop: '12px' }}>
-                <div>
-                  <span style={{ color: '#64748b', display: 'block' }}>Theme</span>
-                  <span style={{ fontWeight: 600 }}>{selectedSet.theme_name || 'N/A'}</span>
-                </div>
-                <div>
-                  <span style={{ color: '#64748b', display: 'block' }}>Release Year</span>
-                  <span style={{ fontWeight: 600 }}>{selectedSet.year || 'N/A'}</span>
-                </div>
-                <div style={{ marginTop: '8px' }}>
-                  <span style={{ color: '#64748b', display: 'block' }}>Parts Count</span>
-                  <span style={{ fontWeight: 600 }}>{selectedSet.num_parts || 0}</span>
-                </div>
-                <div style={{ marginTop: '8px' }}>
-                  <span style={{ color: '#64748b', display: 'block' }}>Unique Rows</span>
-                  <span style={{ fontWeight: 600 }}>{selectedSet.uniquePartsCount || 0}</span>
-                </div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', borderTop: '1px solid var(--border-glass)', paddingTop: '10px' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px' }}>
+                <span style={{ color: 'var(--text-secondary)' }}>Theme:</span>
+                <span style={{ fontWeight: 600 }}>{selectedSet.theme_name || 'N/A'}</span>
+              </div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px' }}>
+                <span style={{ color: 'var(--text-secondary)' }}>Release Year:</span>
+                <span style={{ fontWeight: 600 }}>{selectedSet.year || 'N/A'}</span>
+              </div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px' }}>
+                <span style={{ color: 'var(--text-secondary)' }}>Parts Count:</span>
+                <span style={{ fontWeight: 600 }}>{selectedSet.num_parts || 0}</span>
+              </div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px' }}>
+                <span style={{ color: 'var(--text-secondary)' }}>Unique Rows:</span>
+                <span style={{ fontWeight: 600 }}>{selectedSet.uniquePartsCount || 0}</span>
               </div>
             </div>
 
             {/* Set Notes Editor */}
-            <div className="form-group" style={{ borderTop: '1px solid var(--border-glass)', paddingTop: '12px' }}>
-              <label className="form-label">Set Notes (Custom)</label>
+            <div className="form-group" style={{ borderTop: '1px solid var(--border-glass)', paddingTop: '10px', margin: 0, gap: '4px' }}>
+              <label className="form-label" style={{ fontSize: '11px' }}>Set Notes (Custom)</label>
               <textarea 
                 className="form-input" 
-                rows={3} 
-                placeholder="E.g., Bought second hand in June 2026. Missing the main gears..."
+                rows={2} 
+                placeholder="E.g., Bought second hand..."
                 value={setNotes}
                 onChange={(e) => setSetNotes(e.target.value)}
-                style={{ fontFamily: 'inherit', resize: 'vertical' }}
+                style={{ fontSize: '12px', padding: '8px', borderRadius: '6px', fontFamily: 'inherit', resize: 'none' }}
               />
               <button 
                 className="btn btn-secondary btn-sm" 
                 onClick={handleSaveSetNotes} 
-                style={{ alignSelf: 'flex-end', marginTop: '4px' }}
+                style={{ alignSelf: 'flex-end', marginTop: '2px', padding: '4px 10px', fontSize: '11px', height: '24px' }}
                 disabled={savingNotes}
               >
                 {savingNotes ? 'Saving...' : 'Save Notes'}
@@ -295,50 +297,52 @@ export default function SetSearchPage({
 
             {/* Existing Sessions List */}
             {selectedSet.sessions && selectedSet.sessions.length > 0 && (
-              <div style={{ borderTop: '1px solid var(--border-glass)', paddingTop: '12px' }}>
-                <h4 style={{ fontSize: '13px', fontWeight: 700, color: '#64748b', textTransform: 'uppercase', marginBottom: '8px' }}>Existing Sessions</h4>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', maxHeight: '160px', overflowY: 'auto' }}>
+              <div style={{ borderTop: '1px solid var(--border-glass)', paddingTop: '10px' }}>
+                <h4 style={{ fontSize: '11px', fontWeight: 700, color: '#64748b', textTransform: 'uppercase', marginBottom: '6px' }}>Existing Sessions</h4>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', maxHeight: '140px', overflowY: 'auto' }}>
                   {selectedSet.sessions.map((s: any) => (
                     <div 
                       key={s.id} 
-                      style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '8px 12px', background: 'var(--bg-main)', border: '1px solid var(--border-glass)', borderRadius: '8px' }}
+                      style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '6px 4px', borderBottom: '1px solid rgba(255,255,255,0.03)' }}
                     >
                       <div style={{ display: 'flex', flexDirection: 'column', minWidth: 0, flex: 1 }}>
                         <span style={{ fontSize: '12px', fontWeight: 600, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                           {s.name}
                         </span>
                         <span style={{ fontSize: '10px', color: '#64748b' }}>
-                          Last modified: {new Date(s.updated_at).toLocaleDateString()}
+                          Modified: {new Date(s.updated_at).toLocaleDateString()}
                         </span>
                       </div>
-                      <button className="btn btn-primary btn-sm btn-icon-only" onClick={() => onSessionStart(s.id)}>
-                        <Play size={12} fill="white" />
-                      </button>
+                      <Tooltip content="Resume session">
+                        <button className="btn btn-primary btn-sm btn-icon-only" onClick={() => onSessionStart(s.id)} style={{ padding: '4px', borderRadius: '6px' }}>
+                          <Play size={10} fill="white" />
+                        </button>
+                      </Tooltip>
                     </div>
                   ))}
                 </div>
               </div>
             )}
 
-            <div style={{ display: 'flex', gap: '12px', marginTop: 'auto' }}>
+            <div style={{ display: 'flex', gap: '10px', marginTop: 'auto', paddingTop: '10px', borderTop: '1px solid var(--border-glass)' }}>
               <button 
                 type="button"
-                className={`btn ${isInCollection ? 'btn-secondary' : 'btn-primary'}`}
+                className={`btn ${isInCollection ? 'btn-secondary' : 'btn-primary'} btn-sm`}
                 onClick={handleToggleCollection}
                 disabled={checkingCollection}
-                style={{ flex: 1, display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '6px' }}
+                style={{ flex: 1, display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '6px', height: '32px' }}
               >
-                {isInCollection ? <Check size={16} /> : <Plus size={16} />}
+                {isInCollection ? <Check size={14} /> : <Plus size={14} />}
                 <span>{isInCollection ? 'In Collection' : 'Add to Collection'}</span>
               </button>
 
               <button 
                 type="button"
-                className="btn btn-primary" 
+                className="btn btn-primary btn-sm" 
                 onClick={openStartSessionModal}
-                style={{ flex: 1, display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '6px' }}
+                style={{ flex: 1, display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '6px', height: '32px' }}
               >
-                <Play size={16} fill="currentColor" />
+                <Play size={14} fill="currentColor" />
                 <span>Start Counting</span>
               </button>
             </div>
