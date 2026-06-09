@@ -92,9 +92,9 @@ export default function CollectionOverviewPage({
       if (res.success && res.details) {
         setSelectedSetDetails(prev => prev ? {
           ...prev,
+          ...res.details,
           notes: res.details.notes || '',
-          sessions: res.details.sessions || [],
-          uniquePartsCount: res.details.uniquePartsCount
+          sessions: res.details.sessions || []
         } : null)
         setDetailsNotes(res.details.notes || '')
       }
@@ -589,62 +589,71 @@ export default function CollectionOverviewPage({
 
       {/* Detailed Set View Modal Overlay */}
       {detailsModalOpen && selectedSetDetails && (
-        <div className="modal-overlay">
-          <div className="glass-panel modal-content" style={{ maxWidth: '1050px', width: '92%', height: '88vh', display: 'flex', flexDirection: 'column', padding: '24px', gap: '20px' }}>
+        <div className="modal-overlay" onClick={() => setDetailsModalOpen(false)}>
+          <div className="glass-panel set-details-modal" onClick={(e) => e.stopPropagation()}>
             {/* Modal Header */}
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid var(--border-glass)', paddingBottom: '16px' }}>
+            <div className="set-details-header">
               <div>
-                <span style={{ fontSize: '12px', fontWeight: 700, color: 'var(--accent)' }}>{selectedSetDetails.set_num}</span>
-                <h2 style={{ fontSize: '22px', fontWeight: 800, margin: '2px 0 0 0' }}>{selectedSetDetails.name}</h2>
+                <span className="set-details-badge">{selectedSetDetails.set_num}</span>
+                <h2 className="set-details-title">{selectedSetDetails.name}</h2>
               </div>
-              <button className="btn btn-secondary btn-sm btn-icon-only" onClick={() => setDetailsModalOpen(false)}>
-                <X size={16} />
+              <button 
+                className="set-details-close-btn" 
+                onClick={() => setDetailsModalOpen(false)}
+                title="Close"
+              >
+                <X size={18} />
               </button>
             </div>
 
             {/* Modal Body Grid */}
-            <div style={{ display: 'grid', gridTemplateColumns: '300px 1fr', gap: '24px', flex: 1, minHeight: 0, overflow: 'hidden' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: '300px 1fr', gap: '28px', flex: 1, minHeight: 0, overflow: 'hidden' }}>
               {/* Left Column (Info Panel) */}
-              <div style={{ overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '20px', paddingRight: '4px' }}>
-                {/* Large Set Image */}
-                <div style={{ textAlign: 'center', background: 'var(--bg-main)', padding: '16px', borderRadius: '12px', border: '1px solid var(--border-glass)' }}>
+              <div style={{ overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '24px', paddingRight: '6px' }}>
+                {/* Large Set Image / Styled Placeholder */}
+                <div className="set-details-image-box">
                   {selectedSetDetails.image_url ? (
                     <CachedImage 
                       url={selectedSetDetails.image_url} 
                       alt={selectedSetDetails.name} 
-                      style={{ maxWidth: '100%', maxHeight: '150px', objectFit: 'contain', filter: 'drop-shadow(0 6px 10px rgba(0,0,0,0.3))' }} 
+                      style={{ maxWidth: '100%', maxHeight: '160px', objectFit: 'contain', filter: 'drop-shadow(0 8px 16px rgba(0,0,0,0.15))' }} 
                     />
                   ) : (
-                    <Layers size={64} style={{ color: '#475569', margin: '20px 0' }} />
+                    <>
+                      <div style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, opacity: 0.03, backgroundImage: 'radial-gradient(var(--text-secondary) 1px, transparent 0)', backgroundSize: '12px 12px' }} />
+                      <Layers size={44} style={{ color: 'var(--primary)', marginBottom: '10px', filter: 'drop-shadow(0 2px 4px rgba(79, 70, 229, 0.2))' }} />
+                      <span style={{ fontSize: '11px', fontWeight: 700, color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.8px' }}>
+                        No Preview Available
+                      </span>
+                    </>
                   )}
                 </div>
 
-                {/* Metadata list */}
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', fontSize: '13px' }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid var(--border-glass)', paddingBottom: '6px' }}>
-                    <span style={{ color: '#64748b' }}>Release Year</span>
-                    <span style={{ fontWeight: 600 }}>{selectedSetDetails.year || 'N/A'}</span>
+                {/* Metadata Dashboard Grid */}
+                <div className="set-details-grid">
+                  <div className="set-details-card">
+                    <span className="set-details-card-label">Release Year</span>
+                    <span className="set-details-card-value" style={{ color: 'var(--accent)' }}>📅 {selectedSetDetails.year || 'N/A'}</span>
                   </div>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid var(--border-glass)', paddingBottom: '6px' }}>
-                    <span style={{ color: '#64748b' }}>Parts Count</span>
-                    <span style={{ fontWeight: 600 }}>{selectedSetDetails.expected_parts || selectedSetDetails.num_parts || 0}</span>
+                  <div className="set-details-card">
+                    <span className="set-details-card-label">Parts Count</span>
+                    <span className="set-details-card-value">🧩 {selectedSetDetails.expected_parts || selectedSetDetails.num_parts || 0}</span>
                   </div>
-                  {selectedSetDetails.uniquePartsCount !== undefined && (
-                    <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid var(--border-glass)', paddingBottom: '6px' }}>
-                      <span style={{ color: '#64748b' }}>Unique Catalog Rows</span>
-                      <span style={{ fontWeight: 600 }}>{selectedSetDetails.uniquePartsCount}</span>
-                    </div>
-                  )}
+                  <div className="set-details-card" style={{ gridColumn: 'span 2' }}>
+                    <span className="set-details-card-label">Unique Catalog Rows</span>
+                    <span className="set-details-card-value">📦 {selectedSetDetails.uniquePartsCount || 0} items</span>
+                  </div>
+                  
                   {selectedSetDetails.session_status !== 'not_started' && (
                     <>
-                      <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid var(--border-glass)', paddingBottom: '6px' }}>
-                        <span style={{ color: '#64748b' }}>Aggregated Completeness</span>
-                        <span style={{ fontWeight: 700, color: 'var(--accent)' }}>{selectedSetDetails.completion_percentage}%</span>
+                      <div className="set-details-card">
+                        <span className="set-details-card-label">Completeness</span>
+                        <span className="set-details-card-value" style={{ color: 'var(--status-complete)' }}>📈 {selectedSetDetails.completion_percentage}%</span>
                       </div>
-                      <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid var(--border-glass)', paddingBottom: '6px' }}>
-                        <span style={{ color: '#64748b' }}>Missing Build Parts</span>
-                        <span style={{ fontWeight: 600, color: selectedSetDetails.missing_required_count > 0 ? 'var(--status-missing)' : 'var(--status-complete)' }}>
-                          {selectedSetDetails.missing_required_count}
+                      <div className="set-details-card">
+                        <span className="set-details-card-label">Missing Parts</span>
+                        <span className="set-details-card-value" style={{ color: selectedSetDetails.missing_required_count > 0 ? 'var(--status-missing)' : 'var(--status-complete)' }}>
+                          ⚠️ {selectedSetDetails.missing_required_count}
                         </span>
                       </div>
                     </>
@@ -652,39 +661,50 @@ export default function CollectionOverviewPage({
                 </div>
 
                 {/* Set Custom Notes */}
-                <div className="form-group" style={{ marginBottom: 0 }}>
-                  <label className="form-label" style={{ fontSize: '12px' }}>Set Notes (Custom)</label>
-                  <textarea 
-                    className="form-input" 
-                    rows={4} 
-                    placeholder="General details about physical build, missing pieces, purchase details, box condition..."
-                    value={detailsNotes}
-                    onChange={(e) => setDetailsNotes(e.target.value)}
-                    style={{ fontSize: '13px', resize: 'vertical' }}
-                  />
-                  <button 
-                    className="btn btn-secondary btn-sm" 
-                    onClick={handleSaveDetailsNotes} 
-                    style={{ alignSelf: 'flex-end', marginTop: '6px' }}
-                    disabled={savingDetailsNotes}
-                  >
-                    {savingDetailsNotes ? 'Saving...' : 'Save Notes'}
-                  </button>
+                <div className="form-group" style={{ marginBottom: 0, marginTop: '4px' }}>
+                  <label className="form-label" style={{ fontSize: '11px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.5px' }}>Set Notes</label>
+                  <div style={{ position: 'relative' }}>
+                    <textarea 
+                      className="form-input" 
+                      rows={3} 
+                      placeholder="General notes about set details, purchase details, box condition, or missing elements..."
+                      value={detailsNotes}
+                      onChange={(e) => setDetailsNotes(e.target.value)}
+                      style={{ fontSize: '13px', resize: 'none', background: 'var(--bg-main)', border: '1px solid var(--border-glass)', paddingBottom: '36px', borderRadius: '10px' }}
+                    />
+                    <button 
+                      className="btn btn-primary btn-sm" 
+                      onClick={handleSaveDetailsNotes} 
+                      style={{ 
+                        position: 'absolute', 
+                        right: '8px', 
+                        bottom: '8px', 
+                        padding: '4px 12px', 
+                        fontSize: '11px', 
+                        borderRadius: '6px',
+                        height: '24px',
+                        fontWeight: 700
+                      }}
+                      disabled={savingDetailsNotes}
+                    >
+                      {savingDetailsNotes ? 'Saving...' : 'Save'}
+                    </button>
+                  </div>
                 </div>
               </div>
 
               {/* Right Column (Tabs Panel) */}
               <div style={{ display: 'flex', flexDirection: 'column', minHeight: 0, overflow: 'hidden' }}>
                 {/* Tabs bar */}
-                <div className="group-nav" style={{ marginBottom: '16px' }}>
+                <div className="set-details-tabs-nav">
                   <button 
-                    className={`group-tab ${detailsTab === 'sessions' ? 'active' : ''}`}
+                    className={`set-details-tab-btn ${detailsTab === 'sessions' ? 'active' : ''}`}
                     onClick={() => setDetailsTab('sessions')}
                   >
                     Counting Sessions ({selectedSetDetails.sessions?.length || 0})
                   </button>
                   <button 
-                    className={`group-tab ${detailsTab === 'parts' ? 'active' : ''}`}
+                    className={`set-details-tab-btn ${detailsTab === 'parts' ? 'active' : ''}`}
                     onClick={() => setDetailsTab('parts')}
                   >
                     Set Inventory Parts ({filteredParts.length})
@@ -698,28 +718,35 @@ export default function CollectionOverviewPage({
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '20px', flex: 1, overflowY: 'auto' }}>
                       {/* Existing sessions list */}
                       <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                        <h3 style={{ fontSize: '14px', margin: 0, fontWeight: 700, color: '#64748b', textTransform: 'uppercase' }}>Active Counting Sessions</h3>
+                        <h3 style={{ fontSize: '12px', margin: 0, fontWeight: 700, color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.8px' }}>Active Counting Sessions</h3>
                         {!selectedSetDetails.sessions || selectedSetDetails.sessions.length === 0 ? (
-                          <p style={{ color: 'var(--text-secondary)', fontSize: '13px', margin: 0 }}>No sessions created for this set yet.</p>
+                          <div style={{ 
+                            display: 'flex', 
+                            flexDirection: 'column', 
+                            alignItems: 'center', 
+                            justifyContent: 'center', 
+                            padding: '48px 16px', 
+                            background: 'rgba(100, 116, 139, 0.02)', 
+                            border: '1px dashed var(--border-glass)', 
+                            borderRadius: '16px',
+                            textAlign: 'center',
+                            color: 'var(--text-secondary)'
+                          }}>
+                            <Play size={24} style={{ opacity: 0.4, marginBottom: '10px', color: 'var(--primary)' }} />
+                            <span style={{ fontSize: '13px', fontWeight: 700 }}>No Active Counting Sessions</span>
+                            <span style={{ fontSize: '11px', opacity: 0.7, marginTop: '4px' }}>Create a new checklist session below to begin.</span>
+                          </div>
                         ) : (
                           selectedSetDetails.sessions.map((s: any) => (
                             <div 
                               key={s.id} 
-                              style={{ 
-                                display: 'flex', 
-                                justifyContent: 'space-between', 
-                                alignItems: 'center', 
-                                padding: '12px 16px', 
-                                background: 'var(--bg-main)', 
-                                border: '1px solid var(--border-glass)', 
-                                borderRadius: '10px' 
-                              }}
+                              className="session-item-row"
                             >
                               <div>
                                 <span style={{ fontWeight: 600, display: 'block', fontSize: '14px' }}>
                                   {s.name}
                                 </span>
-                                <span style={{ fontSize: '11px', color: '#64748b', display: 'flex', gap: '12px' }}>
+                                <span style={{ fontSize: '11px', color: 'var(--text-secondary)', display: 'flex', gap: '12px', marginTop: '4px' }}>
                                   <span>Modified: {new Date(s.updated_at).toLocaleDateString()}</span>
                                   <span>•</span>
                                   <span>Spares: {s.include_spares ? 'Yes' : 'No'}</span>
@@ -738,7 +765,7 @@ export default function CollectionOverviewPage({
                                     onClick={() => { setDetailsModalOpen(false); onNavigateToSession(s.id); }}
                                     style={{ padding: '6px 10px' }}
                                   >
-                                    <Play size={12} fill="white" />
+                                    <Play size={12} fill="currentColor" />
                                   </button>
                                   <button 
                                     className="btn btn-secondary btn-sm"
@@ -764,16 +791,19 @@ export default function CollectionOverviewPage({
                       </div>
 
                       {/* Start new session form */}
-                      <form onSubmit={handleCreateSessionInDetails} style={{ padding: '16px', background: 'var(--bg-main)', border: '1px solid var(--border-glass)', borderRadius: '12px', display: 'flex', flexDirection: 'column', gap: '12px', marginTop: 'auto' }}>
-                        <h4 style={{ fontSize: '14px', fontWeight: 700, margin: 0 }}>Start New Counting Session</h4>
+                      <form 
+                        onSubmit={handleCreateSessionInDetails} 
+                        className="session-create-panel"
+                      >
+                        <h4 style={{ fontSize: '12px', fontWeight: 700, margin: 0, color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.8px' }}>Start New Counting Session</h4>
                         
                         <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '16px', alignItems: 'end' }}>
-                          <div className="form-group" style={{ marginBottom: 0, gap: '4px' }}>
-                            <label className="form-label" style={{ fontSize: '11px' }}>Session Name</label>
+                          <div className="form-group" style={{ marginBottom: 0, gap: '4px', flex: 1 }}>
+                            <label className="form-label" style={{ fontSize: '10px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.5px' }}>Session Name</label>
                             <input 
                               type="text" 
                               className="form-input" 
-                              style={{ padding: '8px 12px', borderRadius: '8px', fontSize: '13px' }}
+                              style={{ padding: '8px 12px', borderRadius: '8px', fontSize: '13px', background: 'var(--bg-main)' }}
                               placeholder="Name of counting verification session..." 
                               value={newSessionName}
                               onChange={(e) => setNewSessionName(e.target.value)}
@@ -781,21 +811,21 @@ export default function CollectionOverviewPage({
                             />
                           </div>
 
-                          <div style={{ display: 'flex', gap: '12px', alignItems: 'center', height: '38px' }}>
-                            <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                          <div style={{ display: 'flex', gap: '12px', alignItems: 'center', height: '36px' }}>
+                            <div className="custom-checkbox-container" onClick={() => setNewSessionIncludeSpares(!newSessionIncludeSpares)}>
                               <input 
                                 type="checkbox" 
                                 id="includeSparesDetails"
                                 checked={newSessionIncludeSpares}
                                 onChange={(e) => setNewSessionIncludeSpares(e.target.checked)}
-                                style={{ width: '16px', height: '16px', cursor: 'pointer' }}
+                                style={{ width: '15px', height: '15px', cursor: 'pointer' }}
                               />
-                              <label htmlFor="includeSparesDetails" style={{ fontSize: '12px', fontWeight: 600, cursor: 'pointer' }}>
+                              <label htmlFor="includeSparesDetails" style={{ fontSize: '12px', fontWeight: 600, cursor: 'pointer', color: 'var(--text-secondary)' }}>
                                 Include Spares
                               </label>
                             </div>
 
-                            <button type="submit" className="btn btn-primary btn-sm" disabled={creatingSession} style={{ marginLeft: 'auto', padding: '10px 16px' }}>
+                            <button type="submit" className="btn btn-primary btn-sm" disabled={creatingSession} style={{ marginLeft: 'auto', padding: '8px 16px', fontSize: '12px', height: '34px', fontWeight: 700 }}>
                               {creatingSession ? 'Starting...' : 'Start Counting'}
                             </button>
                           </div>
@@ -867,7 +897,7 @@ export default function CollectionOverviewPage({
                         </div>
                       ) : (
                         <div style={{ flex: 1, overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '8px', paddingRight: '4px' }}>
-                          <div style={{ display: 'grid', gridTemplateColumns: '50px 1.5fr 1fr 1fr 60px', gap: '16px', padding: '8px 12px', borderBottom: '1px solid var(--border-glass)', fontSize: '11px', fontWeight: 700, color: '#64748b', textTransform: 'uppercase' }}>
+                          <div style={{ display: 'grid', gridTemplateColumns: '50px 1.5fr 1fr 1fr 60px', gap: '16px', padding: '8px 12px', borderBottom: '1px solid var(--border-glass)', fontSize: '11px', fontWeight: 700, color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.8px' }}>
                             <span>Img</span>
                             <span>Part Detail</span>
                             <span>Color</span>
@@ -878,24 +908,14 @@ export default function CollectionOverviewPage({
                           {filteredParts.slice(0, visiblePartsCount).map((p, index) => (
                             <div 
                               key={`${p.part_num}-${p.color_id}-${p.is_spare}-${index}`}
-                              style={{ 
-                                display: 'grid', 
-                                gridTemplateColumns: '50px 1.5fr 1fr 1fr 60px', 
-                                gap: '16px', 
-                                alignItems: 'center', 
-                                padding: '8px 12px', 
-                                background: 'var(--bg-main)', 
-                                border: '1px solid var(--border-glass)', 
-                                borderRadius: '8px',
-                                fontSize: '13px'
-                              }}
+                              className="parts-table-row"
                             >
                               {/* Part Image */}
                               <div style={{ width: '40px', height: '40px', background: 'rgba(255,255,255,0.02)', border: '1px solid var(--border-glass)', borderRadius: '6px', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden' }}>
                                 {p.img_url ? (
                                   <CachedImage url={p.img_url} alt={p.part_name} style={{ maxWidth: '90%', maxHeight: '90%', objectFit: 'contain' }} />
                                 ) : (
-                                  <Layers size={16} style={{ color: '#64748b' }} />
+                                  <Layers size={16} style={{ color: 'var(--text-secondary)', opacity: 0.5 }} />
                                 )}
                               </div>
 
@@ -904,7 +924,7 @@ export default function CollectionOverviewPage({
                                 <span style={{ fontWeight: 600, display: 'block', textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap' }} title={p.part_name}>
                                   {p.part_name}
                                 </span>
-                                <span style={{ fontSize: '11px', color: '#64748b', fontFamily: 'monospace' }}>
+                                <span style={{ fontSize: '11px', color: 'var(--text-secondary)', fontFamily: 'monospace' }}>
                                   {p.part_num}
                                 </span>
                               </div>
@@ -928,7 +948,7 @@ export default function CollectionOverviewPage({
                                 <span style={{ display: 'block', textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap', fontWeight: 500 }} title={p.technic_group_name || 'Other'}>
                                   📦 {p.technic_group_name || 'Other'}
                                 </span>
-                                <span style={{ fontSize: '11px', color: '#64748b', textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap', display: 'block' }} title={p.part_category_name}>
+                                <span style={{ fontSize: '11px', color: 'var(--text-secondary)', textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap', display: 'block' }} title={p.part_category_name}>
                                   {p.part_category_name}
                                 </span>
                               </div>
