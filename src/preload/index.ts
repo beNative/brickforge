@@ -50,6 +50,9 @@ const api = {
   updateSessionStatus: (sessionId: number, status: string) => 
     ipcRenderer.invoke('update-session-status', sessionId, status),
   
+  quickCompleteSession: (sessionId: number) => 
+    ipcRenderer.invoke('quick-complete-session', sessionId),
+  
   duplicateSession: (sessionId: number, newName: string) => 
     ipcRenderer.invoke('duplicate-session', sessionId, newName),
   

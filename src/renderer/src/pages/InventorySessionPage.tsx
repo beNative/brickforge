@@ -200,6 +200,28 @@ export default function InventorySessionPage({
     }
   }
 
+  // Handle setting 100% complete directly
+  const handleQuickComplete = async () => {
+    const confirmComplete = window.confirm(
+      "Are you sure you want to mark all parts as 100% complete? This will set the counted quantity of all parts to their expected quantity and mark the session as completed."
+    )
+    if (!confirmComplete) return
+
+    setLoading(true)
+    try {
+      const res = await window.api.quickCompleteSession(sessionId)
+      if (res.success) {
+        await loadSession()
+      } else {
+        alert(res.error || 'Failed to complete session.')
+      }
+    } catch (e: any) {
+      alert(e.message || 'An error occurred.')
+    } finally {
+      setLoading(false)
+    }
+  }
+
   // Export missing parts dialog handler
   const handleExport = async () => {
     setExporting(true)
@@ -337,6 +359,17 @@ export default function InventorySessionPage({
             <option value="completed">Completed</option>
             <option value="abandoned">Abandoned</option>
           </select>
+
+          {session.status !== 'completed' && (
+            <button 
+              className="btn btn-secondary btn-sm" 
+              onClick={handleQuickComplete}
+              style={{ background: 'rgba(16,185,129,0.15)', borderColor: 'rgba(16,185,129,0.2)', color: '#a7f3d0' }}
+            >
+              <Check size={14} />
+              <span>Quick Complete</span>
+            </button>
+          )}
 
           <button className="btn btn-secondary btn-sm" onClick={() => setIsExportOpen(true)}>
             <Download size={14} />

@@ -6,6 +6,7 @@ import {
   updateItemNotes,
   updateSessionNotes,
   updateSessionStatus,
+  quickCompleteSession,
   duplicateSession,
   deleteSession,
   getCollectionOverview,
@@ -77,6 +78,16 @@ export function registerSessionHandlers(): void {
       return { success: true }
     } catch (error: any) {
       console.error('Error updating session status:', error)
+      return { success: false, error: error.message }
+    }
+  })
+
+  ipcMain.handle('quick-complete-session', async (_event, sessionId: number) => {
+    try {
+      quickCompleteSession(sessionId)
+      return { success: true }
+    } catch (error: any) {
+      console.error('Error quick completing session:', error)
       return { success: false, error: error.message }
     }
   })

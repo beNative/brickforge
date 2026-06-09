@@ -15,6 +15,7 @@ export interface BrickForgeAPI {
   updateItemNotes: (itemId: number, notes: string | null) => Promise<{ success: boolean; error?: string }>
   updateSessionNotes: (sessionId: number, notes: string | null) => Promise<{ success: boolean; error?: string }>
   updateSessionStatus: (sessionId: number, status: string) => Promise<{ success: boolean; error?: string }>
+  quickCompleteSession: (sessionId: number) => Promise<{ success: boolean; error?: string }>
   duplicateSession: (sessionId: number, newName: string) => Promise<{ success: boolean; error?: string; sessionId?: number }>
   deleteSession: (sessionId: number) => Promise<{ success: boolean; error?: string }>
   saveSetNotes: (setNum: string, notes: string) => Promise<{ success: boolean; error?: string }>

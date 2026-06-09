@@ -212,6 +212,25 @@ export function updateSessionStatus(sessionId: number, status: string): void {
   `).run(status, now, sessionId)
 }
 
+export function quickCompleteSession(sessionId: number): void {
+  const db = getDb()
+  const now = new Date().toISOString()
+
+  db.transaction(() => {
+    db.prepare(`
+      UPDATE check_items
+      SET counted_qty = expected_qty, status = 'complete', updated_at = ?
+      WHERE session_id = ?
+    `).run(now, sessionId)
+
+    db.prepare(`
+      UPDATE check_sessions
+      SET status = 'completed', updated_at = ?
+      WHERE id = ?
+    `).run(now, sessionId)
+  })()
+}
+
 export function duplicateSession(sessionId: number, newName: string): number {
   const db = getDb()
   const now = new Date().toISOString()
