@@ -20,17 +20,14 @@ export default function CachedImage({ url, alt, className, style, fallbackIconSi
     // Try cached version first via custom protocol
     return `brickforge://image?url=${encodeURIComponent(url)}`
   })
-  const [errored, setErrored] = useState(false)
 
   useEffect(() => {
     setSrc(url ? `brickforge://image?url=${encodeURIComponent(url)}` : null)
-    setErrored(false)
   }, [url])
 
   const handleError = () => {
-    if (!errored && url) {
+    if (src && src.startsWith('brickforge://') && url) {
       // First failure: try original remote URL as fallback
-      setErrored(true)
       setSrc(url)
     } else {
       // Both failed — show placeholder
