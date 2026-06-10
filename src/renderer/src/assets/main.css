@@ -4164,4 +4164,317 @@ body.light-theme .settings-alert.info {
   color: #475569;
 }
 
+/* Page wrapper to hold pages in a flexbox so they flex nicely above the log panel */
+.main-page-wrapper {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
 
+/* Logging System CSS variables and scope */
+.log-panel {
+  --log-debug: #10b981;
+  --log-info: #3b82f6;
+  --log-warning: #f59e0b;
+  --log-error: #ef4444;
+  --log-bg-console: #131314;
+  
+  height: 220px;
+  min-height: 220px;
+  background: var(--bg-surface);
+  border-top: 1px solid var(--border-glass);
+  display: flex;
+  flex-direction: column;
+  margin-top: 8px;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+body.light-theme .log-panel {
+  --log-debug: #059669;
+  --log-info: #0284c7;
+  --log-warning: #d97706;
+  --log-error: #dc2626;
+  --log-bg-console: #f9f9f9;
+}
+
+.log-panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 6px 12px;
+  background: var(--bg-surface-solid);
+  border-bottom: 1px solid var(--border-glass);
+  gap: 12px;
+  flex-wrap: wrap;
+  user-select: none;
+}
+
+.log-panel-title {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.log-panel-count {
+  text-transform: none;
+  font-size: 10px;
+  color: var(--text-secondary);
+  opacity: 0.8;
+}
+
+.log-panel-filters {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.log-filter-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: transparent;
+  border: 1px solid var(--border-glass);
+  border-radius: 3px;
+  padding: 3px 8px;
+  font-size: 10px;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.log-filter-btn:hover {
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--primary-hover);
+}
+
+body.light-theme .log-filter-btn:hover {
+  background: rgba(0, 0, 0, 0.04);
+}
+
+.log-filter-btn.active {
+  background: rgba(0, 122, 204, 0.1);
+  border-color: var(--primary);
+  color: var(--primary-hover);
+}
+
+.log-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  display: inline-block;
+}
+.log-dot.debug { background: var(--log-debug); }
+.log-dot.info { background: var(--log-info); }
+.log-dot.warning { background: var(--log-warning); }
+.log-dot.error { background: var(--log-error); }
+
+.log-panel-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 1;
+  justify-content: flex-end;
+}
+
+.log-search-input {
+  background: var(--bg-main);
+  border: 1px solid var(--border-glass);
+  border-radius: 3px;
+  padding: 3px 8px;
+  font-size: 10px;
+  color: inherit;
+  width: 130px;
+  transition: all 0.2s ease;
+}
+
+.log-search-input:focus {
+  border-color: var(--primary);
+  outline: none;
+  width: 170px;
+}
+
+.log-action-btn {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  background: transparent;
+  border: 1px solid var(--border-glass);
+  border-radius: 3px;
+  padding: 3px 8px;
+  font-size: 10px;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.log-action-btn:hover {
+  background: rgba(255, 255, 255, 0.04);
+  color: white;
+}
+body.light-theme .log-action-btn:hover {
+  background: rgba(0, 0, 0, 0.04);
+  color: black;
+}
+
+.log-action-btn.active {
+  background: rgba(0, 122, 204, 0.1);
+  border-color: var(--primary);
+  color: var(--primary-hover);
+}
+
+.log-action-btn.clear:hover {
+  background: rgba(239, 68, 68, 0.1);
+  border-color: var(--log-error);
+  color: var(--log-error);
+}
+
+.log-panel-divider {
+  width: 1px;
+  height: 16px;
+  background: var(--border-glass);
+  margin: 0 4px;
+}
+
+.log-panel-close-btn {
+  background: transparent;
+  border: none;
+  color: var(--text-secondary);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2px;
+  border-radius: 3px;
+  transition: all 0.2s ease;
+}
+
+.log-panel-close-btn:hover {
+  background: rgba(239, 68, 68, 0.1);
+  color: var(--log-error);
+}
+
+.log-panel-body {
+  flex: 1;
+  overflow-y: auto;
+  background: var(--log-bg-console);
+  padding: 8px 12px;
+  font-family: 'Consolas', 'Courier New', Courier, monospace;
+  font-size: 11px;
+}
+
+.log-panel-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  gap: 8px;
+  color: var(--text-secondary);
+}
+
+.log-panel-empty p {
+  font-size: 11px;
+}
+
+.log-rows-container {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.log-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  line-height: 1.5;
+  padding: 1px 0;
+  white-space: pre-wrap;
+  word-break: break-all;
+}
+
+.log-row-time {
+  color: var(--text-secondary);
+  opacity: 0.6;
+  flex-shrink: 0;
+  user-select: none;
+}
+
+.log-row-badge {
+  font-weight: 700;
+  font-size: 9px;
+  padding: 0 4px;
+  border-radius: 2px;
+  flex-shrink: 0;
+  width: 55px;
+  text-align: center;
+  user-select: none;
+}
+
+.log-row-badge.debug {
+  background: rgba(16, 185, 129, 0.12);
+  color: var(--log-debug);
+}
+.log-row-badge.info {
+  background: rgba(59, 130, 246, 0.12);
+  color: var(--log-info);
+}
+.log-row-badge.warning {
+  background: rgba(245, 158, 11, 0.12);
+  color: var(--log-warning);
+}
+.log-row-badge.error {
+  background: rgba(239, 68, 68, 0.12);
+  color: var(--log-error);
+}
+
+.log-row-message {
+  color: #c8c8c8;
+  flex: 1;
+}
+body.light-theme .log-row-message {
+  color: #333333;
+}
+
+.log-row.debug .log-row-message { color: var(--log-debug); }
+.log-row.info .log-row-message { color: var(--log-info); }
+.log-row.warning .log-row-message { color: var(--log-warning); }
+.log-row.error .log-row-message { color: var(--log-error); }
+
+.statusbar-log-badges {
+  display: flex;
+  gap: 3px;
+  margin-left: 4px;
+  align-items: center;
+  user-select: none;
+}
+
+.statusbar-log-badge {
+  font-size: 8px;
+  font-weight: 700;
+  padding: 0 4px;
+  border-radius: 2px;
+  line-height: 1.2;
+}
+
+.statusbar-log-badge.error {
+  background: var(--log-error);
+  color: white;
+}
+
+.statusbar-log-badge.warning {
+  background: var(--log-warning);
+  color: #1e1e1e;
+}
+
+.statusbar-item.clickable.active {
+  color: var(--primary-hover);
+  background: rgba(0, 122, 204, 0.12);
+}

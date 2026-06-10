@@ -12,6 +12,8 @@ import { registerDocumentHandlers } from './ipc/documentHandlers'
 import { registerImageHandlers } from './ipc/imageHandlers'
 import { registerSettingsHandlers } from './ipc/settingsHandlers'
 import { registerMaintenanceHandlers } from './ipc/maintenanceHandlers'
+import { registerLogHandlers } from './ipc/logHandlers'
+import { info, error as logError } from './services/loggerService'
 import { getCachedImage } from './services/imageService'
 import { initUpdater } from './services/updateService'
 
@@ -60,8 +62,10 @@ function createWindow(): void {
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
 app.whenReady().then(() => {
+  info('Electron application is ready. Performing initial settings...')
   // Set app user model id for windows
   electronApp.setAppUserModelId('com.brickforge.app')
+  info('AppUserModelId configured successfully: com.brickforge.app')
 
   // Default open or close DevTools by F12 in development
   // and ignore CommandOrControl + R in production.
@@ -71,9 +75,10 @@ app.whenReady().then(() => {
 
   // Initialize Database
   try {
+    info('Initializing SQLite database connection...')
     initDatabase()
   } catch (error) {
-    console.error('Failed to initialize database:', error)
+    logError('Failed to initialize database:', error)
   }
 
   // Register IPC Handlers
@@ -85,12 +90,14 @@ app.whenReady().then(() => {
   registerImageHandlers()
   registerSettingsHandlers()
   registerMaintenanceHandlers()
+  registerLogHandlers()
 
   // Initialize Auto-Updater
   try {
+    info('Initializing application auto-updater...')
     initUpdater()
   } catch (error) {
-    console.error('Failed to initialize auto-updater:', error)
+    logError('Failed to initialize auto-updater:', error)
   }
 
   // Register custom protocol handler for serving cached images from SQLite

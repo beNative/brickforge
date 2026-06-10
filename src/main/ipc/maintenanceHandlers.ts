@@ -4,6 +4,7 @@ import { getSettings } from '../services/settingsService'
 import { execSync } from 'child_process'
 import { join, dirname } from 'path'
 import * as fs from 'fs'
+import { info, warn, error } from '../services/loggerService'
 
 export function registerMaintenanceHandlers(): void {
   // Backup database
@@ -28,6 +29,7 @@ export function registerMaintenanceHandlers(): void {
       }
 
       // Close database to release the file lock
+      info('Database backup started. Closing active SQLite database connection to release file lock...')
       closeDatabase()
 
       const tempDir = join(app.getPath('temp'), `bf-backup-${Date.now()}`)
@@ -42,10 +44,11 @@ export function registerMaintenanceHandlers(): void {
         const escapedDest = filePath.replace(/'/g, "''")
 
         // Compress via PowerShell
+        info(`Compressing database into ZIP backup at destination: ${filePath}`)
         const cmd = `Compress-Archive -Path '${escapedTempDir}\\*' -DestinationPath '${escapedDest}' -Force`
         execSync(`powershell -NoProfile -NonInteractive -Command "${cmd}"`, { stdio: 'ignore' })
 
-        console.log(`Successfully backed up database to ZIP: ${filePath}`)
+        info(`Successfully backed up database to ZIP: ${filePath}`)
       } finally {
         // Cleanup temp directory
         fs.rmSync(tempDir, { recursive: true, force: true })
@@ -55,7 +58,7 @@ export function registerMaintenanceHandlers(): void {
 
       return { success: true }
     } catch (e: any) {
-      console.error('Backup database failed:', e)
+      error('Backup database failed:', e)
       return { success: false, error: e.message }
     }
   })
@@ -80,6 +83,7 @@ export function registerMaintenanceHandlers(): void {
       const settings = getSettings()
       const dbPath = getDatabasePath()
 
+      info(`Database restore started. Extracting ZIP: ${zipPath}`)
       // Create a temporary extraction directory
       const tempExtractDir = join(app.getPath('temp'), `bf-restore-${Date.now()}`)
       fs.mkdirSync(tempExtractDir, { recursive: true })
@@ -101,6 +105,7 @@ export function registerMaintenanceHandlers(): void {
           if (dbFile) {
             extractedDbFile = join(tempExtractDir, dbFile)
           } else {
+            warn('Restore failed: Could not find database file in ZIP archive.')
             return {
               success: false,
               error: 'Could not find a valid database file (.db) in the ZIP archive.'
@@ -115,10 +120,12 @@ export function registerMaintenanceHandlers(): void {
         fs.closeSync(fd)
 
         if (headerBuffer.toString('utf8', 0, 15) !== 'SQLite format 3') {
+          warn('Restore failed: The extracted file is not a valid SQLite database (invalid header).')
           return { success: false, error: 'The extracted file is not a valid SQLite database.' }
         }
 
         // Close the current database connection to free up resources/locks
+        info('Valid database file found. Closing active SQLite database connection...')
         closeDatabase()
 
         // Create a safety fallback copy of the active database
@@ -133,15 +140,17 @@ export function registerMaintenanceHandlers(): void {
             fs.mkdirSync(dbDir, { recursive: true })
           }
           // Overwrite active database file
+          info(`Overwriting active database at: ${dbPath}`)
           fs.copyFileSync(extractedDbFile, dbPath)
 
           // Delete fallback copy on success
           if (fs.existsSync(backupPath)) {
             fs.rmSync(backupPath, { force: true })
           }
-          console.log(`Successfully restored database from: ${zipPath}`)
+          info(`Successfully restored database from: ${zipPath}`)
         } catch (copyErr) {
           // Revert active database from backup if copy failed
+          warn('Restore write failed. Reverting active database from fallback copy...')
           if (fs.existsSync(backupPath)) {
             fs.copyFileSync(backupPath, dbPath)
             fs.rmSync(backupPath, { force: true })
@@ -157,7 +166,7 @@ export function registerMaintenanceHandlers(): void {
 
       return { success: true }
     } catch (e: any) {
-      console.error('Restore database failed:', e)
+      error('Restore database failed:', e)
       return { success: false, error: e.message }
     }
   })
@@ -166,11 +175,12 @@ export function registerMaintenanceHandlers(): void {
   ipcMain.handle('database-vacuum', async () => {
     try {
       const db = getDb()
-      console.log('Optimizing database via VACUUM...')
+      info('Optimizing database via VACUUM...')
       db.exec('VACUUM')
+      info('Database VACUUM completed successfully.')
       return { success: true }
     } catch (e: any) {
-      console.error('Database VACUUM failed:', e)
+      error('Database VACUUM failed:', e)
       return { success: false, error: e.message }
     }
   })
@@ -179,11 +189,12 @@ export function registerMaintenanceHandlers(): void {
   ipcMain.handle('database-reindex', async () => {
     try {
       const db = getDb()
-      console.log('Rebuilding database indexes via REINDEX...')
+      info('Rebuilding database indexes via REINDEX...')
       db.exec('REINDEX')
+      info('Database REINDEX completed successfully.')
       return { success: true }
     } catch (e: any) {
-      console.error('Database REINDEX failed:', e)
+      error('Database REINDEX failed:', e)
       return { success: false, error: e.message }
     }
   })

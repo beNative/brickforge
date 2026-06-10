@@ -17,6 +17,7 @@ import InventorySessionPage from './pages/InventorySessionPage'
 import CollectionOverviewPage from './pages/CollectionOverviewPage'
 import HelpDocsPage from './pages/HelpDocsPage'
 import SettingsPage from './pages/SettingsPage'
+import LogPanel, { LogMessage } from './components/LogPanel'
 
 function App() {
   const [currentPage, setCurrentPage] = useState<string>('home')
@@ -27,6 +28,8 @@ function App() {
     catalogPartsCount: number
   } | null>(null)
   const [isAboutOpen, setIsAboutOpen] = useState(false)
+  const [isLogPanelOpen, setIsLogPanelOpen] = useState(false)
+  const [logs, setLogs] = useState<LogMessage[]>([])
   const [theme, setTheme] = useState<'dark' | 'light'>(() => {
     const saved = localStorage.getItem('theme')
     return saved === 'light' || saved === 'dark' ? saved : 'dark'
@@ -41,6 +44,49 @@ function App() {
     }
     localStorage.setItem('theme', theme)
   }, [theme])
+
+  // Setup logging subscriber
+  useEffect(() => {
+    window.api.getLogs().then((res) => {
+      if (res.success && res.logs) {
+        setLogs(res.logs)
+      }
+    }).catch((err) => {
+      console.error('Failed to get initial logs:', err)
+    })
+
+    const unsubscribeLog = window.api.onLogMessage((newLog) => {
+      setLogs((prev) => [...prev, newLog])
+    })
+
+    const unsubscribeCleared = window.api.onLogsCleared(() => {
+      setLogs([])
+    })
+
+    return () => {
+      unsubscribeLog()
+      unsubscribeCleared()
+    }
+  }, [])
+
+  // Calculate log counts for warnings/errors
+  const logCounts = (() => {
+    let warning = 0
+    let error = 0
+    logs.forEach((l) => {
+      if (l.level === 'WARNING') warning++
+      else if (l.level === 'ERROR') error++
+    })
+    return { warning, error }
+  })()
+
+  const handleClearLogs = async () => {
+    try {
+      await window.api.clearLogs()
+    } catch (err) {
+      console.error('Failed to clear logs:', err)
+    }
+  }
 
   const toggleTheme = () => {
     setTheme((prev) => (prev === 'dark' ? 'light' : 'dark'))
@@ -179,39 +225,48 @@ function App() {
 
         {/* Main Pages Content */}
         <main className="main-content">
-          {currentPage === 'home' && (
-            <HomePage
-              onNavigateToSession={navigateToSession}
-              onNavigateToImport={() => setCurrentPage('import')}
-              onNavigateToSearch={() => setCurrentPage('search')}
-            />
-          )}
-          {currentPage === 'import' && <ImportPage onImportSuccess={loadDbStats} />}
-          {currentPage === 'search' && (
-            <SetSearchPage
-              preselectedSetNum={activeSetNum}
-              onSessionStart={navigateToSession}
-              onClearPreselected={() => setActiveSetNum(null)}
-            />
-          )}
-          {currentPage === 'session' && activeSessionId !== null && (
-            <InventorySessionPage
-              sessionId={activeSessionId}
-              onBackToHome={() => {
-                setCurrentPage('home')
-                setActiveSessionId(null)
-              }}
-            />
-          )}
-          {currentPage === 'collection' && (
-            <CollectionOverviewPage onNavigateToSession={navigateToSession} />
-          )}
-          {currentPage === 'docs' && <HelpDocsPage />}
-          {currentPage === 'settings' && (
-            <SettingsPage
-              onSettingsSaved={async () => {
-                loadDbStats()
-              }}
+          <div className="main-page-wrapper">
+            {currentPage === 'home' && (
+              <HomePage
+                onNavigateToSession={navigateToSession}
+                onNavigateToImport={() => setCurrentPage('import')}
+                onNavigateToSearch={() => setCurrentPage('search')}
+              />
+            )}
+            {currentPage === 'import' && <ImportPage onImportSuccess={loadDbStats} />}
+            {currentPage === 'search' && (
+              <SetSearchPage
+                preselectedSetNum={activeSetNum}
+                onSessionStart={navigateToSession}
+                onClearPreselected={() => setActiveSetNum(null)}
+              />
+            )}
+            {currentPage === 'session' && activeSessionId !== null && (
+              <InventorySessionPage
+                sessionId={activeSessionId}
+                onBackToHome={() => {
+                  setCurrentPage('home')
+                  setActiveSessionId(null)
+                }}
+              />
+            )}
+            {currentPage === 'collection' && (
+              <CollectionOverviewPage onNavigateToSession={navigateToSession} />
+            )}
+            {currentPage === 'docs' && <HelpDocsPage />}
+            {currentPage === 'settings' && (
+              <SettingsPage
+                onSettingsSaved={async () => {
+                  loadDbStats()
+                }}
+              />
+            )}
+          </div>
+          {isLogPanelOpen && (
+            <LogPanel
+              logs={logs}
+              onClose={() => setIsLogPanelOpen(false)}
+              onClear={handleClearLogs}
             />
           )}
         </main>
@@ -222,6 +277,9 @@ function App() {
         dbStats={dbStats}
         isSessionActive={currentPage === 'session' && activeSessionId !== null}
         onAboutClick={() => setIsAboutOpen(true)}
+        isLogPanelOpen={isLogPanelOpen}
+        onToggleLogPanel={() => setIsLogPanelOpen((prev) => !prev)}
+        logCounts={logCounts}
       />
       <AboutDialog isOpen={isAboutOpen} onClose={() => setIsAboutOpen(false)} />
     </CustomDialogProvider>

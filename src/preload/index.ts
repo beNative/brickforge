@@ -146,7 +146,27 @@ const api = {
     }
   },
 
-  triggerUpdateRelaunch: () => ipcRenderer.invoke('update-relaunch')
+  triggerUpdateRelaunch: () => ipcRenderer.invoke('update-relaunch'),
+
+  log: (level: 'DEBUG' | 'INFO' | 'WARNING' | 'ERROR', message: string) =>
+    ipcRenderer.invoke('log', level, message),
+  getLogs: () => ipcRenderer.invoke('get-logs'),
+  clearLogs: () => ipcRenderer.invoke('clear-logs'),
+  openLogFolder: () => ipcRenderer.invoke('open-log-folder'),
+  onLogMessage: (callback: (logObj: any) => void) => {
+    const listener = (_event: any, data: any) => callback(data)
+    ipcRenderer.on('log-message', listener)
+    return () => {
+      ipcRenderer.removeListener('log-message', listener)
+    }
+  },
+  onLogsCleared: (callback: () => void) => {
+    const listener = () => callback()
+    ipcRenderer.on('logs-cleared', listener)
+    return () => {
+      ipcRenderer.removeListener('logs-cleared', listener)
+    }
+  }
 }
 
 // Use `contextBridge` APIs to expose Electron APIs to

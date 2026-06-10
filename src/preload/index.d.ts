@@ -115,6 +115,12 @@ export interface BrickForgeAPI {
   onUpdateDownloaded: (callback: (info: { version: string }) => void) => () => void
   onUpdateError: (callback: (errorMsg: string) => void) => () => void
   triggerUpdateRelaunch: () => Promise<void>
+  log: (level: 'DEBUG' | 'INFO' | 'WARNING' | 'ERROR', message: string) => Promise<{ success: boolean; error?: string }>
+  getLogs: () => Promise<{ success: boolean; logs: any[]; error?: string }>
+  clearLogs: () => Promise<{ success: boolean; error?: string }>
+  openLogFolder: () => Promise<{ success: boolean; error?: string }>
+  onLogMessage: (callback: (logObj: any) => void) => () => void
+  onLogsCleared: (callback: () => void) => () => void
 }
 
 declare global {

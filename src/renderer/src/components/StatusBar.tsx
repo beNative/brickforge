@@ -1,18 +1,24 @@
 import { useEffect, useState } from 'react'
-import { Database, Info, Hammer } from 'lucide-react'
+import { Database, Info, Hammer, Terminal } from 'lucide-react'
 
 interface StatusBarProps {
   isDbPopulated: boolean
   dbStats: { catalogSetsCount: number; catalogPartsCount: number } | null
   isSessionActive: boolean
   onAboutClick: () => void
+  isLogPanelOpen: boolean
+  onToggleLogPanel: () => void
+  logCounts: { warning: number; error: number }
 }
 
 export default function StatusBar({
   isDbPopulated,
   dbStats,
   isSessionActive,
-  onAboutClick
+  onAboutClick,
+  isLogPanelOpen,
+  onToggleLogPanel,
+  logCounts
 }: StatusBarProps) {
   const [version, setVersion] = useState<string>('1.4.0')
 
@@ -50,6 +56,31 @@ export default function StatusBar({
       </div>
 
       <div className="statusbar-right">
+        {/* Toggle Log Panel */}
+        <div
+          className={`statusbar-item clickable ${isLogPanelOpen ? 'active' : ''}`}
+          onClick={onToggleLogPanel}
+          title="Toggle Logs Console"
+          style={{ marginRight: '8px' }}
+        >
+          <Terminal size={12} />
+          <span>Logs</span>
+          {(logCounts.warning > 0 || logCounts.error > 0) && (
+            <span className="statusbar-log-badges">
+              {logCounts.error > 0 && (
+                <span className="statusbar-log-badge error" title={`${logCounts.error} Errors`}>
+                  {logCounts.error}
+                </span>
+              )}
+              {logCounts.warning > 0 && (
+                <span className="statusbar-log-badge warning" title={`${logCounts.warning} Warnings`}>
+                  {logCounts.warning}
+                </span>
+              )}
+            </span>
+          )}
+        </div>
+
         <div
           className="statusbar-item clickable"
           onClick={onAboutClick}

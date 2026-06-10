@@ -2,6 +2,7 @@ import Database from 'better-sqlite3'
 import { join, dirname } from 'path'
 import { existsSync, mkdirSync } from 'fs'
 import { getSettings } from '../services/settingsService'
+import { info, error } from '../services/loggerService'
 
 let db: Database.Database
 
@@ -18,7 +19,7 @@ export function initDatabase(): Database.Database {
   if (!existsSync(dbDir)) {
     mkdirSync(dbDir, { recursive: true })
   }
-  console.log('Initializing SQLite database at:', dbPath)
+  info(`Initializing SQLite database at: ${dbPath}`)
 
   db = new Database(dbPath)
 
@@ -26,6 +27,7 @@ export function initDatabase(): Database.Database {
   db.pragma('foreign_keys = ON')
 
   // Run database migrations/schema setup
+  info('Running database migrations/schema checks...')
   runMigrations(db)
 
   return db
@@ -33,19 +35,22 @@ export function initDatabase(): Database.Database {
 
 export function closeDatabase(): void {
   if (db) {
-    console.log('Closing active SQLite database connection...')
+    info('Closing active SQLite database connection...')
     try {
       db.close()
     } catch (e) {
-      console.error('Error closing database:', e)
+      error('Error closing database:', e)
     }
     db = undefined as any
   }
 }
 
 export function reconnectDatabase(): Database.Database {
+  info('Triggering database reconnection flow...')
   closeDatabase()
-  return initDatabase()
+  const newDb = initDatabase()
+  info('Database reconnection completed successfully.')
+  return newDb
 }
 
 export function getDb(): Database.Database {
