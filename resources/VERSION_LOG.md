@@ -4,6 +4,33 @@ This document logs all released versions of BrickForge, detailing features, upda
 
 ---
 
+## v1.4.0 — Auto-Updates & Release Automation (June 2026)
+
+This release introduces an automated background update engine and release packaging workflows.
+
+### Added
+
+- **Background Auto-Updater:** Integrates `electron-updater` with GitHub Releases to check for public updates silently on startup and download them automatically.
+- **Sleek Update Toast Notification:** Mounts a global glassmorphic toast notification displaying real-time download percentages and a progress bar.
+- **One-Click Relaunch:** Adds a single-click restart prompt to apply updates immediately, or applies updates silently when the application closes.
+- **CI/CD Release Workflow:** Implements GitHub Actions runner matrices to package `.exe` (Windows), `.dmg` (macOS), and `.AppImage`/`.deb`/`.snap` (Linux) installers on version tag pushes.
+
+---
+
+## v1.3.0 — Offline Image Caching (June 2026)
+
+This release introduces an offline image cache which stores set and part images directly inside the local SQLite database as BLOBs, allowing the app to display them fully offline.
+
+### Added
+
+- **Offline Image Cache:** Stores downloaded image files (from Rebrickable) directly inside the SQLite database, eliminating external network dependencies during builds/checks.
+- **Smart `CachedImage` Component:** Replaces standard HTML `<img>` elements to check local SQLite database storage first via custom `brickforge://` protocol before falling back to HTTP.
+- **Auto-Download on Add:** Automatically pulls and caches images in the background when adding new sets to your collection.
+- **Collection Sync Button:** Added a header button on the Collection dashboard to download all collection images with real-time download and failure progress indicators.
+- **Cache Stats & Purging:** Allows checking total stored images, total disk/database space consumed, and offers a button to clear the image cache.
+
+---
+
 ## v1.2.0 — In-App Documentation Viewer (June 2026)
 
 This release adds a built-in documentation reader, making the User Manual and Version Log accessible directly within the application.

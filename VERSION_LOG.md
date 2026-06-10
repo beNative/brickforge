@@ -4,6 +4,19 @@ This document logs all released versions of BrickForge, detailing features, upda
 
 ---
 
+## v1.4.0 — Auto-Updates & Release Automation (June 2026)
+
+This release introduces an automated background update engine and release packaging workflows.
+
+### Added
+
+- **Background Auto-Updater:** Integrates `electron-updater` with GitHub Releases to check for public updates silently on startup and download them automatically.
+- **Sleek Update Toast Notification:** Mounts a global glassmorphic toast notification displaying real-time download percentages and a progress bar.
+- **One-Click Relaunch:** Adds a single-click restart prompt to apply updates immediately, or applies updates silently when the application closes.
+- **CI/CD Release Workflow:** Implements GitHub Actions runner matrices to package `.exe` (Windows), `.dmg` (macOS), and `.AppImage`/`.deb`/`.snap` (Linux) installers on version tag pushes.
+
+---
+
 ## v1.3.0 — Offline Image Caching (June 2026)
 
 This release introduces an offline image cache which stores set and part images directly inside the local SQLite database as BLOBs, allowing the app to display them fully offline.
