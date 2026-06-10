@@ -13,12 +13,18 @@ export function exportMissingParts(params: ExportParams): void {
   const db = getDb()
 
   // 1. Get session details
-  const session = db.prepare(`
+  const session = db
+    .prepare(
+      `
     SELECT cs.name as session_name, cs.set_num, s.name as set_name
     FROM check_sessions cs
     JOIN sets s ON cs.set_num = s.set_num
     WHERE cs.id = ?
-  `).get(params.sessionId) as { session_name: string; set_num: string; set_name: string } | undefined
+  `
+    )
+    .get(params.sessionId) as
+    | { session_name: string; set_num: string; set_name: string }
+    | undefined
 
   if (!session) {
     throw new Error(`Session ${params.sessionId} not found.`)
@@ -26,7 +32,9 @@ export function exportMissingParts(params: ExportParams): void {
 
   // 2. Fetch items with potential missing quantities
   // Missing means counted_qty < expected_qty (or counted_qty is null, which implies expected_qty is missing)
-  const items = db.prepare(`
+  const items = db
+    .prepare(
+      `
     SELECT 
       ci.part_num, 
       p.name as part_name,
@@ -40,7 +48,9 @@ export function exportMissingParts(params: ExportParams): void {
     JOIN parts p ON ci.part_num = p.part_num
     JOIN colors c ON ci.color_id = c.id
     WHERE ci.session_id = ?
-  `).all(params.sessionId) as any[]
+  `
+    )
+    .all(params.sessionId) as any[]
 
   // 3. Filter missing items & apply spares filter
   const missingRows: any[] = []
@@ -71,7 +81,7 @@ export function exportMissingParts(params: ExportParams): void {
       'Missing Qty': missingQty,
       'Is Spare': isSpare ? 'Yes' : 'No',
       'Image URL': item.image_url || '',
-      'Notes': item.notes || ''
+      Notes: item.notes || ''
     })
   }
 

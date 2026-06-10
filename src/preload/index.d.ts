@@ -1,7 +1,10 @@
 import { ElectronAPI } from '@electron-toolkit/preload'
 
 export interface BrickForgeAPI {
-  importCsv: (filePath: string, type: string) => Promise<{ success: boolean; error?: string; result?: any }>
+  importCsv: (
+    filePath: string,
+    type: string
+  ) => Promise<{ success: boolean; error?: string; result?: any }>
   selectCsvFile: () => Promise<string | null>
   minimizeWindow: () => Promise<void>
   maximizeWindow: () => Promise<void>
@@ -10,13 +13,30 @@ export interface BrickForgeAPI {
   searchSets: (query: string) => Promise<{ success: boolean; error?: string; sets?: any[] }>
   getSetDetails: (setNum: string) => Promise<{ success: boolean; error?: string; details?: any }>
   createSession: (input: any) => Promise<{ success: boolean; error?: string; sessionId?: number }>
-  getSession: (sessionId: number) => Promise<{ success: boolean; error?: string; session?: any; items?: any[]; progress?: any }>
-  updateCountedQty: (itemId: number, countedQty: number | null) => Promise<{ success: boolean; error?: string }>
-  updateItemNotes: (itemId: number, notes: string | null) => Promise<{ success: boolean; error?: string }>
-  updateSessionNotes: (sessionId: number, notes: string | null) => Promise<{ success: boolean; error?: string }>
-  updateSessionStatus: (sessionId: number, status: string) => Promise<{ success: boolean; error?: string }>
+  getSession: (
+    sessionId: number
+  ) => Promise<{ success: boolean; error?: string; session?: any; items?: any[]; progress?: any }>
+  updateCountedQty: (
+    itemId: number,
+    countedQty: number | null
+  ) => Promise<{ success: boolean; error?: string }>
+  updateItemNotes: (
+    itemId: number,
+    notes: string | null
+  ) => Promise<{ success: boolean; error?: string }>
+  updateSessionNotes: (
+    sessionId: number,
+    notes: string | null
+  ) => Promise<{ success: boolean; error?: string }>
+  updateSessionStatus: (
+    sessionId: number,
+    status: string
+  ) => Promise<{ success: boolean; error?: string }>
   quickCompleteSession: (sessionId: number) => Promise<{ success: boolean; error?: string }>
-  duplicateSession: (sessionId: number, newName: string) => Promise<{ success: boolean; error?: string; sessionId?: number }>
+  duplicateSession: (
+    sessionId: number,
+    newName: string
+  ) => Promise<{ success: boolean; error?: string; sessionId?: number }>
   deleteSession: (sessionId: number) => Promise<{ success: boolean; error?: string }>
   saveSetNotes: (setNum: string, notes: string) => Promise<{ success: boolean; error?: string }>
   getCollectionOverview: () => Promise<{ success: boolean; error?: string; collection?: any[] }>
@@ -28,16 +48,53 @@ export interface BrickForgeAPI {
     filter: 'all_missing' | 'non_spares_missing' | 'spares_missing'
   ) => Promise<{ success: boolean; error?: string; filePath?: string; canceled?: boolean }>
   addToCollection: (setNum: string) => Promise<{ success: boolean; error?: string }>
+  setCollectionManualComplete: (
+    setNum: string,
+    complete: boolean
+  ) => Promise<{ success: boolean; error?: string }>
   removeFromCollection: (setNum: string) => Promise<{ success: boolean; error?: string }>
-  isSetInCollection: (setNum: string) => Promise<{ success: boolean; error?: string; isIn?: boolean }>
+  isSetInCollection: (
+    setNum: string
+  ) => Promise<{ success: boolean; error?: string; isIn?: boolean }>
   getSetParts: (setNum: string) => Promise<{ success: boolean; error?: string; parts?: any[] }>
-  readDocument: (docName: 'manual' | 'changelog') => Promise<{ success: boolean; content?: string; error?: string }>
-  downloadSetImages: (setNum: string) => Promise<{ success: boolean; error?: string; stats?: { total: number; downloaded: number; failed: number; skipped: number } }>
-  downloadCollectionImages: () => Promise<{ success: boolean; error?: string; stats?: { totalSets: number; totalImages: number; totalDownloaded: number; totalFailed: number } }>
-  getImageCacheStats: () => Promise<{ success: boolean; error?: string; stats?: { totalImages: number; totalSizeBytes: number } }>
+  readDocument: (
+    docName: 'manual' | 'changelog'
+  ) => Promise<{ success: boolean; content?: string; error?: string }>
+  downloadSetImages: (
+    setNum: string
+  ) => Promise<{
+    success: boolean
+    error?: string
+    stats?: { total: number; downloaded: number; failed: number; skipped: number }
+  }>
+  downloadCollectionImages: () => Promise<{
+    success: boolean
+    error?: string
+    stats?: { totalSets: number; totalImages: number; totalDownloaded: number; totalFailed: number }
+  }>
+  getImageCacheStats: () => Promise<{
+    success: boolean
+    error?: string
+    stats?: { totalImages: number; totalSizeBytes: number }
+  }>
   clearImageCache: () => Promise<{ success: boolean; error?: string }>
-  onImageDownloadProgress: (callback: (data: { setNum: string; total: number; completed: number; failed: number; phase: string }) => void) => () => void
-  onCollectionImageDownloadProgress: (callback: (data: { totalSets: number; completedSets: number; currentSet: string; imageProgress: any }) => void) => () => void
+  onImageDownloadProgress: (
+    callback: (data: {
+      setNum: string
+      total: number
+      completed: number
+      failed: number
+      phase: string
+    }) => void
+  ) => () => void
+  onCollectionImageDownloadProgress: (
+    callback: (data: {
+      totalSets: number
+      completedSets: number
+      currentSet: string
+      imageProgress: any
+    }) => void
+  ) => () => void
 }
 
 declare global {

@@ -3,21 +3,16 @@ import { electronAPI } from '@electron-toolkit/preload'
 
 // Custom APIs for renderer
 const api = {
-  importCsv: (filePath: string, type: string) => 
-    ipcRenderer.invoke('import-csv', filePath, type),
+  importCsv: (filePath: string, type: string) => ipcRenderer.invoke('import-csv', filePath, type),
 
-  selectCsvFile: () => 
-    ipcRenderer.invoke('select-csv-file'),
+  selectCsvFile: () => ipcRenderer.invoke('select-csv-file'),
 
-  minimizeWindow: () => 
-    ipcRenderer.invoke('window-minimize'),
+  minimizeWindow: () => ipcRenderer.invoke('window-minimize'),
 
-  maximizeWindow: () => 
-    ipcRenderer.invoke('window-maximize'),
+  maximizeWindow: () => ipcRenderer.invoke('window-maximize'),
 
-  closeWindow: () => 
-    ipcRenderer.invoke('window-close'),
-  
+  closeWindow: () => ipcRenderer.invoke('window-close'),
+
   onImportProgress: (callback: (data: { type: string; current: number }) => void) => {
     const listener = (_event: any, data: any) => callback(data)
     ipcRenderer.on('import-progress', listener)
@@ -25,81 +20,67 @@ const api = {
       ipcRenderer.removeListener('import-progress', listener)
     }
   },
-  
-  searchSets: (query: string) => 
-    ipcRenderer.invoke('search-sets', query),
-  
-  getSetDetails: (setNum: string) => 
-    ipcRenderer.invoke('get-set-details', setNum),
-  
-  createSession: (input: any) => 
-    ipcRenderer.invoke('create-session', input),
-  
-  getSession: (sessionId: number) => 
-    ipcRenderer.invoke('get-session', sessionId),
-  
-  updateCountedQty: (itemId: number, countedQty: number | null) => 
+
+  searchSets: (query: string) => ipcRenderer.invoke('search-sets', query),
+
+  getSetDetails: (setNum: string) => ipcRenderer.invoke('get-set-details', setNum),
+
+  createSession: (input: any) => ipcRenderer.invoke('create-session', input),
+
+  getSession: (sessionId: number) => ipcRenderer.invoke('get-session', sessionId),
+
+  updateCountedQty: (itemId: number, countedQty: number | null) =>
     ipcRenderer.invoke('update-counted-qty', itemId, countedQty),
-  
-  updateItemNotes: (itemId: number, notes: string | null) => 
+
+  updateItemNotes: (itemId: number, notes: string | null) =>
     ipcRenderer.invoke('update-item-notes', itemId, notes),
-  
-  updateSessionNotes: (sessionId: number, notes: string | null) => 
+
+  updateSessionNotes: (sessionId: number, notes: string | null) =>
     ipcRenderer.invoke('update-session-notes', sessionId, notes),
-  
-  updateSessionStatus: (sessionId: number, status: string) => 
+
+  updateSessionStatus: (sessionId: number, status: string) =>
     ipcRenderer.invoke('update-session-status', sessionId, status),
-  
-  quickCompleteSession: (sessionId: number) => 
+
+  quickCompleteSession: (sessionId: number) =>
     ipcRenderer.invoke('quick-complete-session', sessionId),
-  
-  duplicateSession: (sessionId: number, newName: string) => 
+
+  duplicateSession: (sessionId: number, newName: string) =>
     ipcRenderer.invoke('duplicate-session', sessionId, newName),
-  
-  deleteSession: (sessionId: number) => 
-    ipcRenderer.invoke('delete-session', sessionId),
-  
-  saveSetNotes: (setNum: string, notes: string) => 
+
+  deleteSession: (sessionId: number) => ipcRenderer.invoke('delete-session', sessionId),
+
+  saveSetNotes: (setNum: string, notes: string) =>
     ipcRenderer.invoke('save-set-notes', setNum, notes),
-  
-  getCollectionOverview: () => 
-    ipcRenderer.invoke('get-collection-overview'),
-  
-  getRecentSessions: () => 
-    ipcRenderer.invoke('get-recent-sessions'),
-  
-  getGeneralStats: () => 
-    ipcRenderer.invoke('get-general-stats'),
-  
-  exportMissingParts: (sessionId: number, format: 'csv' | 'json', filter: string) => 
+
+  getCollectionOverview: () => ipcRenderer.invoke('get-collection-overview'),
+
+  getRecentSessions: () => ipcRenderer.invoke('get-recent-sessions'),
+
+  getGeneralStats: () => ipcRenderer.invoke('get-general-stats'),
+
+  exportMissingParts: (sessionId: number, format: 'csv' | 'json', filter: string) =>
     ipcRenderer.invoke('export-missing-parts', sessionId, format, filter),
 
-  addToCollection: (setNum: string) =>
-    ipcRenderer.invoke('add-to-collection', setNum),
+  addToCollection: (setNum: string) => ipcRenderer.invoke('add-to-collection', setNum),
 
-  removeFromCollection: (setNum: string) =>
-    ipcRenderer.invoke('remove-from-collection', setNum),
+  setCollectionManualComplete: (setNum: string, complete: boolean) =>
+    ipcRenderer.invoke('set-collection-manual-complete', setNum, complete),
 
-  isSetInCollection: (setNum: string) =>
-    ipcRenderer.invoke('is-set-in-collection', setNum),
+  removeFromCollection: (setNum: string) => ipcRenderer.invoke('remove-from-collection', setNum),
 
-  getSetParts: (setNum: string) =>
-    ipcRenderer.invoke('get-set-parts', setNum),
+  isSetInCollection: (setNum: string) => ipcRenderer.invoke('is-set-in-collection', setNum),
 
-  readDocument: (docName: 'manual' | 'changelog') =>
-    ipcRenderer.invoke('read-document', docName),
+  getSetParts: (setNum: string) => ipcRenderer.invoke('get-set-parts', setNum),
 
-  downloadSetImages: (setNum: string) =>
-    ipcRenderer.invoke('download-set-images', setNum),
+  readDocument: (docName: 'manual' | 'changelog') => ipcRenderer.invoke('read-document', docName),
 
-  downloadCollectionImages: () =>
-    ipcRenderer.invoke('download-collection-images'),
+  downloadSetImages: (setNum: string) => ipcRenderer.invoke('download-set-images', setNum),
 
-  getImageCacheStats: () =>
-    ipcRenderer.invoke('get-image-cache-stats'),
+  downloadCollectionImages: () => ipcRenderer.invoke('download-collection-images'),
 
-  clearImageCache: () =>
-    ipcRenderer.invoke('clear-image-cache'),
+  getImageCacheStats: () => ipcRenderer.invoke('get-image-cache-stats'),
+
+  clearImageCache: () => ipcRenderer.invoke('clear-image-cache'),
 
   onImageDownloadProgress: (callback: (data: any) => void) => {
     const listener = (_event: any, data: any) => callback(data)

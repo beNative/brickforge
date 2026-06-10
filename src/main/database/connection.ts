@@ -18,7 +18,7 @@ export function initDatabase(): Database.Database {
 
   const dbPath = getDatabasePath()
   console.log('Initializing SQLite database at:', dbPath)
-  
+
   db = new Database(dbPath)
 
   // Enable foreign keys
@@ -140,6 +140,8 @@ function runMigrations(database: Database.Database): void {
       CREATE TABLE IF NOT EXISTS user_collection (
         set_num TEXT PRIMARY KEY,
         created_at TEXT NOT NULL,
+        manual_complete BOOLEAN NOT NULL DEFAULT 0,
+        manual_complete_at TEXT,
         FOREIGN KEY (set_num) REFERENCES sets(set_num) ON DELETE CASCADE
       );
 
@@ -151,6 +153,34 @@ function runMigrations(database: Database.Database): void {
         cached_at TEXT NOT NULL
       );
     `)
+
+    // Deduplicate set_notes by keeping only the latest note per set_num
+    database.exec(`
+      DELETE FROM set_notes
+      WHERE id NOT IN (
+        SELECT MAX(id)
+        FROM set_notes
+        GROUP BY set_num
+      );
+    `)
+
+    const collectionColumns = database.prepare('PRAGMA table_info(user_collection)').all() as {
+      name: string
+    }[]
+    const hasManualComplete = collectionColumns.some((column) => column.name === 'manual_complete')
+    const hasManualCompleteAt = collectionColumns.some(
+      (column) => column.name === 'manual_complete_at'
+    )
+
+    if (!hasManualComplete) {
+      database.exec(
+        'ALTER TABLE user_collection ADD COLUMN manual_complete BOOLEAN NOT NULL DEFAULT 0'
+      )
+    }
+
+    if (!hasManualCompleteAt) {
+      database.exec('ALTER TABLE user_collection ADD COLUMN manual_complete_at TEXT')
+    }
 
     // Create Indexes
     database.exec(`
@@ -165,9 +195,13 @@ function runMigrations(database: Database.Database): void {
     `)
 
     // Populate Technic Groups if empty
-    const groupCount = database.prepare('SELECT count(*) as count FROM technic_groups').get() as { count: number }
+    const groupCount = database.prepare('SELECT count(*) as count FROM technic_groups').get() as {
+      count: number
+    }
     if (groupCount.count === 0) {
-      const insertGroup = database.prepare('INSERT OR IGNORE INTO technic_groups (id, name, sort_order) VALUES (?, ?, ?)')
+      const insertGroup = database.prepare(
+        'INSERT OR IGNORE INTO technic_groups (id, name, sort_order) VALUES (?, ?, ?)'
+      )
       const groups = [
         [1, 'Pins', 1],
         [2, 'Axles', 2],

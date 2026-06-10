@@ -48,7 +48,12 @@ export function getTechnicGroupId(categoryName: string, partName: string): numbe
     return 3
   }
   // Match liftarms and beams
-  if (cat.includes('liftarm') || name.includes('liftarm') || cat.includes('beams') || name.includes('technic beam')) {
+  if (
+    cat.includes('liftarm') ||
+    name.includes('liftarm') ||
+    cat.includes('beams') ||
+    name.includes('technic beam')
+  ) {
     // Frames are a sub-set of liftarms/beams. Let's see:
     if (name.includes('frame') || name.includes('rectangular') || name.includes(' H-shape')) {
       return 6 // Frames
@@ -100,7 +105,12 @@ export function getTechnicGroupId(categoryName: string, partName: string): numbe
     return 4
   }
   // Match pneumatics
-  if (cat.includes('pneumatic') || name.includes('pneumatic') || name.includes('pump') || name.includes('cylinder')) {
+  if (
+    cat.includes('pneumatic') ||
+    name.includes('pneumatic') ||
+    name.includes('pump') ||
+    name.includes('cylinder')
+  ) {
     return 12
   }
   // Match linear actuators

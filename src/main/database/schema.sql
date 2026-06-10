@@ -99,6 +99,8 @@ CREATE TABLE IF NOT EXISTS set_notes (
 CREATE TABLE IF NOT EXISTS user_collection (
   set_num TEXT PRIMARY KEY,
   created_at TEXT NOT NULL,
+  manual_complete BOOLEAN NOT NULL DEFAULT 0,
+  manual_complete_at TEXT,
   FOREIGN KEY (set_num) REFERENCES sets(set_num) ON DELETE CASCADE
 );
 

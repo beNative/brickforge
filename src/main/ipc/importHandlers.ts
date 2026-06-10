@@ -9,7 +9,9 @@ export function registerImportHandlers(): void {
         // Send progress updates to the renderer window
         event.sender.send('import-progress', { type, current: progress.current })
       })
-      console.log(`Finished CSV import: ${type}. Success: ${result.successCount}, Errors: ${result.errorCount}`)
+      console.log(
+        `Finished CSV import: ${type}. Success: ${result.successCount}, Errors: ${result.errorCount}`
+      )
       return { success: true, result }
     } catch (error: any) {
       console.error(`Error importing CSV: ${type}`, error)

@@ -55,7 +55,10 @@ function renderMarkdown(raw: string): string {
   const inlineFormat = (text: string): string => {
     let s = text
     // Links: [text](url)
-    s = s.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" class="md-link" target="_blank" rel="noopener">$1</a>')
+    s = s.replace(
+      /\[([^\]]+)\]\(([^)]+)\)/g,
+      '<a href="$2" class="md-link" target="_blank" rel="noopener">$1</a>'
+    )
     // Images
     s = s.replace(/!\[([^\]]*)\]\(([^)]+)\)/g, '<img src="$2" alt="$1" class="md-img" />')
     // Bold + Italic
@@ -114,7 +117,10 @@ function renderMarkdown(raw: string): string {
       flushList()
       const level = headingMatch[1].length
       const text = inlineFormat(headingMatch[2])
-      const id = headingMatch[2].toLowerCase().replace(/[^\w]+/g, '-').replace(/^-|-$/g, '')
+      const id = headingMatch[2]
+        .toLowerCase()
+        .replace(/[^\w]+/g, '-')
+        .replace(/^-|-$/g, '')
       html += `<h${level} id="${id}" class="md-h${level}">${text}</h${level}>\n`
       continue
     }
@@ -201,7 +207,7 @@ export default function HelpDocsPage() {
     const query = searchQuery.trim().toLowerCase()
     // Split into block-level elements and keep only those containing the query
     const blocks = html.split(/(?=<(?:h[1-6]|p |p>|ul|ol|pre|div|blockquote|hr))/i)
-    const filtered = blocks.filter(block => {
+    const filtered = blocks.filter((block) => {
       // Always keep headings and HRs for context
       if (/^<h[1-6]/.test(block) || /^<hr/.test(block)) return true
       // Check if block text matches
@@ -210,7 +216,8 @@ export default function HelpDocsPage() {
     })
 
     // Highlight matching text
-    if (filtered.length === 0) return '<p class="md-p" style="color:var(--text-secondary)">No matching content found.</p>'
+    if (filtered.length === 0)
+      return '<p class="md-p" style="color:var(--text-secondary)">No matching content found.</p>'
 
     const escaped = searchQuery.trim().replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
     const re = new RegExp(`(${escaped})`, 'gi')
@@ -274,10 +281,7 @@ export default function HelpDocsPage() {
             <span>{error}</span>
           </div>
         ) : (
-          <div
-            className="md-body"
-            dangerouslySetInnerHTML={{ __html: filteredHtml }}
-          />
+          <div className="md-body" dangerouslySetInnerHTML={{ __html: filteredHtml }} />
         )}
       </div>
 

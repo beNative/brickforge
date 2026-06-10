@@ -8,7 +8,12 @@ interface TooltipProps {
   position?: 'top' | 'bottom' | 'left' | 'right'
 }
 
-export default function Tooltip({ content, children, delay = 150, position = 'top' }: TooltipProps) {
+export default function Tooltip({
+  content,
+  children,
+  delay = 150,
+  position = 'top'
+}: TooltipProps) {
   const [active, setActive] = useState(false)
   const [coords, setCoords] = useState({ top: 0, left: 0 })
   const timer = useRef<NodeJS.Timeout | null>(null)
@@ -83,23 +88,23 @@ export default function Tooltip({ content, children, delay = 150, position = 'to
   return (
     <>
       {clonedChild}
-      {active && content && ReactDOM.createPortal(
-        <div 
-          className={`custom-tooltip custom-tooltip-${position}`}
-          style={{
-            position: 'absolute',
-            top: `${coords.top}px`,
-            left: `${coords.left}px`,
-            zIndex: 99999,
-            pointerEvents: 'none'
-          }}
-        >
-          <div className="custom-tooltip-content">
-            {content}
-          </div>
-        </div>,
-        document.body
-      )}
+      {active &&
+        content &&
+        ReactDOM.createPortal(
+          <div
+            className={`custom-tooltip custom-tooltip-${position}`}
+            style={{
+              position: 'absolute',
+              top: `${coords.top}px`,
+              left: `${coords.left}px`,
+              zIndex: 99999,
+              pointerEvents: 'none'
+            }}
+          >
+            <div className="custom-tooltip-content">{content}</div>
+          </div>,
+          document.body
+        )}
     </>
   )
 }

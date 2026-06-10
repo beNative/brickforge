@@ -14,6 +14,7 @@ import {
   getGeneralStats,
   saveSetNotes,
   addToCollection,
+  setCollectionManualComplete,
   removeFromCollection,
   isSetInCollection
 } from '../services/sessionService'
@@ -42,15 +43,18 @@ export function registerSessionHandlers(): void {
     }
   })
 
-  ipcMain.handle('update-counted-qty', async (_event, itemId: number, countedQty: number | null) => {
-    try {
-      updateCountedQty(itemId, countedQty)
-      return { success: true }
-    } catch (error: any) {
-      console.error('Error updating counted quantity:', error)
-      return { success: false, error: error.message }
+  ipcMain.handle(
+    'update-counted-qty',
+    async (_event, itemId: number, countedQty: number | null) => {
+      try {
+        updateCountedQty(itemId, countedQty)
+        return { success: true }
+      } catch (error: any) {
+        console.error('Error updating counted quantity:', error)
+        return { success: false, error: error.message }
+      }
     }
-  })
+  )
 
   ipcMain.handle('update-item-notes', async (_event, itemId: number, notes: string | null) => {
     try {
@@ -62,15 +66,18 @@ export function registerSessionHandlers(): void {
     }
   })
 
-  ipcMain.handle('update-session-notes', async (_event, sessionId: number, notes: string | null) => {
-    try {
-      updateSessionNotes(sessionId, notes)
-      return { success: true }
-    } catch (error: any) {
-      console.error('Error updating session notes:', error)
-      return { success: false, error: error.message }
+  ipcMain.handle(
+    'update-session-notes',
+    async (_event, sessionId: number, notes: string | null) => {
+      try {
+        updateSessionNotes(sessionId, notes)
+        return { success: true }
+      } catch (error: any) {
+        console.error('Error updating session notes:', error)
+        return { success: false, error: error.message }
+      }
     }
-  })
+  )
 
   ipcMain.handle('update-session-status', async (_event, sessionId: number, status: string) => {
     try {
@@ -161,6 +168,19 @@ export function registerSessionHandlers(): void {
       return { success: false, error: error.message }
     }
   })
+
+  ipcMain.handle(
+    'set-collection-manual-complete',
+    async (_event, setNum: string, complete: boolean) => {
+      try {
+        setCollectionManualComplete(setNum, complete)
+        return { success: true }
+      } catch (error: any) {
+        console.error('Error updating manual collection completeness:', error)
+        return { success: false, error: error.message }
+      }
+    }
+  )
 
   ipcMain.handle('remove-from-collection', async (_event, setNum: string) => {
     try {

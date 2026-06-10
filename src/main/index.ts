@@ -14,7 +14,10 @@ import { getCachedImage } from './services/imageService'
 
 // Register custom protocol scheme BEFORE app is ready
 protocol.registerSchemesAsPrivileged([
-  { scheme: 'brickforge', privileges: { standard: true, secure: true, supportFetchAPI: true, corsEnabled: true } }
+  {
+    scheme: 'brickforge',
+    privileges: { standard: true, secure: true, supportFetchAPI: true, corsEnabled: true }
+  }
 ])
 
 function createWindow(): void {

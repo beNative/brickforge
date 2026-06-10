@@ -3,8 +3,12 @@ import { z } from 'zod'
 export const ColorCsvSchema = z.object({
   id: z.coerce.number(),
   name: z.string().min(1),
-  rgb: z.string().optional().nullable().transform(val => val || 'FFFFFF'),
-  is_trans: z.string().transform(val => val === 't' || val === '1' || val === 'true')
+  rgb: z
+    .string()
+    .optional()
+    .nullable()
+    .transform((val) => val || 'FFFFFF'),
+  is_trans: z.string().transform((val) => val === 't' || val === '1' || val === 'true')
 })
 
 export const PartCategoryCsvSchema = z.object({
@@ -35,7 +39,11 @@ export const ThemeCsvSchema = z.object({
 
 export const InventoryCsvSchema = z.object({
   id: z.coerce.number(),
-  version: z.coerce.number().optional().nullable().transform(val => val || 1),
+  version: z.coerce
+    .number()
+    .optional()
+    .nullable()
+    .transform((val) => val || 1),
   set_num: z.string().min(1)
 })
 
@@ -44,6 +52,6 @@ export const InventoryPartCsvSchema = z.object({
   part_num: z.string().min(1),
   color_id: z.coerce.number(),
   quantity: z.coerce.number(),
-  is_spare: z.string().transform(val => val === 't' || val === '1' || val === 'true'),
+  is_spare: z.string().transform((val) => val === 't' || val === '1' || val === 'true'),
   img_url: z.string().optional().nullable()
 })

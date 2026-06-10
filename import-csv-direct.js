@@ -123,7 +123,9 @@ db.transaction(() => {
   // Populate Technic Groups if empty
   const groupCount = db.prepare('SELECT count(*) as count FROM technic_groups').get()
   if (groupCount.count === 0) {
-    const insertGroup = db.prepare('INSERT OR IGNORE INTO technic_groups (id, name, sort_order) VALUES (?, ?, ?)')
+    const insertGroup = db.prepare(
+      'INSERT OR IGNORE INTO technic_groups (id, name, sort_order) VALUES (?, ?, ?)'
+    )
     const groups = [
       [1, 'Pins', 1],
       [2, 'Axles', 2],
@@ -158,8 +160,14 @@ function getTechnicGroupId(categoryName, partName) {
   if (cat.includes('pins') || cat.includes('pin ') || name.includes('technic pin')) return 1
   if (cat.includes('axles') || name.startsWith('technic axle') || name.includes('axle ')) return 2
   if (cat.includes('bush') || name.includes('bush ') || name.endsWith('bush')) return 3
-  if (cat.includes('liftarm') || name.includes('liftarm') || cat.includes('beams') || name.includes('technic beam')) {
-    if (name.includes('frame') || name.includes('rectangular') || name.includes(' H-shape')) return 6
+  if (
+    cat.includes('liftarm') ||
+    name.includes('liftarm') ||
+    cat.includes('beams') ||
+    name.includes('technic beam')
+  ) {
+    if (name.includes('frame') || name.includes('rectangular') || name.includes(' H-shape'))
+      return 6
     return 5
   }
   if (cat.includes('panels') || name.includes('panel')) return 7
@@ -176,7 +184,8 @@ function getTechnicGroupId(categoryName, partName) {
     name.includes('shock absorber') ||
     name.includes('wishbone') ||
     name.includes('portal axle')
-  ) return 10
+  )
+    return 10
   if (
     cat.includes('wheels') ||
     cat.includes('tyres') ||
@@ -186,9 +195,17 @@ function getTechnicGroupId(categoryName, partName) {
     name.includes('tire ') ||
     name.includes('sprocket') ||
     name.includes('track link')
-  ) return 11
-  if (cat.includes('connectors') || name.includes('connector') || name.includes('cross block')) return 4
-  if (cat.includes('pneumatic') || name.includes('pneumatic') || name.includes('pump') || name.includes('cylinder')) return 12
+  )
+    return 11
+  if (cat.includes('connectors') || name.includes('connector') || name.includes('cross block'))
+    return 4
+  if (
+    cat.includes('pneumatic') ||
+    name.includes('pneumatic') ||
+    name.includes('pump') ||
+    name.includes('cylinder')
+  )
+    return 12
   if (name.includes('linear actuator') || name.includes('actuator')) return 13
   if (
     cat.includes('electric') ||
@@ -200,7 +217,8 @@ function getTechnicGroupId(categoryName, partName) {
     name.includes('cable') ||
     name.includes('sensor') ||
     name.includes('receiver')
-  ) return 14
+  )
+    return 14
   if (
     cat.includes('hoses') ||
     cat.includes('strings') ||
@@ -209,7 +227,8 @@ function getTechnicGroupId(categoryName, partName) {
     name.includes('string') ||
     name.includes('ribbon') ||
     name.includes('flex ')
-  ) return 15
+  )
+    return 15
   return 17
 }
 
@@ -217,29 +236,68 @@ function getTechnicGroupId(categoryName, partName) {
 function importCsv(filePath, type, parserSchema) {
   return new Promise((resolve, reject) => {
     console.log(`\nImporting ${type} from ${filePath}...`)
-    
+
     let insertStmt
     switch (type) {
       case 'colors':
-        insertStmt = db.prepare('INSERT OR REPLACE INTO colors (id, name, rgb, is_transparent) VALUES (?, ?, ?, ?)')
+        insertStmt = db.prepare(`
+          INSERT INTO colors (id, name, rgb, is_transparent) VALUES (?, ?, ?, ?)
+          ON CONFLICT(id) DO UPDATE SET
+            name = excluded.name,
+            rgb = excluded.rgb,
+            is_transparent = excluded.is_transparent
+        `)
         break
       case 'part_categories':
-        insertStmt = db.prepare('INSERT OR REPLACE INTO part_categories (id, name) VALUES (?, ?)')
+        insertStmt = db.prepare(`
+          INSERT INTO part_categories (id, name) VALUES (?, ?)
+          ON CONFLICT(id) DO UPDATE SET
+            name = excluded.name
+        `)
         break
       case 'parts':
-        insertStmt = db.prepare('INSERT OR REPLACE INTO parts (part_num, name, part_cat_id, part_img_url) VALUES (?, ?, ?, ?)')
+        insertStmt = db.prepare(`
+          INSERT INTO parts (part_num, name, part_cat_id, part_img_url) VALUES (?, ?, ?, ?)
+          ON CONFLICT(part_num) DO UPDATE SET
+            name = excluded.name,
+            part_cat_id = excluded.part_cat_id,
+            part_img_url = COALESCE(excluded.part_img_url, part_img_url)
+        `)
         break
       case 'sets':
-        insertStmt = db.prepare('INSERT OR REPLACE INTO sets (set_num, name, year, theme_id, num_parts, image_url) VALUES (?, ?, ?, ?, ?, ?)')
+        insertStmt = db.prepare(`
+          INSERT INTO sets (set_num, name, year, theme_id, num_parts, image_url) VALUES (?, ?, ?, ?, ?, ?)
+          ON CONFLICT(set_num) DO UPDATE SET
+            name = excluded.name,
+            year = excluded.year,
+            theme_id = excluded.theme_id,
+            num_parts = excluded.num_parts,
+            image_url = COALESCE(excluded.image_url, image_url)
+        `)
         break
       case 'themes':
-        insertStmt = db.prepare('INSERT OR REPLACE INTO themes (id, name, parent_id) VALUES (?, ?, ?)')
+        insertStmt = db.prepare(`
+          INSERT INTO themes (id, name, parent_id) VALUES (?, ?, ?)
+          ON CONFLICT(id) DO UPDATE SET
+            name = excluded.name,
+            parent_id = excluded.parent_id
+        `)
         break
       case 'inventories':
-        insertStmt = db.prepare('INSERT OR REPLACE INTO inventories (id, version, set_num) VALUES (?, ?, ?)')
+        insertStmt = db.prepare(`
+          INSERT INTO inventories (id, version, set_num) VALUES (?, ?, ?)
+          ON CONFLICT(id) DO UPDATE SET
+            version = excluded.version,
+            set_num = excluded.set_num
+        `)
         break
       case 'inventory_parts':
-        insertStmt = db.prepare('INSERT OR REPLACE INTO inventory_parts (inventory_id, part_num, color_id, quantity, is_spare, img_url) VALUES (?, ?, ?, ?, ?, ?)')
+        insertStmt = db.prepare(`
+          INSERT INTO inventory_parts (inventory_id, part_num, color_id, quantity, is_spare, img_url) VALUES (?, ?, ?, ?, ?, ?)
+          ON CONFLICT(inventory_id, part_num, color_id, is_spare) DO UPDATE SET
+            quantity = excluded.quantity,
+            img_url = COALESCE(excluded.img_url, img_url)
+        `)
         break
     }
 
@@ -264,7 +322,12 @@ function importCsv(filePath, type, parserSchema) {
             } else if (type === 'part_categories') {
               insertStmt.run(parseInt(row.id, 10), row.name)
             } else if (type === 'parts') {
-              insertStmt.run(row.part_num, row.name, row.part_cat_id ? parseInt(row.part_cat_id, 10) : null, null)
+              insertStmt.run(
+                row.part_num,
+                row.name,
+                row.part_cat_id ? parseInt(row.part_cat_id, 10) : null,
+                null
+              )
             } else if (type === 'sets') {
               insertStmt.run(
                 row.set_num,
@@ -339,13 +402,17 @@ function runPostImportMappings() {
     return
   }
 
-  const unmappedParts = db.prepare(`
+  const unmappedParts = db
+    .prepare(
+      `
     SELECT p.part_num, p.name as part_name, pc.name as cat_name
     FROM parts p
     JOIN part_categories pc ON p.part_cat_id = pc.id
     LEFT JOIN part_technic_group_mapping m ON p.part_num = m.part_num
     WHERE m.part_num IS NULL
-  `).all()
+  `
+    )
+    .all()
 
   if (unmappedParts.length === 0) {
     console.log('All parts already mapped.')
@@ -353,7 +420,9 @@ function runPostImportMappings() {
   }
 
   console.log(`Mapping ${unmappedParts.length} parts to Technic Groups...`)
-  const insertStmt = db.prepare('INSERT OR REPLACE INTO part_technic_group_mapping (part_num, technic_group_id) VALUES (?, ?)')
+  const insertStmt = db.prepare(
+    'INSERT OR REPLACE INTO part_technic_group_mapping (part_num, technic_group_id) VALUES (?, ?)'
+  )
 
   db.transaction((partsToMap) => {
     for (const part of partsToMap) {
@@ -387,7 +456,7 @@ async function run() {
         console.warn(`WARNING: File not found at ${fullPath}. Skipping.`)
       }
     }
-    
+
     runPostImportMappings()
     console.log('\nSUCCESS: All data imported successfully into BrickForge database!')
     db.close()

@@ -14,7 +14,13 @@ interface CachedImageProps {
  * (SQLite BLOB cache), then falls back to the original remote URL.
  * Shows a placeholder icon if both fail or url is null.
  */
-export default function CachedImage({ url, alt, className, style, fallbackIconSize = 40 }: CachedImageProps) {
+export default function CachedImage({
+  url,
+  alt,
+  className,
+  style,
+  fallbackIconSize = 40
+}: CachedImageProps) {
   const [src, setSrc] = useState<string | null>(() => {
     if (!url) return null
     // Try cached version first via custom protocol

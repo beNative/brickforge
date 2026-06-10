@@ -5,9 +5,9 @@ import { net } from 'electron'
 
 export function getCachedImage(url: string): { data: Buffer; contentType: string } | null {
   const db = getDb()
-  const row = db.prepare(
-    'SELECT image_data, content_type FROM image_cache WHERE url = ?'
-  ).get(url) as { image_data: Buffer; content_type: string } | undefined
+  const row = db
+    .prepare('SELECT image_data, content_type FROM image_cache WHERE url = ?')
+    .get(url) as { image_data: Buffer; content_type: string } | undefined
 
   if (!row) return null
   return { data: row.image_data, contentType: row.content_type }
@@ -28,9 +28,11 @@ export function isImageCached(url: string): boolean {
 
 export function getImageCacheStats(): { totalImages: number; totalSizeBytes: number } {
   const db = getDb()
-  const row = db.prepare(
-    'SELECT count(*) as totalImages, COALESCE(sum(size_bytes), 0) as totalSizeBytes FROM image_cache'
-  ).get() as { totalImages: number; totalSizeBytes: number }
+  const row = db
+    .prepare(
+      'SELECT count(*) as totalImages, COALESCE(sum(size_bytes), 0) as totalSizeBytes FROM image_cache'
+    )
+    .get() as { totalImages: number; totalSizeBytes: number }
   return row
 }
 
@@ -46,20 +48,24 @@ export function getUncachedUrlsForSet(setNum: string): string[] {
   const db = getDb()
 
   // 1. Set image URL
-  const set = db.prepare('SELECT image_url FROM sets WHERE set_num = ?').get(setNum) as { image_url: string | null } | undefined
+  const set = db.prepare('SELECT image_url FROM sets WHERE set_num = ?').get(setNum) as
+    | { image_url: string | null }
+    | undefined
   const setUrl = set?.image_url || null
 
   // 2. Inventory part image URLs
-  const inventory = db.prepare(
-    'SELECT id FROM inventories WHERE set_num = ? ORDER BY version ASC LIMIT 1'
-  ).get(setNum) as { id: number } | undefined
+  const inventory = db
+    .prepare('SELECT id FROM inventories WHERE set_num = ? ORDER BY version ASC LIMIT 1')
+    .get(setNum) as { id: number } | undefined
 
   let partUrls: string[] = []
   if (inventory) {
-    const rows = db.prepare(
-      'SELECT DISTINCT img_url FROM inventory_parts WHERE inventory_id = ? AND img_url IS NOT NULL AND img_url != \'\''
-    ).all(inventory.id) as { img_url: string }[]
-    partUrls = rows.map(r => r.img_url)
+    const rows = db
+      .prepare(
+        "SELECT DISTINCT img_url FROM inventory_parts WHERE inventory_id = ? AND img_url IS NOT NULL AND img_url != ''"
+      )
+      .all(inventory.id) as { img_url: string }[]
+    partUrls = rows.map((r) => r.img_url)
   }
 
   // Combine all URLs
@@ -72,12 +78,12 @@ export function getUncachedUrlsForSet(setNum: string): string[] {
   // Filter out already-cached URLs
   // Use a temp approach: check each URL (SQLite IN clause with many params is fine for hundreds)
   const placeholders = allUrls.map(() => '?').join(',')
-  const cachedRows = db.prepare(
-    `SELECT url FROM image_cache WHERE url IN (${placeholders})`
-  ).all(...allUrls) as { url: string }[]
+  const cachedRows = db
+    .prepare(`SELECT url FROM image_cache WHERE url IN (${placeholders})`)
+    .all(...allUrls) as { url: string }[]
 
-  const cachedSet = new Set(cachedRows.map(r => r.url))
-  return allUrls.filter(u => !cachedSet.has(u))
+  const cachedSet = new Set(cachedRows.map((r) => r.url))
+  return allUrls.filter((u) => !cachedSet.has(u))
 }
 
 // ─── Download engine ──────────────────────────────────────────
@@ -158,12 +164,22 @@ export async function downloadAndCacheSetImages(
 
 /** Download images for all sets in the user's collection. */
 export async function downloadCollectionImages(
-  onProgress?: (progress: { totalSets: number; completedSets: number; currentSet: string; imageProgress: DownloadProgress }) => void
-): Promise<{ totalSets: number; totalImages: number; totalDownloaded: number; totalFailed: number }> {
+  onProgress?: (progress: {
+    totalSets: number
+    completedSets: number
+    currentSet: string
+    imageProgress: DownloadProgress
+  }) => void
+): Promise<{
+  totalSets: number
+  totalImages: number
+  totalDownloaded: number
+  totalFailed: number
+}> {
   const db = getDb()
-  const collectionSets = db.prepare(
-    'SELECT uc.set_num FROM user_collection uc'
-  ).all() as { set_num: string }[]
+  const collectionSets = db.prepare('SELECT uc.set_num FROM user_collection uc').all() as {
+    set_num: string
+  }[]
 
   let totalImages = 0
   let totalDownloaded = 0

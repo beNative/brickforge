@@ -47,7 +47,7 @@ export function searchSets(query: string): SetSearchResult[] {
 
   const results = db.prepare(sql).all(...params) as SetSearchResult[]
   // SQLite returns integers for boolean flags
-  return results.map(r => ({
+  return results.map((r) => ({
     ...r,
     has_sessions: Boolean(r.has_sessions)
   }))
@@ -56,7 +56,9 @@ export function searchSets(query: string): SetSearchResult[] {
 export function getSetDetails(setNum: string) {
   const db = getDb()
 
-  const setInfo = db.prepare(`
+  const setInfo = db
+    .prepare(
+      `
     SELECT 
       s.set_num, 
       s.name, 
@@ -68,37 +70,55 @@ export function getSetDetails(setNum: string) {
     FROM sets s
     LEFT JOIN themes t ON s.theme_id = t.id
     WHERE s.set_num = ?
-  `).get(setNum) as LegoSet | undefined
+  `
+    )
+    .get(setNum) as LegoSet | undefined
 
   if (!setInfo) {
     return null
   }
 
-  const sessions = db.prepare(`
+  const sessions = db
+    .prepare(
+      `
     SELECT id, name, status, include_spares, created_at, updated_at
     FROM check_sessions
     WHERE set_num = ?
     ORDER BY updated_at DESC
-  `).all(setNum)
+  `
+    )
+    .all(setNum)
 
-  const notes = db.prepare(`
+  const notes = db
+    .prepare(
+      `
     SELECT notes
     FROM set_notes
     WHERE set_num = ?
     ORDER BY updated_at DESC
     LIMIT 1
-  `).get(setNum) as { notes: string } | undefined
+  `
+    )
+    .get(setNum) as { notes: string } | undefined
 
   // Find inventory ID
-  const inventory = db.prepare(`
+  const inventory = db
+    .prepare(
+      `
     SELECT id FROM inventories WHERE set_num = ? ORDER BY version ASC LIMIT 1
-  `).get(setNum) as { id: number } | undefined
+  `
+    )
+    .get(setNum) as { id: number } | undefined
 
   let uniquePartsCount = 0
   if (inventory) {
-    const partsCount = db.prepare(`
+    const partsCount = db
+      .prepare(
+        `
       SELECT count(*) as count FROM inventory_parts WHERE inventory_id = ?
-    `).get(inventory.id) as { count: number }
+    `
+      )
+      .get(inventory.id) as { count: number }
     uniquePartsCount = partsCount.count
   }
 
@@ -112,15 +132,21 @@ export function getSetDetails(setNum: string) {
 
 export function getSetParts(setNum: string): any[] {
   const db = getDb()
-  const inventory = db.prepare(`
+  const inventory = db
+    .prepare(
+      `
     SELECT id FROM inventories WHERE set_num = ? ORDER BY version ASC LIMIT 1
-  `).get(setNum) as { id: number } | undefined
+  `
+    )
+    .get(setNum) as { id: number } | undefined
 
   if (!inventory) {
     return []
   }
 
-  const parts = db.prepare(`
+  const parts = db
+    .prepare(
+      `
     SELECT 
       ip.part_num, 
       ip.color_id, 
@@ -142,9 +168,11 @@ export function getSetParts(setNum: string): any[] {
     LEFT JOIN technic_groups tg ON m.technic_group_id = tg.id
     WHERE ip.inventory_id = ?
     ORDER BY tg.sort_order ASC, pc.name ASC, c.name ASC, p.name ASC, ip.part_num ASC
-  `).all(inventory.id) as any[]
+  `
+    )
+    .all(inventory.id) as any[]
 
-  return parts.map(p => ({
+  return parts.map((p) => ({
     ...p,
     is_spare: Boolean(p.is_spare),
     color_transparent: Boolean(p.color_transparent)

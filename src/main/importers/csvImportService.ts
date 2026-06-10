@@ -21,7 +21,14 @@ export interface ImportResult {
 
 export async function importCsvFile(
   filePath: string,
-  type: 'colors' | 'part_categories' | 'parts' | 'sets' | 'themes' | 'inventories' | 'inventory_parts',
+  type:
+    | 'colors'
+    | 'part_categories'
+    | 'parts'
+    | 'sets'
+    | 'themes'
+    | 'inventories'
+    | 'inventory_parts',
   onProgress?: (progress: { current: number; totalEstimate?: number }) => void
 ): Promise<ImportResult> {
   const db = getDb()
@@ -36,50 +43,75 @@ export async function importCsvFile(
   switch (type) {
     case 'colors':
       insertStmt = db.prepare(`
-        INSERT OR REPLACE INTO colors (id, name, rgb, is_transparent)
+        INSERT INTO colors (id, name, rgb, is_transparent)
         VALUES (?, ?, ?, ?)
+        ON CONFLICT(id) DO UPDATE SET
+          name = excluded.name,
+          rgb = excluded.rgb,
+          is_transparent = excluded.is_transparent
       `)
       schema = ColorCsvSchema
       break
     case 'part_categories':
       insertStmt = db.prepare(`
-        INSERT OR REPLACE INTO part_categories (id, name)
+        INSERT INTO part_categories (id, name)
         VALUES (?, ?)
+        ON CONFLICT(id) DO UPDATE SET
+          name = excluded.name
       `)
       schema = PartCategoryCsvSchema
       break
     case 'parts':
       insertStmt = db.prepare(`
-        INSERT OR REPLACE INTO parts (part_num, name, part_cat_id, part_img_url)
+        INSERT INTO parts (part_num, name, part_cat_id, part_img_url)
         VALUES (?, ?, ?, ?)
+        ON CONFLICT(part_num) DO UPDATE SET
+          name = excluded.name,
+          part_cat_id = excluded.part_cat_id,
+          part_img_url = COALESCE(excluded.part_img_url, part_img_url)
       `)
       schema = PartCsvSchema
       break
     case 'sets':
       insertStmt = db.prepare(`
-        INSERT OR REPLACE INTO sets (set_num, name, year, theme_id, num_parts, image_url)
+        INSERT INTO sets (set_num, name, year, theme_id, num_parts, image_url)
         VALUES (?, ?, ?, ?, ?, ?)
+        ON CONFLICT(set_num) DO UPDATE SET
+          name = excluded.name,
+          year = excluded.year,
+          theme_id = excluded.theme_id,
+          num_parts = excluded.num_parts,
+          image_url = COALESCE(excluded.image_url, image_url)
       `)
       schema = SetCsvSchema
       break
     case 'themes':
       insertStmt = db.prepare(`
-        INSERT OR REPLACE INTO themes (id, name, parent_id)
+        INSERT INTO themes (id, name, parent_id)
         VALUES (?, ?, ?)
+        ON CONFLICT(id) DO UPDATE SET
+          name = excluded.name,
+          parent_id = excluded.parent_id
       `)
       schema = ThemeCsvSchema
       break
     case 'inventories':
       insertStmt = db.prepare(`
-        INSERT OR REPLACE INTO inventories (id, version, set_num)
+        INSERT INTO inventories (id, version, set_num)
         VALUES (?, ?, ?)
+        ON CONFLICT(id) DO UPDATE SET
+          version = excluded.version,
+          set_num = excluded.set_num
       `)
       schema = InventoryCsvSchema
       break
     case 'inventory_parts':
       insertStmt = db.prepare(`
-        INSERT OR REPLACE INTO inventory_parts (inventory_id, part_num, color_id, quantity, is_spare, img_url)
+        INSERT INTO inventory_parts (inventory_id, part_num, color_id, quantity, is_spare, img_url)
         VALUES (?, ?, ?, ?, ?, ?)
+        ON CONFLICT(inventory_id, part_num, color_id, is_spare) DO UPDATE SET
+          quantity = excluded.quantity,
+          img_url = COALESCE(excluded.img_url, img_url)
       `)
       schema = InventoryPartCsvSchema
       break
@@ -89,7 +121,7 @@ export async function importCsvFile(
 
   // 2. Read and stream CSV
   const fileStream = fs.createReadStream(filePath, 'utf-8')
-  
+
   // Estimate total size for progress (we can check file size and estimate based on bytes read)
   const stats = fs.statSync(filePath)
   const totalBytes = stats.size
@@ -112,13 +144,27 @@ export async function importCsvFile(
             } else if (type === 'parts') {
               insertStmt.run(row.part_num, row.name, row.part_cat_id ?? null, null)
             } else if (type === 'sets') {
-              insertStmt.run(row.set_num, row.name, row.year ?? null, row.theme_id ?? null, row.num_parts ?? null, row.img_url ?? null)
+              insertStmt.run(
+                row.set_num,
+                row.name,
+                row.year ?? null,
+                row.theme_id ?? null,
+                row.num_parts ?? null,
+                row.img_url ?? null
+              )
             } else if (type === 'themes') {
               insertStmt.run(row.id, row.name, row.parent_id ?? null)
             } else if (type === 'inventories') {
               insertStmt.run(row.id, row.version, row.set_num)
             } else if (type === 'inventory_parts') {
-              insertStmt.run(row.inventory_id, row.part_num, row.color_id, row.quantity, row.is_spare ? 1 : 0, row.img_url ?? null)
+              insertStmt.run(
+                row.inventory_id,
+                row.part_num,
+                row.color_id,
+                row.quantity,
+                row.is_spare ? 1 : 0,
+                row.img_url ?? null
+              )
             }
           } catch (e: any) {
             errorCount++
@@ -136,8 +182,8 @@ export async function importCsvFile(
       header: true,
       skipEmptyLines: true,
       chunk(results) {
-        bytesRead += results.meta.cursor || 0
-        
+        bytesRead = results.meta.cursor || 0
+
         for (const rawRow of results.data as any[]) {
           // Validate row
           const parsed = schema.safeParse(rawRow)
@@ -151,7 +197,9 @@ export async function importCsvFile(
           } else {
             errorCount++
             if (errors.length < 50) {
-              errors.push(`Validation error: ${parsed.error.errors.map(e => `${e.path.join('.')}: ${e.message}`).join(', ')}`)
+              errors.push(
+                `Validation error: ${parsed.error.errors.map((e) => `${e.path.join('.')}: ${e.message}`).join(', ')}`
+              )
             }
           }
         }
@@ -202,7 +250,9 @@ export function runPostImportMappings(): void {
 
   // Check if both tables have rows
   const partsCount = db.prepare('SELECT count(*) as count FROM parts').get() as { count: number }
-  const catCount = db.prepare('SELECT count(*) as count FROM part_categories').get() as { count: number }
+  const catCount = db.prepare('SELECT count(*) as count FROM part_categories').get() as {
+    count: number
+  }
 
   if (partsCount.count === 0 || catCount.count === 0) {
     console.log('Skipping post-import mappings: parts or categories empty.')
@@ -210,13 +260,17 @@ export function runPostImportMappings(): void {
   }
 
   // Get parts that are not mapped yet
-  const unmappedParts = db.prepare(`
+  const unmappedParts = db
+    .prepare(
+      `
     SELECT p.part_num, p.name as part_name, pc.name as cat_name
     FROM parts p
     JOIN part_categories pc ON p.part_cat_id = pc.id
     LEFT JOIN part_technic_group_mapping m ON p.part_num = m.part_num
     WHERE m.part_num IS NULL
-  `).all() as { part_num: string; part_name: string; cat_name: string }[]
+  `
+    )
+    .all() as { part_num: string; part_name: string; cat_name: string }[]
 
   if (unmappedParts.length === 0) {
     console.log('All parts already mapped to Technic Groups.')
