@@ -908,35 +908,6 @@ export default function CollectionOverviewPage({
             {/* Modal Header */}
             <div className="set-details-header">
               <div style={{ display: 'flex', gap: '16px', alignItems: 'center' }}>
-                {selectedSetDetails.image_url ? (
-                  <CachedImage
-                    url={selectedSetDetails.image_url}
-                    alt={selectedSetDetails.name}
-                    style={{
-                      width: '60px',
-                      height: '60px',
-                      objectFit: 'contain',
-                      background: '#ffffff',
-                      padding: '4px',
-                      borderRadius: '8px',
-                      border: '1px solid var(--border-glass)'
-                    }}
-                  />
-                ) : (
-                  <div
-                    style={{
-                      width: '60px',
-                      height: '60px',
-                      background: 'var(--border-glass)',
-                      borderRadius: '8px',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center'
-                    }}
-                  >
-                    <Layers size={24} style={{ color: 'var(--text-secondary)' }} />
-                  </div>
-                )}
                 <div>
                   <span className="set-details-badge">{selectedSetDetails.set_num}</span>
                   <h2 className="set-details-title" style={{ marginTop: '2px' }}>
@@ -958,6 +929,48 @@ export default function CollectionOverviewPage({
             <div className="set-details-body">
               {/* Left Column (Info Panel) */}
               <div className="set-details-sidebar">
+                {selectedSetDetails.image_url ? (
+                  <div style={{
+                    width: '100%',
+                    height: '180px',
+                    background: '#ffffff',
+                    borderRadius: '8px',
+                    border: '1px solid var(--border-glass)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    overflow: 'hidden',
+                    position: 'relative',
+                    marginBottom: '4px'
+                  }}>
+                    <CachedImage
+                      url={selectedSetDetails.image_url}
+                      alt={selectedSetDetails.name}
+                      style={{
+                        maxWidth: '100%',
+                        maxHeight: '100%',
+                        objectFit: 'contain',
+                        padding: '8px'
+                      }}
+                    />
+                  </div>
+                ) : (
+                  <div
+                    style={{
+                      width: '100%',
+                      height: '180px',
+                      background: 'var(--border-glass)',
+                      borderRadius: '8px',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      marginBottom: '4px'
+                    }}
+                  >
+                    <Layers size={48} style={{ color: 'var(--text-secondary)', opacity: 0.3 }} />
+                  </div>
+                )}
+
                 {/* Flat Metadata List */}
                 <div style={{ display: 'flex', flexDirection: 'column' }}>
                   <div className="set-details-info-row">

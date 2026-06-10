@@ -3459,6 +3459,7 @@ body.light-theme .btn-manual-complete {
   padding-right: 14px;
   border-right: 1px solid var(--border-glass);
   min-height: 0;
+  overflow-y: auto;
 }
 
 .set-details-main {

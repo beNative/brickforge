@@ -281,62 +281,70 @@ export default function SetSearchPage({
                 <span>Updating set details...</span>
               </div>
             )}
-            <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
-              {selectedSet.image_url ? (
+            {selectedSet.image_url ? (
+              <div style={{
+                width: '100%',
+                height: '180px',
+                background: '#ffffff',
+                borderRadius: '8px',
+                border: '1px solid var(--border-glass)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                overflow: 'hidden',
+                position: 'relative',
+                marginBottom: '8px'
+              }}>
                 <CachedImage
                   url={selectedSet.image_url}
                   alt={selectedSet.name}
                   style={{
-                    width: '50px',
-                    height: '50px',
+                    maxWidth: '100%',
+                    maxHeight: '100%',
                     objectFit: 'contain',
-                    background: '#ffffff',
-                    padding: '4px',
-                    borderRadius: '6px',
-                    border: '1px solid var(--border-glass)'
+                    padding: '8px'
                   }}
                 />
-              ) : (
-                <div
-                  style={{
-                    width: '50px',
-                    height: '50px',
-                    background: 'var(--border-glass)',
-                    borderRadius: '6px',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center'
-                  }}
-                >
-                  <Layers size={20} />
-                </div>
-              )}
-              <div style={{ minWidth: 0, flex: 1 }}>
-                <span
-                  style={{
-                    fontSize: '12px',
-                    fontWeight: 700,
-                    color: 'var(--accent)',
-                    fontFamily: 'monospace'
-                  }}
-                >
-                  {selectedSet.set_num}
-                </span>
-                <h2
-                  style={{
-                    fontSize: '16px',
-                    fontWeight: 800,
-                    margin: '2px 0 0 0',
-                    lineHeight: 1.2,
-                    textOverflow: 'ellipsis',
-                    overflow: 'hidden',
-                    whiteSpace: 'nowrap'
-                  }}
-                  title={selectedSet.name}
-                >
-                  {selectedSet.name}
-                </h2>
               </div>
+            ) : (
+              <div
+                style={{
+                  width: '100%',
+                  height: '180px',
+                  background: 'var(--border-glass)',
+                  borderRadius: '8px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  marginBottom: '8px'
+                }}
+              >
+                <Layers size={48} style={{ color: 'var(--text-secondary)', opacity: 0.3 }} />
+              </div>
+            )}
+            <div style={{ minWidth: 0 }}>
+              <span
+                style={{
+                  fontSize: '12px',
+                  fontWeight: 700,
+                  color: 'var(--accent)',
+                  fontFamily: 'monospace'
+                }}
+              >
+                {selectedSet.set_num}
+              </span>
+              <h2
+                style={{
+                  fontSize: '18px',
+                  fontWeight: 800,
+                  margin: '4px 0 0 0',
+                  lineHeight: 1.3,
+                  color: 'var(--text-primary)'
+                }}
+                title={selectedSet.name}
+              >
+                {selectedSet.name}
+              </h2>
             </div>
 
             <div
