@@ -338,7 +338,7 @@ export default function ImportPage({ onImportSuccess }: ImportPageProps) {
     activeSelections > 0 ? Math.round((completedCount / activeSelections) * 100) : 0
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', flex: 1 }}>
+    <div className="page-container">
       <div
         style={{
           display: 'flex',
@@ -377,7 +377,8 @@ export default function ImportPage({ onImportSuccess }: ImportPageProps) {
         )}
       </div>
 
-      <div className="import-checklist-summary">
+      <div className="page-content-scroll">
+        <div className="import-checklist-summary">
         <div className="glass-panel import-step-card recommended">
           <div className="import-step-icon">
             <FolderOpen size={16} />
@@ -787,6 +788,7 @@ export default function ImportPage({ onImportSuccess }: ImportPageProps) {
             </div>
           </div>
         </div>
+      </div>
       </div>
     </div>
   )

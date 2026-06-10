@@ -226,6 +226,26 @@ body.light-theme .glass-panel:hover {
   flex-direction: column;
 }
 
+.page-container {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+  gap: 16px;
+  flex: 1;
+  min-height: 0;
+}
+
+.page-content-scroll {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding-right: 4px;
+}
+
 /* Navigation Links */
 .nav-links {
   display: flex;
@@ -1239,6 +1259,8 @@ body.light-theme .empty-slate svg {
   display: flex;
   flex-direction: column;
   gap: 20px;
+  height: 100%;
+  overflow: hidden;
   animation: fadeInUp 0.35s ease-out;
 }
 
@@ -1322,9 +1344,9 @@ body.light-theme .help-tab.active {
 /* Document content area */
 .help-content {
   padding: 36px 40px;
-  min-height: 400px;
+  flex: 1;
+  min-height: 0;
   overflow-y: auto;
-  max-height: calc(100vh - 280px);
 }
 
 .help-loading,
@@ -1982,12 +2004,20 @@ body.light-theme {
   --window-titlebar: #f8f8f8;
 }
 
+html, body {
+  height: 100vh;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+}
+
 body {
   color: var(--text-primary);
   background: var(--bg-main);
   transition:
     background-color 0.12s ease,
     color 0.12s ease;
+  display: flex;
 }
 
 .titlebar {
@@ -2036,11 +2066,12 @@ body.light-theme .titlebar-btn:hover {
 }
 
 .app-container {
-  min-height: calc(100vh - 32px - 22px);
+  height: calc(100vh - 32px - 22px);
   margin-top: 32px;
   margin-bottom: 22px;
   width: 100%;
   overflow: hidden;
+  display: flex;
 }
 
 .sidebar {
@@ -2050,16 +2081,21 @@ body.light-theme .titlebar-btn:hover {
   padding: 6px;
   background: var(--bg-surface);
   border-right-color: var(--border-glass);
+  position: fixed;
+  display: flex;
+  flex-direction: column;
 }
 
 .main-content {
-  min-height: calc(100vh - 32px - 22px);
+  height: 100%;
   margin-left: 188px;
   min-width: 0;
   max-width: calc(100vw - 188px);
-  overflow-x: hidden;
+  overflow: hidden;
   padding: 10px 12px 12px;
   background: var(--bg-main);
+  display: flex;
+  flex-direction: column;
 }
 
 .brand {
@@ -2648,8 +2684,8 @@ textarea:focus-visible {
   width: 100%;
   max-width: 100%;
   min-width: 0;
-  min-height: 100%;
-  overflow-x: hidden;
+  height: 100%;
+  overflow: hidden;
   flex-direction: column;
 }
 
@@ -2847,8 +2883,9 @@ textarea:focus-visible {
   width: 100%;
   max-width: 100%;
   min-width: 0;
-  overflow: hidden;
-  margin-bottom: 24px;
+  overflow-y: auto;
+  margin-bottom: 0px;
+  padding-right: 4px;
 }
 
 .part-card-status-row {

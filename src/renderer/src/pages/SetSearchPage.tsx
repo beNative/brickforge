@@ -175,7 +175,7 @@ export default function SetSearchPage({
   }
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '24px', flex: 1 }}>
+    <div className="page-container">
       <div>
         <h1>Search LEGO Sets</h1>
         <p className="subtitle">
@@ -226,7 +226,9 @@ export default function SetSearchPage({
           gridTemplateColumns: selectedSet ? '1.5fr 1fr' : '1fr',
           gap: '32px',
           alignItems: 'start',
-          flex: 1
+          flex: 1,
+          minHeight: 0,
+          overflow: 'hidden'
         }}
       >
         {/* Results grid */}
@@ -240,35 +242,37 @@ export default function SetSearchPage({
             </p>
           </div>
         ) : (
-          <div className="search-grid">
-            {sets.map((set) => (
-              <div
-                key={set.set_num}
-                className={`glass-panel set-card ${selectedSet?.set_num === set.set_num ? 'active' : ''}`}
-                style={{
-                  cursor: 'pointer',
-                  borderColor:
-                    selectedSet?.set_num === set.set_num ? 'var(--primary)' : 'var(--border-glass)'
-                }}
-                onClick={() => handleSelectSet(set.set_num)}
-              >
-                <div className="set-card-img-container">
-                  {set.image_url ? (
-                    <CachedImage url={set.image_url} alt={set.name} className="set-card-img" />
-                  ) : (
-                    <Layers size={48} style={{ color: '#475569' }} />
-                  )}
-                </div>
-                <div className="set-card-details">
-                  <span className="set-card-num">{set.set_num}</span>
-                  <h3 className="set-card-name">{set.name}</h3>
-                  <div className="set-card-meta">
-                    <span>{set.num_parts} parts</span>
-                    <span>{set.year}</span>
+          <div style={{ overflowY: 'auto', height: '100%', paddingRight: '4px' }}>
+            <div className="search-grid">
+              {sets.map((set) => (
+                <div
+                  key={set.set_num}
+                  className={`glass-panel set-card ${selectedSet?.set_num === set.set_num ? 'active' : ''}`}
+                  style={{
+                    cursor: 'pointer',
+                    borderColor:
+                      selectedSet?.set_num === set.set_num ? 'var(--primary)' : 'var(--border-glass)'
+                  }}
+                  onClick={() => handleSelectSet(set.set_num)}
+                >
+                  <div className="set-card-img-container">
+                    {set.image_url ? (
+                      <CachedImage url={set.image_url} alt={set.name} className="set-card-img" />
+                    ) : (
+                      <Layers size={48} style={{ color: '#475569' }} />
+                    )}
+                  </div>
+                  <div className="set-card-details">
+                    <span className="set-card-num">{set.set_num}</span>
+                    <h3 className="set-card-name">{set.name}</h3>
+                    <div className="set-card-meta">
+                      <span>{set.num_parts} parts</span>
+                      <span>{set.year}</span>
+                    </div>
                   </div>
                 </div>
-              </div>
-            ))}
+              ))}
+            </div>
           </div>
         )}
 

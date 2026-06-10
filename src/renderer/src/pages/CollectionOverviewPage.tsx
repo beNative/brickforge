@@ -414,7 +414,7 @@ export default function CollectionOverviewPage({
   }
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '24px', flex: 1 }}>
+    <div className="page-container">
       <div
         style={{
           display: 'flex',
@@ -469,7 +469,8 @@ export default function CollectionOverviewPage({
         </button>
       </div>
 
-      <div className="collection-summary-grid">
+      <div className="page-content-scroll">
+        <div className="collection-summary-grid">
         <div className="glass-panel collection-summary-card">
           <span className="collection-summary-label">Total Sets</span>
           <strong>{collectionStats.total}</strong>
@@ -734,6 +735,7 @@ export default function CollectionOverviewPage({
           </table>
         </div>
       )}
+      </div>
 
       {/* Add Set Modal Overlay */}
       {isAddModalOpen && (

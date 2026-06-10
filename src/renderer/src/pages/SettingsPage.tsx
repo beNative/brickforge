@@ -170,13 +170,14 @@ export default function SettingsPage({ onSettingsSaved }: SettingsPageProps) {
   }
 
   return (
-    <div className="settings-container animate-fade-in">
-      <div style={{ marginBottom: '16px' }}>
+    <div className="page-container animate-fade-in" style={{ maxWidth: '800px' }}>
+      <div>
         <h1>Application Settings</h1>
         <p className="subtitle">Configure database location, perform backups, and optimize settings.</p>
       </div>
 
-      {message && (
+      <div className="page-content-scroll" style={{ gap: '20px' }}>
+        {message && (
         <div className={`settings-alert ${message.type}`}>
           <AlertCircle size={14} style={{ marginTop: '2px', flexShrink: 0 }} />
           <span>{message.text}</span>
@@ -302,6 +303,7 @@ export default function SettingsPage({ onSettingsSaved }: SettingsPageProps) {
             </button>
           </div>
         </div>
+      </div>
       </div>
     </div>
   )
