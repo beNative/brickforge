@@ -4,6 +4,22 @@ This document logs all released versions of BrickForge, detailing features, upda
 
 ---
 
+## v1.5.0 — Application Settings & Database Maintenance (June 2026)
+
+This release introduces a dedicated Application Settings page, configurable database folder and file name settings, SQLite database optimization commands, and database backup and restore features via compressed ZIP archives.
+
+### Added
+
+- **Application Settings Tab:** A new settings page in the sidebar navigation to configure the database folder and database file name.
+- **Dynamic Database Reconnection:** Swaps databases at runtime without requiring an application restart, running migrations automatically when a new path is configured.
+- **PowerShell ZIP Backup & Restore:** 
+  - **ZIP Backup:** Safely copy the open SQLite file to a temporary location, close active file locks, and compress the file into a `.zip` archive.
+  - **ZIP Restore:** Uncompress ZIP database backups with header validation (checking `SQLite format 3` magic bytes), safe `.bak` recovery safeguards, and dynamic reconnection.
+- **Database Maintenance Commands:** Integrates database optimization controls to run `VACUUM` (compact space) and `REINDEX` (rebuild indexes) directly from the UI.
+- **Branding & Visuals:** Incorporates a new 3D isometric app logo in the sidebar, a clickable statusbar showing live database status and catalog counts, and a clean About Dialog overlay linking to the GitHub repository.
+
+---
+
 ## v1.4.0 — Auto-Updates & Release Automation (June 2026)
 
 This release introduces an automated background update engine and release packaging workflows.

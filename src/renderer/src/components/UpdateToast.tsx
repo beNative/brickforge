@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { Download, RefreshCw, AlertCircle, CheckCircle, Sparkles, X } from 'lucide-react'
 
 export default function UpdateToast() {
@@ -10,7 +10,14 @@ export default function UpdateToast() {
   const [progress, setProgress] = useState(0)
   const [errorMsg, setErrorMsg] = useState('')
 
+  const showRef = useRef(show)
   useEffect(() => {
+    showRef.current = show
+  }, [show])
+
+  useEffect(() => {
+    let errorTimer: NodeJS.Timeout | null = null
+
     // 1. Update available in background
     const unsubscribeAvailable = window.api.onUpdateAvailable((info) => {
       setVersion(info.version)
@@ -34,14 +41,17 @@ export default function UpdateToast() {
 
     // 4. Update error occurred
     const unsubscribeError = window.api.onUpdateError((msg) => {
-      setErrorMsg(msg)
-      setStatus('error')
-      setShow(true)
-      // Auto-hide error after 8 seconds
-      const timer = setTimeout(() => {
-        setShow(false)
-      }, 8000)
-      return () => clearTimeout(timer)
+      // Only show error toast if we were already showing an update notice (downloading, etc.)
+      if (showRef.current) {
+        setErrorMsg(msg)
+        setStatus('error')
+        setShow(true)
+
+        if (errorTimer) clearTimeout(errorTimer)
+        errorTimer = setTimeout(() => {
+          setShow(false)
+        }, 8000)
+      }
     })
 
     return () => {
@@ -49,6 +59,7 @@ export default function UpdateToast() {
       unsubscribeProgress()
       unsubscribeDownloaded()
       unsubscribeError()
+      if (errorTimer) clearTimeout(errorTimer)
     }
   }, [])
 

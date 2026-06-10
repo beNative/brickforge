@@ -101,6 +101,9 @@ Download the following database dumps from [Rebrickable Downloads](https://rebri
 - [x] Technic group auto-mapping logic
 - [x] Grid card and List compact views
 - [x] CSV and JSON missing parts exporter
-- [ ] Local image cache for offline image loading
+- [x] Local image cache for offline image BLOB loading
+- [x] In-app Document Viewer (Help Docs & Release Notes)
+- [x] Application Settings (configurable db folder and file name)
+- [x] Database Backup & Restore (ZIP archives) and SQL Maintenance (Vacuum/Reindex)
 - [ ] BrickLink XML wanted-list format exporter
 - [ ] Rebrickable API synchronization

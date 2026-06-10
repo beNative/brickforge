@@ -3,6 +3,15 @@ import { electronAPI } from '@electron-toolkit/preload'
 
 // Custom APIs for renderer
 const api = {
+  getAppVersion: () => ipcRenderer.invoke('get-app-version'),
+  getSettings: () => ipcRenderer.invoke('get-settings'),
+  updateSettings: (settings: any) => ipcRenderer.invoke('update-settings', settings),
+  selectDbFolder: () => ipcRenderer.invoke('select-db-folder'),
+  backupDatabase: () => ipcRenderer.invoke('database-backup'),
+  restoreDatabase: () => ipcRenderer.invoke('database-restore'),
+  vacuumDatabase: () => ipcRenderer.invoke('database-vacuum'),
+  reindexDatabase: () => ipcRenderer.invoke('database-reindex'),
+
   importCsv: (filePath: string, type: string) => ipcRenderer.invoke('import-csv', filePath, type),
 
   selectCsvFile: () => ipcRenderer.invoke('select-csv-file'),

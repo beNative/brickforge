@@ -1,19 +1,25 @@
 import { autoUpdater } from 'electron-updater'
-import { ipcMain, BrowserWindow } from 'electron'
+import { ipcMain, BrowserWindow, app } from 'electron'
 
 // Enable basic logging to console
 autoUpdater.logger = console
 
 export function initUpdater(): void {
-  // Automatically download updates when available
-  autoUpdater.autoDownload = true
-
   // Handle IPC request from renderer to quit and install update immediately
   ipcMain.handle('update-relaunch', () => {
     console.log('Relaunching app to install downloaded update...')
     // Arguments: (isSilent, isForceRunAfter)
     autoUpdater.quitAndInstall(false, true)
   })
+
+  // Skip update checks in development
+  if (!app.isPackaged) {
+    console.log('Skipping auto-updater check in development')
+    return
+  }
+
+  // Automatically download updates when available
+  autoUpdater.autoDownload = true
 
   // 1. Update available event
   autoUpdater.on('update-available', (info) => {

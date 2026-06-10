@@ -14,6 +14,7 @@ Welcome to **BrickForge**! This visual inventory-checking tool runs fully offlin
 6. [Exporting Missing Parts](#6-exporting-missing-parts)
 7. [Light & Dark Mode Themes](#7-light--dark-mode-themes)
 8. [Offline Image Cache & Sync](#8-offline-image-cache--sync)
+9. [Application Settings & Database Maintenance](#9-application-settings--database-maintenance)
 
 ---
 
@@ -165,3 +166,28 @@ To check your database space usage or purge the cache:
 1. Navigate to the **Import Data** tab.
 2. View the **Offline Image Cache** sidebar widget to see the total number of cached images and their total size on disk (MB).
 3. Click **Clear Cache** to wipe the local image BLOBs and revert the application to loading images online.
+
+---
+
+## 9. Application Settings & Database Maintenance
+
+BrickForge allows configuring database connections and database files, running safety backups, and optimizing search indexes from the **Settings** tab.
+
+### Database Connection Settings
+
+1. Navigate to the **Settings** tab from the sidebar.
+2. Under **Database Connection**:
+   - **Database Directory Path:** Specifies the folder containing your database. You can manually enter a path or click **Browse** to open your native directory explorer.
+   - **Database File Name:** Configures the database file name (must end in `.db`).
+3. Click **Apply & Reconnect** to save settings. BrickForge will close its active connection, point to the new location, run database migrations automatically, and reconnect.
+
+### Backup & Restore
+
+- **Database Backup:** Click **Backup to ZIP** to choose a target location on your computer. BrickForge closes the active file locks, clones the database file, and saves it inside a compressed ZIP archive.
+- **Database Restore:** Click **Restore from ZIP** and select a previously exported backup ZIP file. BrickForge will extract the file to a temporary folder, verify the SQLite file signature (`SQLite format 3`) for stability, make a backup `.bak` copy of your current active database in case of copy errors, replace the database file, and reconnect.
+
+### Database Maintenance
+
+- **Optimize Database (VACUUM):** Executes the SQL `VACUUM` command to defragment storage space on disk and shrink the database file size.
+- **Rebuild Indexes (REINDEX):** Executes the SQL `REINDEX` command to rebuild search indexes. Use this if set or parts queries feel sluggish.
+

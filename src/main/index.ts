@@ -10,6 +10,8 @@ import { registerSessionHandlers } from './ipc/sessionHandlers'
 import { registerExportHandlers } from './ipc/exportHandlers'
 import { registerDocumentHandlers } from './ipc/documentHandlers'
 import { registerImageHandlers } from './ipc/imageHandlers'
+import { registerSettingsHandlers } from './ipc/settingsHandlers'
+import { registerMaintenanceHandlers } from './ipc/maintenanceHandlers'
 import { getCachedImage } from './services/imageService'
 import { initUpdater } from './services/updateService'
 
@@ -81,6 +83,8 @@ app.whenReady().then(() => {
   registerExportHandlers()
   registerDocumentHandlers()
   registerImageHandlers()
+  registerSettingsHandlers()
+  registerMaintenanceHandlers()
 
   // Initialize Auto-Updater
   try {
@@ -126,6 +130,10 @@ app.whenReady().then(() => {
   })
   ipcMain.handle('window-close', (event) => {
     BrowserWindow.fromWebContents(event.sender)?.close()
+  })
+
+  ipcMain.handle('get-app-version', () => {
+    return app.getVersion()
   })
 
   createWindow()

@@ -1,22 +1,23 @@
 import Database from 'better-sqlite3'
-import { app } from 'electron'
-import { join } from 'path'
+import { join, dirname } from 'path'
 import { existsSync, mkdirSync } from 'fs'
+import { getSettings } from '../services/settingsService'
 
 let db: Database.Database
 
 export function getDatabasePath(): string {
-  const userDataPath = app.getPath('userData')
-  if (!existsSync(userDataPath)) {
-    mkdirSync(userDataPath, { recursive: true })
-  }
-  return join(userDataPath, 'brickforge.db')
+  const settings = getSettings()
+  return join(settings.dbFolder, settings.dbName)
 }
 
 export function initDatabase(): Database.Database {
   if (db) return db
 
   const dbPath = getDatabasePath()
+  const dbDir = dirname(dbPath)
+  if (!existsSync(dbDir)) {
+    mkdirSync(dbDir, { recursive: true })
+  }
   console.log('Initializing SQLite database at:', dbPath)
 
   db = new Database(dbPath)
@@ -28,6 +29,23 @@ export function initDatabase(): Database.Database {
   runMigrations(db)
 
   return db
+}
+
+export function closeDatabase(): void {
+  if (db) {
+    console.log('Closing active SQLite database connection...')
+    try {
+      db.close()
+    } catch (e) {
+      console.error('Error closing database:', e)
+    }
+    db = undefined as any
+  }
+}
+
+export function reconnectDatabase(): Database.Database {
+  closeDatabase()
+  return initDatabase()
 }
 
 export function getDb(): Database.Database {

@@ -1,10 +1,13 @@
 import { useState, useEffect } from 'react'
-import { Home, Database, Search, Layers, Hammer, BookOpen } from 'lucide-react'
+import { Home, Database, Search, Layers, BookOpen, Settings } from 'lucide-react'
 
 // Import Components
 import TitleBar from './components/TitleBar'
 import { CustomDialogProvider } from './components/CustomDialog'
 import UpdateToast from './components/UpdateToast'
+import StatusBar from './components/StatusBar'
+import AboutDialog from './components/AboutDialog'
+import logo from './assets/logo.png'
 
 // Import Pages
 import HomePage from './pages/HomePage'
@@ -13,6 +16,7 @@ import SetSearchPage from './pages/SetSearchPage'
 import InventorySessionPage from './pages/InventorySessionPage'
 import CollectionOverviewPage from './pages/CollectionOverviewPage'
 import HelpDocsPage from './pages/HelpDocsPage'
+import SettingsPage from './pages/SettingsPage'
 
 function App() {
   const [currentPage, setCurrentPage] = useState<string>('home')
@@ -22,6 +26,7 @@ function App() {
     catalogSetsCount: number
     catalogPartsCount: number
   } | null>(null)
+  const [isAboutOpen, setIsAboutOpen] = useState(false)
   const [theme, setTheme] = useState<'dark' | 'light'>(() => {
     const saved = localStorage.getItem('theme')
     return saved === 'light' || saved === 'dark' ? saved : 'dark'
@@ -66,7 +71,7 @@ function App() {
   }
 
   // Database is populated if there are sets and parts in the catalog
-  const isDbPopulated = dbStats && dbStats.catalogSetsCount > 0 && dbStats.catalogPartsCount > 0
+  const isDbPopulated = !!(dbStats && dbStats.catalogSetsCount > 0 && dbStats.catalogPartsCount > 0)
 
   return (
     <CustomDialogProvider>
@@ -75,9 +80,14 @@ function App() {
       <div className="app-container">
         {/* Sidebar Navigation */}
         <aside className="sidebar">
-          <div className="brand">
-            <div className="brand-icon">
-              <Hammer size={20} className="text-white" />
+          <div
+            className="brand"
+            onClick={() => setIsAboutOpen(true)}
+            style={{ cursor: 'pointer' }}
+            title="About BrickForge"
+          >
+            <div className="brand-icon" style={{ padding: '2px', background: 'transparent' }}>
+              <img src={logo} alt="BrickForge Logo" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
             </div>
             <span className="brand-name">BrickForge</span>
           </div>
@@ -137,6 +147,17 @@ function App() {
               <BookOpen />
               <span>Help & Manual</span>
             </button>
+
+            <button
+              className={`nav-link ${currentPage === 'settings' ? 'active' : ''}`}
+              onClick={() => {
+                setCurrentPage('settings')
+                setActiveSessionId(null)
+              }}
+            >
+              <Settings />
+              <span>Settings</span>
+            </button>
           </nav>
 
           <div className="sidebar-footer">
@@ -186,8 +207,23 @@ function App() {
             <CollectionOverviewPage onNavigateToSession={navigateToSession} />
           )}
           {currentPage === 'docs' && <HelpDocsPage />}
+          {currentPage === 'settings' && (
+            <SettingsPage
+              onSettingsSaved={async () => {
+                loadDbStats()
+              }}
+            />
+          )}
         </main>
       </div>
+
+      <StatusBar
+        isDbPopulated={isDbPopulated}
+        dbStats={dbStats}
+        isSessionActive={currentPage === 'session' && activeSessionId !== null}
+        onAboutClick={() => setIsAboutOpen(true)}
+      />
+      <AboutDialog isOpen={isAboutOpen} onClose={() => setIsAboutOpen(false)} />
     </CustomDialogProvider>
   )
 }

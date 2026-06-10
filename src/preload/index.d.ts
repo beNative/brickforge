@@ -1,6 +1,14 @@
 import { ElectronAPI } from '@electron-toolkit/preload'
 
 export interface BrickForgeAPI {
+  getAppVersion: () => Promise<string>
+  getSettings: () => Promise<{ success: boolean; settings?: { dbFolder: string; dbName: string }; error?: string }>
+  updateSettings: (settings: { dbFolder: string; dbName: string }) => Promise<{ success: boolean; error?: string }>
+  selectDbFolder: () => Promise<string | null>
+  backupDatabase: () => Promise<{ success: boolean; error?: string }>
+  restoreDatabase: () => Promise<{ success: boolean; error?: string }>
+  vacuumDatabase: () => Promise<{ success: boolean; error?: string }>
+  reindexDatabase: () => Promise<{ success: boolean; error?: string }>
   importCsv: (
     filePath: string,
     type: string
