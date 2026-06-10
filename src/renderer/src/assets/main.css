@@ -1096,7 +1096,7 @@ body.light-theme .btn-qty:hover {
 /* Compact list view row */
 .part-row {
   display: grid;
-  grid-template-columns: 60px 100px 1.5fr 1fr 100px 120px 200px;
+  grid-template-columns: 60px 90px 1.5fr 1fr 80px 120px 330px;
   gap: 16px;
   align-items: center;
   padding: 12px 16px;
@@ -2461,7 +2461,7 @@ body.light-theme .btn-qty:hover {
 }
 
 .part-row {
-  grid-template-columns: 52px 92px minmax(180px, 1.4fr) minmax(120px, 0.9fr) 72px 128px 210px;
+  grid-template-columns: 52px 92px minmax(180px, 1.4fr) minmax(120px, 0.9fr) 72px 128px 330px;
   gap: 10px;
   padding: 7px 10px;
 }
@@ -3110,7 +3110,7 @@ body.light-theme .part-action-miss {
   }
 
   .part-row {
-    min-width: 880px;
+    min-width: 980px;
   }
 }
 
