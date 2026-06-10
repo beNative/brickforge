@@ -14,6 +14,7 @@ asarUnpack:
   - '**/node_modules/better-sqlite3/**/*'
 win:
   executableName: brickforge
+  icon: build/icon.ico
 nsis:
   artifactName: ${name}-${version}-setup.${ext}
   shortcutName: ${productName}
