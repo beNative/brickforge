@@ -96,7 +96,48 @@ const api = {
     return () => {
       ipcRenderer.removeListener('collection-image-download-progress', listener)
     }
-  }
+  },
+
+  onUpdateAvailable: (callback: (info: { version: string; releaseDate: string }) => void) => {
+    const listener = (_event: any, data: any) => callback(data)
+    ipcRenderer.on('update-available', listener)
+    return () => {
+      ipcRenderer.removeListener('update-available', listener)
+    }
+  },
+
+  onUpdateProgress: (
+    callback: (data: {
+      percent: number
+      bytesPerSecond: number
+      transferred: number
+      total: number
+    }) => void
+  ) => {
+    const listener = (_event: any, data: any) => callback(data)
+    ipcRenderer.on('update-progress', listener)
+    return () => {
+      ipcRenderer.removeListener('update-progress', listener)
+    }
+  },
+
+  onUpdateDownloaded: (callback: (info: { version: string }) => void) => {
+    const listener = (_event: any, data: any) => callback(data)
+    ipcRenderer.on('update-downloaded', listener)
+    return () => {
+      ipcRenderer.removeListener('update-downloaded', listener)
+    }
+  },
+
+  onUpdateError: (callback: (errorMsg: string) => void) => {
+    const listener = (_event: any, data: any) => callback(data)
+    ipcRenderer.on('update-error', listener)
+    return () => {
+      ipcRenderer.removeListener('update-error', listener)
+    }
+  },
+
+  triggerUpdateRelaunch: () => ipcRenderer.invoke('update-relaunch')
 }
 
 // Use `contextBridge` APIs to expose Electron APIs to

@@ -11,6 +11,7 @@ import { registerExportHandlers } from './ipc/exportHandlers'
 import { registerDocumentHandlers } from './ipc/documentHandlers'
 import { registerImageHandlers } from './ipc/imageHandlers'
 import { getCachedImage } from './services/imageService'
+import { initUpdater } from './services/updateService'
 
 // Register custom protocol scheme BEFORE app is ready
 protocol.registerSchemesAsPrivileged([
@@ -80,6 +81,13 @@ app.whenReady().then(() => {
   registerExportHandlers()
   registerDocumentHandlers()
   registerImageHandlers()
+
+  // Initialize Auto-Updater
+  try {
+    initUpdater()
+  } catch (error) {
+    console.error('Failed to initialize auto-updater:', error)
+  }
 
   // Register custom protocol handler for serving cached images from SQLite
   protocol.handle('brickforge', (request) => {

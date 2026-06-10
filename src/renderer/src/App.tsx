@@ -4,6 +4,7 @@ import { Home, Database, Search, Layers, Hammer, BookOpen } from 'lucide-react'
 // Import Components
 import TitleBar from './components/TitleBar'
 import { CustomDialogProvider } from './components/CustomDialog'
+import UpdateToast from './components/UpdateToast'
 
 // Import Pages
 import HomePage from './pages/HomePage'
@@ -70,6 +71,7 @@ function App() {
   return (
     <CustomDialogProvider>
       <TitleBar theme={theme} onToggleTheme={toggleTheme} />
+      <UpdateToast />
       <div className="app-container">
         {/* Sidebar Navigation */}
         <aside className="sidebar">

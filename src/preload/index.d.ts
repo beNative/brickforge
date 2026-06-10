@@ -60,9 +60,7 @@ export interface BrickForgeAPI {
   readDocument: (
     docName: 'manual' | 'changelog'
   ) => Promise<{ success: boolean; content?: string; error?: string }>
-  downloadSetImages: (
-    setNum: string
-  ) => Promise<{
+  downloadSetImages: (setNum: string) => Promise<{
     success: boolean
     error?: string
     stats?: { total: number; downloaded: number; failed: number; skipped: number }
@@ -95,6 +93,20 @@ export interface BrickForgeAPI {
       imageProgress: any
     }) => void
   ) => () => void
+  onUpdateAvailable: (
+    callback: (info: { version: string; releaseDate: string }) => void
+  ) => () => void
+  onUpdateProgress: (
+    callback: (data: {
+      percent: number
+      bytesPerSecond: number
+      transferred: number
+      total: number
+    }) => void
+  ) => () => void
+  onUpdateDownloaded: (callback: (info: { version: string }) => void) => () => void
+  onUpdateError: (callback: (errorMsg: string) => void) => () => void
+  triggerUpdateRelaunch: () => Promise<void>
 }
 
 declare global {

@@ -3629,3 +3629,215 @@ body.light-theme .collection-table thead th {
 .session-item-row {
   min-height: 46px;
 }
+
+/* Update Toast Notifications */
+.update-toast-container {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  z-index: 9999;
+  animation: update-toast-slide-in 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+  max-width: 380px;
+  width: calc(100vw - 48px);
+}
+
+@keyframes update-toast-slide-in {
+  from {
+    transform: translateY(40px) scale(0.95);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0) scale(1);
+    opacity: 1;
+  }
+}
+
+.update-toast-card {
+  padding: 16px;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3) !important;
+  border-left: 4px solid var(--primary) !important;
+  backdrop-filter: blur(16px);
+}
+
+.update-toast-card.downloaded {
+  border-left-color: var(--status-complete) !important;
+}
+
+.update-toast-card.error {
+  border-left-color: var(--status-missing) !important;
+}
+
+.update-toast-card.available {
+  border-left-color: var(--status-partial) !important;
+}
+
+.update-toast-close {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  background: transparent;
+  border: none;
+  color: var(--text-secondary);
+  cursor: pointer;
+  opacity: 0.6;
+  transition: opacity 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px;
+  border-radius: 4px;
+}
+
+.update-toast-close:hover {
+  opacity: 1;
+  background: rgba(255, 255, 255, 0.08);
+}
+body.light-theme .update-toast-close:hover {
+  background: rgba(0, 0, 0, 0.06);
+}
+
+.update-toast-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding-right: 16px;
+}
+
+.update-toast-icon {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.update-toast-icon.available {
+  background: var(--status-partial-bg);
+  color: var(--status-partial);
+}
+
+.update-toast-icon.downloading {
+  background: var(--status-unchecked-bg);
+  color: var(--primary);
+}
+
+.update-toast-icon.downloaded {
+  background: var(--status-complete-bg);
+  color: var(--status-complete);
+}
+
+.update-toast-icon.error {
+  background: var(--status-missing-bg);
+  color: var(--status-missing);
+}
+
+.update-toast-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.update-toast-title {
+  font-size: 14px;
+  font-weight: 700;
+  color: #ffffff;
+}
+body.light-theme .update-toast-title {
+  color: #0f172a;
+}
+
+.update-toast-desc {
+  font-size: 12px;
+  color: var(--text-secondary);
+  line-height: 1.4;
+  word-break: break-word;
+}
+
+.update-toast-progress-container {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.update-toast-progress-track {
+  flex: 1;
+  height: 6px;
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 3px;
+  overflow: hidden;
+}
+body.light-theme .update-toast-progress-track {
+  background: rgba(0, 0, 0, 0.08);
+}
+
+.update-toast-progress-bar {
+  height: 100%;
+  background: linear-gradient(to right, var(--primary), var(--accent));
+  border-radius: 3px;
+  transition: width 0.2s ease;
+}
+
+.update-toast-progress-percent {
+  font-size: 11px;
+  font-weight: 700;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  color: var(--accent);
+  width: 32px;
+  text-align: right;
+  flex-shrink: 0;
+}
+
+.update-toast-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-top: 4px;
+}
+
+.update-relaunch-btn {
+  width: 100%;
+  height: 32px;
+  font-size: 12px;
+}
+
+.update-toast-silent-hint {
+  font-size: 10px;
+  color: var(--text-secondary);
+  text-align: center;
+  font-style: italic;
+}
+
+/* Custom animations for toast icons */
+@keyframes bounce {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-4px);
+  }
+}
+
+.bounce-animation {
+  animation: bounce 1.6s infinite ease-in-out;
+}
+
+@keyframes spin-slow {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.animate-spin-slow {
+  animation: spin-slow 8s infinite linear;
+}
