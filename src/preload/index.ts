@@ -166,6 +166,27 @@ const api = {
     return () => {
       ipcRenderer.removeListener('logs-cleared', listener)
     }
+  },
+
+  syncGoogleConnect: (clientId: string, clientSecret: string) =>
+    ipcRenderer.invoke('sync:google-connect', clientId, clientSecret),
+  syncGoogleDisconnect: () => ipcRenderer.invoke('sync:google-disconnect'),
+  syncRun: (options?: { forcePush?: boolean; forcePull?: boolean }) =>
+    ipcRenderer.invoke('sync:run', options),
+  syncResolveConflict: (resolution: 'local' | 'remote') =>
+    ipcRenderer.invoke('sync:resolve-conflict', resolution),
+  syncGetStatus: () => ipcRenderer.invoke('sync:get-status'),
+  syncGetConfig: () => ipcRenderer.invoke('sync:get-config'),
+  syncSaveConfig: (config: any) => ipcRenderer.invoke('sync:save-config', config),
+  syncListRemoteDatabases: () => ipcRenderer.invoke('sync:list-remote-dbs'),
+  onSyncStatus: (
+    callback: (payload: { status: 'idle' | 'syncing' | 'error' | 'conflict'; message?: string }) => void
+  ) => {
+    const listener = (_event: any, data: any) => callback(data)
+    ipcRenderer.on('sync:status', listener)
+    return () => {
+      ipcRenderer.removeListener('sync:status', listener)
+    }
   }
 }
 

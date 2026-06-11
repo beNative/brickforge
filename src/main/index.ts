@@ -13,9 +13,17 @@ import { registerImageHandlers } from './ipc/imageHandlers'
 import { registerSettingsHandlers } from './ipc/settingsHandlers'
 import { registerMaintenanceHandlers } from './ipc/maintenanceHandlers'
 import { registerLogHandlers } from './ipc/logHandlers'
+import { registerSyncHandlers } from './ipc/syncHandlers'
 import { info, error as logError } from './services/loggerService'
 import { getCachedImage } from './services/imageService'
 import { initUpdater } from './services/updateService'
+import {
+  loadSyncConfig,
+  startPeriodicSync,
+  stopPeriodicSync,
+  runSyncInternal,
+  getSyncConfig
+} from './services/syncService'
 
 // Register custom protocol scheme BEFORE app is ready
 protocol.registerSchemesAsPrivileged([
@@ -91,6 +99,20 @@ app.whenReady().then(() => {
   registerSettingsHandlers()
   registerMaintenanceHandlers()
   registerLogHandlers()
+  registerSyncHandlers()
+
+  // Load sync config and run initial sync if enabled
+  void loadSyncConfig().then((config) => {
+    if (config.syncEnabled) {
+      startPeriodicSync()
+      if (config.syncAutoOnOpenClose) {
+        setTimeout(() => {
+          info('[Sync] Running startup auto-sync...')
+          runSyncInternal().catch((err) => logError('Startup sync failed: ' + err.message))
+        }, 5000)
+      }
+    }
+  })
 
   // Initialize Auto-Updater
   try {
@@ -156,7 +178,32 @@ app.whenReady().then(() => {
 // for applications and their menu bar to stay active until the user quits
 // explicitly with Cmd + Q.
 app.on('window-all-closed', () => {
+  stopPeriodicSync()
   if (process.platform !== 'darwin') {
     app.quit()
   }
 })
+
+let isSyncingBeforeQuit = false
+app.on('before-quit', (e) => {
+  const config = getSyncConfig()
+  if (config.syncEnabled && config.syncAutoOnOpenClose && !isSyncingBeforeQuit) {
+    e.preventDefault()
+    isSyncingBeforeQuit = true
+    info('[Sync] Running final shutdown sync...')
+
+    Promise.race([
+      runSyncInternal(),
+      new Promise((resolve) => setTimeout(resolve, 3000))
+    ])
+      .then(() => {
+        info('[Sync] Shutdown sync complete or timed out. Quitting.')
+        app.quit()
+      })
+      .catch((err) => {
+        logError('Shutdown sync error: ' + (err.message || err))
+        app.quit()
+      })
+  }
+})
+

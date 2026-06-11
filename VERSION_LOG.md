@@ -4,6 +4,21 @@ This document logs all released versions of BrickForge, detailing features, upda
 
 ---
 
+## v1.6.0 — Google Drive Database Sync (June 2026)
+
+This release implements a private cloud synchronization engine using Google Drive's isolated sandbox space. Users can optionally backup, load, and restore their database across machines using their own Google Cloud Console credentials.
+
+### Added
+
+- **Private Google Drive Sync Panel:** Adds Google Drive setup and configuration controls inside the Settings Page, utilizing the secure `appDataFolder` sandbox.
+- **Local OAuth Listener:** Spins up a temporary server on port `52080` to safely exchange authorization codes for refresh tokens and user info, closing automatically on completion.
+- **Checksum-Based Conflict Detection:** Calculates database file MD5 hashes to identify local vs. remote modifications.
+- **Side-by-Side Conflict Resolution Modal:** Displays file parameters (modified dates, sizes, collections count, active check sessions, notes count) when a sync conflict is detected.
+- **Automated Lifecycle Sync:** Configurable options to run background synchronization tasks on application startup and quit events.
+- **Dynamic Swapping:** Intercepts active SQLite connections, close files, apply remote database overlays, and reload the UI automatically.
+
+---
+
 ## v1.5.0 — Application Settings & Database Maintenance (June 2026)
 
 This release introduces a dedicated Application Settings page, configurable database folder and file name settings, SQLite database optimization commands, and database backup and restore features via compressed ZIP archives.

@@ -1,6 +1,6 @@
 import Database from 'better-sqlite3'
 import { join, dirname } from 'path'
-import { existsSync, mkdirSync } from 'fs'
+import { existsSync, mkdirSync, statSync } from 'fs'
 import { getSettings } from '../services/settingsService'
 import { info, error } from '../services/loggerService'
 
@@ -250,3 +250,59 @@ function runMigrations(database: Database.Database): void {
     }
   })()
 }
+
+export async function backupDatabase(filePath: string): Promise<void> {
+  const activeDb = getDb()
+  await activeDb.backup(filePath)
+}
+
+export function getDatabaseStatsForFile(filePath: string) {
+  if (!existsSync(filePath)) {
+    throw new Error(`File not found: ${filePath}`)
+  }
+  const fileSize = statSync(filePath).size
+  let connection: Database.Database | null = null
+  try {
+    connection = new Database(filePath, { readonly: true })
+    
+    // Check if tables exist before querying, to prevent errors on arbitrary db files
+    const userColExists = connection.prepare("SELECT name FROM sqlite_master WHERE type='table' AND name='user_collection'").get()
+    const checkSessionsExists = connection.prepare("SELECT name FROM sqlite_master WHERE type='table' AND name='check_sessions'").get()
+    const setNotesExists = connection.prepare("SELECT name FROM sqlite_master WHERE type='table' AND name='set_notes'").get()
+
+    let userCollectionCount = 0
+    let checkSessionsCount = 0
+    let setNotesCount = 0
+
+    if (userColExists) {
+      const row = connection.prepare("SELECT COUNT(*) as count FROM user_collection").get() as { count: number }
+      userCollectionCount = row?.count ?? 0
+    }
+    if (checkSessionsExists) {
+      const row = connection.prepare("SELECT COUNT(*) as count FROM check_sessions").get() as { count: number }
+      checkSessionsCount = row?.count ?? 0
+    }
+    if (setNotesExists) {
+      const row = connection.prepare("SELECT COUNT(*) as count FROM set_notes").get() as { count: number }
+      setNotesCount = row?.count ?? 0
+    }
+
+    const modifiedTime = statSync(filePath).mtime.toISOString()
+
+    return {
+      fileSize: `${(fileSize / 1024).toFixed(2)} KB`,
+      userCollectionCount,
+      checkSessionsCount,
+      setNotesCount,
+      modifiedTime
+    }
+  } catch (e: any) {
+    error(`Failed to get stats for database file ${filePath}:`, e)
+    throw e
+  } finally {
+    if (connection) {
+      connection.close()
+    }
+  }
+}
+

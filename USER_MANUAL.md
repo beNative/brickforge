@@ -14,7 +14,7 @@ Welcome to **BrickForge**! This visual inventory-checking tool runs fully offlin
 6. [Exporting Missing Parts](#6-exporting-missing-parts)
 7. [Light & Dark Mode Themes](#7-light--dark-mode-themes)
 8. [Offline Image Cache & Sync](#8-offline-image-cache--sync)
-9. [Application Settings & Database Maintenance](#9-application-settings--database-maintenance)
+9. [Application Settings, Database Maintenance & Cloud Sync](#9-application-settings-database-maintenance--cloud-sync)
 
 ---
 
@@ -169,9 +169,9 @@ To check your database space usage or purge the cache:
 
 ---
 
-## 9. Application Settings & Database Maintenance
+## 9. Application Settings, Database Maintenance & Cloud Sync
 
-BrickForge allows configuring database connections and database files, running safety backups, and optimizing search indexes from the **Settings** tab.
+BrickForge allows configuring database connections and database files, running safety backups, optimizing search indexes, and synchronizing your database to Google Drive from the **Settings** tab.
 
 ### Database Connection Settings
 
@@ -190,4 +190,26 @@ BrickForge allows configuring database connections and database files, running s
 
 - **Optimize Database (VACUUM):** Executes the SQL `VACUUM` command to defragment storage space on disk and shrink the database file size.
 - **Rebuild Indexes (REINDEX):** Executes the SQL `REINDEX` command to rebuild search indexes. Use this if set or parts queries feel sluggish.
+
+### Cloud Sync (Google Drive)
+
+To sync your database across machines without external dependencies, BrickForge allows setting up a private Google Drive backup synchronization flow.
+
+#### First-Time API Setup
+Because BrickForge respects user privacy and doesn't run middleware servers, it relies on your own Google Cloud Console OAuth credentials:
+1. Navigate to the [Google Cloud Console](https://console.cloud.google.com/), create a project, and search for the **Google Drive API** in the API library to enable it.
+2. Go to the OAuth Consent Screen, set up an External screen, add your email address as a Test User, and authorize the `https://www.googleapis.com/auth/drive.appdata` scope.
+3. Under Credentials, click **Create Credentials** > **OAuth Client ID**. Choose **Desktop Application** as the application type.
+4. Copy the resulting **Client ID** and **Client Secret**, paste them into their respective fields on the BrickForge settings page, and click **Connect Account**.
+5. Your web browser will open Google's OAuth consent page. Once completed, a local server running temporarily on port `52080` will capture the credentials and automatically show a success screen.
+
+#### Synchronization Controls
+- **Enable Cloud Sync:** Toggle to activate cloud synchronization. When enabled, your local database is monitored for changes.
+- **Google Drive Database File:** Select which remote database file to sync with. You can select the default `brickforge.db` file, list other databases found in your cloud sandbox, or configure a custom database filename ending in `.db`.
+- **Sync on Startup & Shutdown:** Automatically execute a sync pass 5 seconds after launching the application, and trigger a final fast sync when quitting the app.
+- **Conflict Resolution Policy:** Choose what happens if a change occurs concurrently on both local and cloud databases:
+  - **Ask:** Displays an interactive comparison modal showing file parameters (sizes, modification dates, count statistics). You can select which version to preserve.
+  - **Prefer Local:** Automatically pushes local changes, overwriting cloud versions.
+  - **Prefer Cloud:** Automatically pulls remote changes, overwriting local databases.
+- **Sync Now:** Manually run a sync check.
 

@@ -121,6 +121,34 @@ export interface BrickForgeAPI {
   openLogFolder: () => Promise<{ success: boolean; error?: string }>
   onLogMessage: (callback: (logObj: any) => void) => () => void
   onLogsCleared: (callback: () => void) => () => void
+  syncGoogleConnect: (clientId: string, clientSecret: string) => Promise<{ success: boolean; email?: string; error?: string }>
+  syncGoogleDisconnect: () => Promise<{ success: boolean; error?: string }>
+  syncRun: (options?: { forcePush?: boolean; forcePull?: boolean }) => Promise<{
+    success: boolean
+    code?: 'in_sync' | 'pushed' | 'pulled' | 'conflict' | 'error'
+    message?: string
+    localStats?: any
+    remoteStats?: any
+    error?: string
+  }>
+  syncResolveConflict: (resolution: 'local' | 'remote') => Promise<{ success: boolean; error?: string; message?: string }>
+  syncGetStatus: () => Promise<{ success: boolean; email: string | null; enabled: boolean; lastCompletedAt: string | null }>
+  syncGetConfig: () => Promise<{
+    syncEnabled: boolean
+    clientId: string
+    clientSecret: string
+    email: string | null
+    refreshToken: string | null
+    syncAutoOnOpenClose: boolean
+    conflictResolution: 'ask' | 'prefer-local' | 'prefer-cloud'
+    lastLocalChecksum: string | null
+    lastRemoteChecksum: string | null
+    lastCompletedAt: string | null
+    syncDatabaseName: string
+  }>
+  syncSaveConfig: (config: any) => Promise<{ success: boolean; error?: string }>
+  syncListRemoteDatabases: () => Promise<{ success: boolean; files?: { name: string; id: string; modifiedTime: string }[]; error?: string }>
+  onSyncStatus: (callback: (payload: { status: 'idle' | 'syncing' | 'error' | 'conflict'; message?: string }) => void) => () => void
 }
 
 declare global {
