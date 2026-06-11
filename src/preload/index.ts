@@ -11,6 +11,7 @@ const api = {
   restoreDatabase: () => ipcRenderer.invoke('database-restore'),
   vacuumDatabase: () => ipcRenderer.invoke('database-vacuum'),
   reindexDatabase: () => ipcRenderer.invoke('database-reindex'),
+  checkForUpdates: () => ipcRenderer.invoke('update-check-now'),
 
   importCsv: (filePath: string, type: string) => ipcRenderer.invoke('import-csv', filePath, type),
 

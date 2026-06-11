@@ -25,6 +25,53 @@ export default function LogPanel({ logs, onClose, onClear }: LogPanelProps) {
   const [autoScroll, setAutoScroll] = useState(true)
   const logContainerRef = useRef<HTMLDivElement>(null)
 
+  const [height, setHeight] = useState<number>(() => {
+    const saved = localStorage.getItem('log-panel-height')
+    const parsed = saved ? parseInt(saved, 10) : 220
+    return isNaN(parsed) ? 220 : Math.max(100, Math.min(parsed, 600))
+  })
+
+  const isResizingRef = useRef(false)
+  const startYRef = useRef(0)
+  const startHeightRef = useRef(0)
+
+  const handleMouseDown = (e: React.MouseEvent) => {
+    e.preventDefault()
+    isResizingRef.current = true
+    startYRef.current = e.clientY
+    startHeightRef.current = height
+    document.addEventListener('mousemove', handleMouseMove)
+    document.addEventListener('mouseup', handleMouseUp)
+    document.body.style.cursor = 'ns-resize'
+    document.body.style.userSelect = 'none'
+  }
+
+  const handleMouseMove = (e: MouseEvent) => {
+    if (!isResizingRef.current) return
+    const deltaY = e.clientY - startYRef.current
+    const newHeight = startHeightRef.current - deltaY
+    const clampedHeight = Math.max(100, Math.min(newHeight, window.innerHeight - 150))
+    setHeight(clampedHeight)
+    localStorage.setItem('log-panel-height', clampedHeight.toString())
+  }
+
+  const handleMouseUp = () => {
+    isResizingRef.current = false
+    document.removeEventListener('mousemove', handleMouseMove)
+    document.removeEventListener('mouseup', handleMouseUp)
+    document.body.style.cursor = ''
+    document.body.style.userSelect = ''
+  }
+
+  useEffect(() => {
+    return () => {
+      document.removeEventListener('mousemove', handleMouseMove)
+      document.removeEventListener('mouseup', handleMouseUp)
+      document.body.style.cursor = ''
+      document.body.style.userSelect = ''
+    }
+  }, [])
+
   // Auto scroll to bottom
   useEffect(() => {
     if (autoScroll && logContainerRef.current) {
@@ -70,7 +117,8 @@ export default function LogPanel({ logs, onClose, onClear }: LogPanelProps) {
   }
 
   return (
-    <div className="log-panel">
+    <div className="log-panel" style={{ height: `${height}px`, minHeight: `${height}px` }}>
+      <div className="log-panel-splitter" onMouseDown={handleMouseDown} />
       <div className="log-panel-header">
         <div className="log-panel-title">
           <Terminal size={14} />

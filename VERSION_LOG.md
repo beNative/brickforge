@@ -4,6 +4,22 @@ This document logs all released versions of BrickForge, detailing features, upda
 
 ---
 
+## v1.6.1 — Software Updates & Resizable Console (June 2026)
+
+This release adds manual/automatic update settings and a draggable, resizable log console panel.
+
+### Added
+
+- **Software Updates Configuration:** 
+  - **Automatic Updates Toggle:** Enable/disable automatic startup update checks, persisting immediately to the user settings.
+  - **Check for Updates Button:** Manual check trigger in the settings panel with real-time status banners and automatic integration with the background updater toast download progress.
+- **Resizable Log Console Panel:**
+  - **Draggable Splitter Bar:** Added a vertical drag handle splitter at the top of the logs console.
+  - **Delta-Based Resizing:** Smooth drag actions on document mouse events, clamping heights between 100px and viewport bounds.
+  - **Size Persistence:** Saves your preferred console height in `localStorage`, retaining layout preferences across restarts.
+
+---
+
 ## v1.6.0 — Google Drive Database Sync (June 2026)
 
 This release implements a private cloud synchronization engine using Google Drive's isolated sandbox space. Users can optionally backup, load, and restore their database across machines using their own Google Cloud Console credentials.

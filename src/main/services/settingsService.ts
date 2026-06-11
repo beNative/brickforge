@@ -5,6 +5,7 @@ import { existsSync, readFileSync, writeFileSync, mkdirSync } from 'fs'
 export interface AppSettings {
   dbFolder: string
   dbName: string
+  autoUpdateEnabled: boolean
 }
 
 let settings: AppSettings | null = null
@@ -26,7 +27,8 @@ export function loadSettings(): AppSettings {
       const data = JSON.parse(readFileSync(path, 'utf8'))
       settings = {
         dbFolder: data.dbFolder || app.getPath('userData'),
-        dbName: data.dbName || 'brickforge.db'
+        dbName: data.dbName || 'brickforge.db',
+        autoUpdateEnabled: typeof data.autoUpdateEnabled === 'boolean' ? data.autoUpdateEnabled : true
       }
     } catch (e) {
       console.error('Failed to load settings, using defaults:', e)
@@ -36,7 +38,8 @@ export function loadSettings(): AppSettings {
   if (!settings) {
     settings = {
       dbFolder: app.getPath('userData'),
-      dbName: 'brickforge.db'
+      dbName: 'brickforge.db',
+      autoUpdateEnabled: true
     }
   }
 

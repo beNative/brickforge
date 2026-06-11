@@ -4181,6 +4181,7 @@ body.light-theme .settings-alert.info {
   --log-error: #ef4444;
   --log-bg-console: #131314;
   
+  position: relative;
   height: 220px;
   min-height: 220px;
   background: var(--bg-surface);
@@ -4190,6 +4191,23 @@ body.light-theme .settings-alert.info {
   margin-top: 8px;
   border-radius: 4px;
   overflow: hidden;
+}
+
+.log-panel-splitter {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  cursor: ns-resize;
+  z-index: 100;
+  background: transparent;
+  transition: background 0.15s ease;
+}
+
+.log-panel-splitter:hover,
+.log-panel-splitter:active {
+  background: var(--primary);
 }
 
 body.light-theme .log-panel {

@@ -1,10 +1,11 @@
 import { useEffect, useState } from 'react'
-import { FolderOpen, Save, Database, RefreshCw, FileArchive, AlertCircle, Cloud, Info } from 'lucide-react'
+import { FolderOpen, Save, Database, RefreshCw, FileArchive, AlertCircle, Cloud, Info, Sparkles } from 'lucide-react'
 import ConflictResolutionModal from '../components/ConflictResolutionModal'
 
 interface AppSettings {
   dbFolder: string
   dbName: string
+  autoUpdateEnabled: boolean
 }
 
 interface SettingsPageProps {
@@ -12,11 +13,15 @@ interface SettingsPageProps {
 }
 
 export default function SettingsPage({ onSettingsSaved }: SettingsPageProps) {
-  const [settings, setSettings] = useState<AppSettings>({ dbFolder: '', dbName: '' })
+  const [settings, setSettings] = useState<AppSettings>({ dbFolder: '', dbName: '', autoUpdateEnabled: true })
   const [loading, setLoading] = useState<boolean>(true)
   const [saving, setSaving] = useState<boolean>(false)
   const [message, setMessage] = useState<{ type: 'success' | 'error' | 'info'; text: string } | null>(null)
   
+  // Checking updates states
+  const [checkingUpdates, setCheckingUpdates] = useState<boolean>(false)
+  const [appVersion, setAppVersion] = useState<string>('')
+
   // Maintenance states
   const [vacuuming, setVacuuming] = useState<boolean>(false)
   const [reindexing, setReindexing] = useState<boolean>(false)
@@ -116,6 +121,7 @@ export default function SettingsPage({ onSettingsSaved }: SettingsPageProps) {
   useEffect(() => {
     loadSettings()
     loadSyncConfig()
+    window.api.getAppVersion().then((v) => setAppVersion(v)).catch(console.error)
 
     const unsubscribe = window.api.onSyncStatus((payload) => {
       if (payload.status === 'syncing') {
@@ -393,6 +399,53 @@ export default function SettingsPage({ onSettingsSaved }: SettingsPageProps) {
     }
   }
 
+  const handleToggleAutoUpdate = async (checked: boolean) => {
+    const updated = { ...settings, autoUpdateEnabled: checked }
+    setSettings(updated)
+    try {
+      const res = await window.api.updateSettings(updated)
+      if (!res.success) {
+        setMessage({ type: 'error', text: res.error || 'Failed to update settings.' })
+      }
+    } catch (e: any) {
+      setMessage({ type: 'error', text: e.message || 'Error saving settings.' })
+    }
+  }
+
+  const handleCheckForUpdates = async () => {
+    setCheckingUpdates(true)
+    setMessage(null)
+    try {
+      const res = await window.api.checkForUpdates()
+      if (res.success) {
+        if (res.updateAvailable) {
+          setMessage({
+            type: 'success',
+            text: `New update available: Version v${res.version} is downloading in the background.`
+          })
+        } else {
+          setMessage({
+            type: 'info',
+            text: `BrickForge is up to date (current version: v${appVersion}).`
+          })
+        }
+      } else {
+        setMessage({
+          type: 'error',
+          text: res.error || 'Failed to check for updates.'
+        })
+      }
+    } catch (e: any) {
+      setMessage({
+        type: 'error',
+        text: e.message || 'An error occurred while checking for updates.'
+      })
+    } finally {
+      setCheckingUpdates(false)
+    }
+  }
+
+
   if (loading) {
     return (
       <div className="flex-center" style={{ height: '300px' }}>
@@ -533,6 +586,51 @@ export default function SettingsPage({ onSettingsSaved }: SettingsPageProps) {
             <button className="btn btn-secondary btn-sm" onClick={handleReindex} disabled={reindexing}>
               {reindexing ? <RefreshCw className="animate-spin" size={12} /> : null}
               <span>Rebuild Indexes</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* Application Updates */}
+      <div className="glass-panel settings-card">
+        <h2 className="settings-section-title">
+          <Sparkles size={13} style={{ marginRight: '6px', verticalAlign: 'middle' }} />
+          Software Updates
+        </h2>
+        <p className="subtitle" style={{ marginBottom: '16px' }}>
+          Configure automatic update checks or manually search for the latest version of BrickForge.
+        </p>
+
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <div>
+              <span className="form-label" style={{ display: 'block', fontSize: '12px', marginBottom: '2px' }}>Automatic Update Checks</span>
+              <span style={{ fontSize: '11px', color: 'var(--text-secondary)' }}>
+                Check for updates automatically on application startup.
+              </span>
+            </div>
+            <input
+              type="checkbox"
+              checked={settings.autoUpdateEnabled}
+              onChange={(e) => handleToggleAutoUpdate(e.target.checked)}
+              style={{ width: '18px', height: '18px', cursor: 'pointer' }}
+            />
+          </div>
+
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: '1px solid var(--border-glass)', paddingTop: '16px' }}>
+            <div>
+              <span className="form-label" style={{ display: 'block', fontSize: '12px', marginBottom: '2px' }}>Check for Updates Manually</span>
+              <span style={{ fontSize: '11px', color: 'var(--text-secondary)' }}>
+                Search for the latest releases right now.
+              </span>
+            </div>
+            <button
+              className="btn btn-secondary btn-sm"
+              onClick={handleCheckForUpdates}
+              disabled={checkingUpdates}
+            >
+              {checkingUpdates ? <RefreshCw className="animate-spin" size={12} style={{ marginRight: '4px' }} /> : null}
+              <span>Check for Updates</span>
             </button>
           </div>
         </div>
