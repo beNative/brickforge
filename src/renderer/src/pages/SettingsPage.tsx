@@ -781,32 +781,49 @@ export default function SettingsPage({ onSettingsSaved }: SettingsPageProps) {
                     >
                       Google Cloud Console
                     </a>{' '}
-                    and create a project.
+                    and select or create a project.
                   </li>
                   <li>
-                    Search for <strong>Google Drive API</strong> in the API Library and enable it
-                    for your project.
+                    Search for the <strong>Google Drive API</strong> in the API Library and enable
+                    it.
                   </li>
                   <li>
-                    Go to OAuth Consent Screen, set up an External screen, add scope{' '}
-                    <code
+                    Configure the <strong>OAuth Consent Screen</strong>:
+                    <ul
                       style={{
-                        background: 'rgba(0,0,0,0.3)',
-                        padding: '1px 4px',
-                        borderRadius: '3px'
+                        paddingLeft: '14px',
+                        margin: '4px 0',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        gap: '4px'
                       }}
                     >
-                      .../auth/drive.appdata
-                    </code>
-                    , and add your email as a Test User.
+                      <li>
+                        Set User Type to <strong>External</strong>.
+                      </li>
+                      <li>
+                        In the <strong>Scopes</strong> step, add{' '}
+                        <code>https://www.googleapis.com/auth/drive.appdata</code> (for isolated
+                        storage) and <code>https://www.googleapis.com/auth/userinfo.email</code> (to
+                        show your connected account).
+                      </li>
+                      <li>
+                        In the <strong>Test Users</strong> step, add your Google account email (only
+                        added test accounts can log in while the app is in testing).
+                      </li>
+                    </ul>
                   </li>
                   <li>
-                    Go to Credentials, click Create Credentials &gt; OAuth Client ID. Choose{' '}
-                    <strong>Desktop Application</strong> as the type.
+                    Go to <strong>Credentials</strong>, click <strong>Create Credentials</strong>{' '}
+                    &gt; <strong>OAuth Client ID</strong>.
                   </li>
                   <li>
-                    Copy the generated Client ID and Client Secret, paste them below, and click
-                    Connect Account.
+                    Choose <strong>Desktop app</strong> as the application type, enter a name, and
+                    click <strong>Create</strong>.
+                  </li>
+                  <li>
+                    Copy the generated Client ID and Client Secret, paste them below, and click{' '}
+                    <strong>Connect Account</strong>.
                   </li>
                 </ol>
                 <div

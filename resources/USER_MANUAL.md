@@ -200,11 +200,18 @@ To sync your database across machines without external dependencies, BrickForge 
 
 Because BrickForge respects user privacy and doesn't run middleware servers, it relies on your own Google Cloud Console OAuth credentials:
 
-1. Navigate to the [Google Cloud Console](https://console.cloud.google.com/), create a project, and search for the **Google Drive API** in the API library to enable it.
-2. Go to the OAuth Consent Screen, set up an External screen, add your email address as a Test User, and authorize the `https://www.googleapis.com/auth/drive.appdata` scope.
-3. Under Credentials, click **Create Credentials** > **OAuth Client ID**. Choose **Desktop Application** as the application type.
-4. Copy the resulting **Client ID** and **Client Secret**, paste them into their respective fields on the BrickForge settings page, and click **Connect Account**.
-5. Your web browser will open Google's OAuth consent page. Once completed, a local server running temporarily on port `52080` will capture the credentials and automatically show a success screen.
+1. Navigate to the [Google Cloud Console](https://console.cloud.google.com/) and create or select a project.
+2. Search for the **Google Drive API** in the API library and enable it.
+3. Configure the **OAuth Consent Screen** (under APIs & Services):
+   - Choose **External** user type and complete the basic app details.
+   - Under **Scopes**, click **Add or Remove Scopes** and manually enter/enable two scopes: `https://www.googleapis.com/auth/drive.appdata` (isolated storage space) and `https://www.googleapis.com/auth/userinfo.email` (displays your connected email status in BrickForge).
+   - Under **Test Users**, click **Add Users** and register your Google account email (this is required to authorize the login since your custom Google Cloud app starts in testing status).
+4. Create **Credentials**:
+   - Go to **Credentials**, click **Create Credentials** > **OAuth Client ID**.
+   - Choose **Desktop app** (or Desktop Application) as the application type.
+   - Set a name and click **Create**.
+5. Copy the resulting **Client ID** and **Client Secret**, paste them into their respective fields on the BrickForge settings page, and click **Connect Account**.
+6. Your web browser will open Google's OAuth consent page. Once completed, a local server running temporarily on port `52080` will capture the credentials and automatically show a success screen.
 
 #### Synchronization Controls
 

@@ -4,6 +4,12 @@ This document logs all released versions of BrickForge, detailing features, upda
 
 ---
 
+## v1.6.3 — Cloud Sync Setup Documentation Update (June 2026)
+
+This release actualizes the Google Drive cloud synchronization instructions in the User Manual and Settings setup panel to match the latest Google Cloud Console OAuth setup steps.
+
+---
+
 ## v1.6.2 — Release Automation Improvements (June 2026)
 
 This release updates the automated release workflows to properly support auto-updates.
