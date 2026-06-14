@@ -47,13 +47,16 @@ function App() {
 
   // Setup logging subscriber
   useEffect(() => {
-    window.api.getLogs().then((res) => {
-      if (res.success && res.logs) {
-        setLogs(res.logs)
-      }
-    }).catch((err) => {
-      console.error('Failed to get initial logs:', err)
-    })
+    window.api
+      .getLogs()
+      .then((res) => {
+        if (res.success && res.logs) {
+          setLogs(res.logs)
+        }
+      })
+      .catch((err) => {
+        console.error('Failed to get initial logs:', err)
+      })
 
     const unsubscribeLog = window.api.onLogMessage((newLog) => {
       setLogs((prev) => [...prev, newLog])
@@ -133,7 +136,11 @@ function App() {
             title="About BrickForge"
           >
             <div className="brand-icon" style={{ padding: '2px', background: 'transparent' }}>
-              <img src={logo} alt="BrickForge Logo" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
+              <img
+                src={logo}
+                alt="BrickForge Logo"
+                style={{ width: '100%', height: '100%', objectFit: 'contain' }}
+              />
             </div>
             <span className="brand-name">BrickForge</span>
           </div>

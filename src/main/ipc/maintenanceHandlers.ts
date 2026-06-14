@@ -29,7 +29,9 @@ export function registerMaintenanceHandlers(): void {
       }
 
       // Close database to release the file lock
-      info('Database backup started. Closing active SQLite database connection to release file lock...')
+      info(
+        'Database backup started. Closing active SQLite database connection to release file lock...'
+      )
       closeDatabase()
 
       const tempDir = join(app.getPath('temp'), `bf-backup-${Date.now()}`)
@@ -120,7 +122,9 @@ export function registerMaintenanceHandlers(): void {
         fs.closeSync(fd)
 
         if (headerBuffer.toString('utf8', 0, 15) !== 'SQLite format 3') {
-          warn('Restore failed: The extracted file is not a valid SQLite database (invalid header).')
+          warn(
+            'Restore failed: The extracted file is not a valid SQLite database (invalid header).'
+          )
           return { success: false, error: 'The extracted file is not a valid SQLite database.' }
         }
 

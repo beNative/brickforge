@@ -13,11 +13,14 @@ export default function AboutDialog({ isOpen, onClose }: AboutDialogProps) {
 
   useEffect(() => {
     if (isOpen) {
-      window.api.getAppVersion().then((ver) => {
-        setVersion(ver)
-      }).catch((err) => {
-        console.error('Failed to get app version:', err)
-      })
+      window.api
+        .getAppVersion()
+        .then((ver) => {
+          setVersion(ver)
+        })
+        .catch((err) => {
+          console.error('Failed to get app version:', err)
+        })
     }
   }, [isOpen])
 
@@ -41,7 +44,15 @@ export default function AboutDialog({ isOpen, onClose }: AboutDialogProps) {
           className="update-toast-close"
           onClick={onClose}
           aria-label="Close about dialog"
-          style={{ position: 'absolute', top: '12px', right: '12px', background: 'transparent', border: 'none', cursor: 'pointer', color: 'var(--text-secondary)' }}
+          style={{
+            position: 'absolute',
+            top: '12px',
+            right: '12px',
+            background: 'transparent',
+            border: 'none',
+            cursor: 'pointer',
+            color: 'var(--text-secondary)'
+          }}
         >
           <X size={16} />
         </button>
@@ -55,7 +66,8 @@ export default function AboutDialog({ isOpen, onClose }: AboutDialogProps) {
           <span className="about-dialog-version">v{version}</span>
 
           <p className="about-dialog-desc">
-            A premium inventory checker and collection manager designed specifically for LEGO Technic sets.
+            A premium inventory checker and collection manager designed specifically for LEGO
+            Technic sets.
           </p>
 
           <div className="about-dialog-links">
@@ -70,10 +82,7 @@ export default function AboutDialog({ isOpen, onClose }: AboutDialogProps) {
             </a>
           </div>
 
-          <button
-            className="btn btn-secondary btn-sm about-dialog-close-btn"
-            onClick={onClose}
-          >
+          <button className="btn btn-secondary btn-sm about-dialog-close-btn" onClick={onClose}>
             Close
           </button>
         </div>

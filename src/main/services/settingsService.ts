@@ -28,7 +28,8 @@ export function loadSettings(): AppSettings {
       settings = {
         dbFolder: data.dbFolder || app.getPath('userData'),
         dbName: data.dbName || 'brickforge.db',
-        autoUpdateEnabled: typeof data.autoUpdateEnabled === 'boolean' ? data.autoUpdateEnabled : true
+        autoUpdateEnabled:
+          typeof data.autoUpdateEnabled === 'boolean' ? data.autoUpdateEnabled : true
       }
     } catch (e) {
       console.error('Failed to load settings, using defaults:', e)

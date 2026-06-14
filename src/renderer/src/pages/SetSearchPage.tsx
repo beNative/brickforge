@@ -251,7 +251,9 @@ export default function SetSearchPage({
                   style={{
                     cursor: 'pointer',
                     borderColor:
-                      selectedSet?.set_num === set.set_num ? 'var(--primary)' : 'var(--border-glass)'
+                      selectedSet?.set_num === set.set_num
+                        ? 'var(--primary)'
+                        : 'var(--border-glass)'
                   }}
                   onClick={() => handleSelectSet(set.set_num)}
                 >
@@ -286,19 +288,21 @@ export default function SetSearchPage({
               </div>
             )}
             {selectedSet.image_url ? (
-              <div style={{
-                width: '100%',
-                height: '180px',
-                background: '#ffffff',
-                borderRadius: '8px',
-                border: '1px solid var(--border-glass)',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                overflow: 'hidden',
-                position: 'relative',
-                marginBottom: '8px'
-              }}>
+              <div
+                style={{
+                  width: '100%',
+                  height: '180px',
+                  background: '#ffffff',
+                  borderRadius: '8px',
+                  border: '1px solid var(--border-glass)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  overflow: 'hidden',
+                  position: 'relative',
+                  marginBottom: '8px'
+                }}
+              >
                 <CachedImage
                   url={selectedSet.image_url}
                   alt={selectedSet.name}

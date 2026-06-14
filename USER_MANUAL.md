@@ -15,6 +15,7 @@ Welcome to **BrickForge**! This visual inventory-checking tool runs fully offlin
 7. [Light & Dark Mode Themes](#7-light--dark-mode-themes)
 8. [Offline Image Cache & Sync](#8-offline-image-cache--sync)
 9. [Application Settings, Database Maintenance & Cloud Sync](#9-application-settings-database-maintenance--cloud-sync)
+10. [Centralized Logging & Logs Console](#10-centralized-logging--logs-console)
 
 ---
 
@@ -196,7 +197,9 @@ BrickForge allows configuring database connections and database files, running s
 To sync your database across machines without external dependencies, BrickForge allows setting up a private Google Drive backup synchronization flow.
 
 #### First-Time API Setup
+
 Because BrickForge respects user privacy and doesn't run middleware servers, it relies on your own Google Cloud Console OAuth credentials:
+
 1. Navigate to the [Google Cloud Console](https://console.cloud.google.com/), create a project, and search for the **Google Drive API** in the API library to enable it.
 2. Go to the OAuth Consent Screen, set up an External screen, add your email address as a Test User, and authorize the `https://www.googleapis.com/auth/drive.appdata` scope.
 3. Under Credentials, click **Create Credentials** > **OAuth Client ID**. Choose **Desktop Application** as the application type.
@@ -204,6 +207,7 @@ Because BrickForge respects user privacy and doesn't run middleware servers, it 
 5. Your web browser will open Google's OAuth consent page. Once completed, a local server running temporarily on port `52080` will capture the credentials and automatically show a success screen.
 
 #### Synchronization Controls
+
 - **Enable Cloud Sync:** Toggle to activate cloud synchronization. When enabled, your local database is monitored for changes.
 - **Google Drive Database File:** Select which remote database file to sync with. You can select the default `brickforge.db` file, list other databases found in your cloud sandbox, or configure a custom database filename ending in `.db`.
 - **Sync on Startup & Shutdown:** Automatically execute a sync pass 5 seconds after launching the application, and trigger a final fast sync when quitting the app.
@@ -213,3 +217,28 @@ Because BrickForge respects user privacy and doesn't run middleware servers, it 
   - **Prefer Cloud:** Automatically pulls remote changes, overwriting local databases.
 - **Sync Now:** Manually run a sync check.
 
+### Software Updates
+
+BrickForge includes an auto-update engine integrated with GitHub Releases to ensure you are always running the latest version with the newest features.
+
+- **Check for Updates:** Click this button in the Settings panel to manually check the remote repository for newer releases. A banner status will display current status, and if a download begins, a background progress toast will appear.
+- **Automatically Check for Updates:** Toggle this switch to enable or disable automatic startup update checks. When enabled, BrickForge checks for updates silently on startup and automatically downloads them in the background, prompting you to restart to apply them.
+
+---
+
+## 10. Centralized Logging & Logs Console
+
+To help troubleshoot database, sync, or catalog issues, BrickForge maintains a centralized background logger. You can view, filter, and inspect active logs in real-time.
+
+### Opening the Logs Console
+
+Click the status bar panel at the bottom right of the window (showing database status, e.g., "Connected & Ready"). This toggles the slide-up **Logs Console** panel.
+
+### Console Features
+
+- **Resizable Panel Height:** Click and drag the thin border handle at the top of the Logs Console to resize the panel height. The preferred size is automatically persisted inside your application layout preferences for future runs.
+- **Log Level Filters:** Filter the shown records by clicking the **DEBUG**, **INFO**, **WARNING**, or **ERROR** toggle badges. Each badge displays the current count of logs in that category.
+- **Text Search:** Filter logs in real-time by typing keywords into the search box.
+- **AutoScroll:** Toggle auto-scrolling to keep the console focused on the newest incoming log lines.
+- **Open Logs Folder:** Click the **Folder** action button to open the system file explorer directly to the directory where persistent log files (`app.log`) are stored.
+- **Clear Logs:** Click **Clear** to wipe the local console view and empty the background log file content.

@@ -2004,7 +2004,8 @@ body.light-theme {
   --window-titlebar: #f8f8f8;
 }
 
-html, body {
+html,
+body {
   height: 100vh;
   margin: 0;
   padding: 0;
@@ -4180,7 +4181,7 @@ body.light-theme .settings-alert.info {
   --log-warning: #f59e0b;
   --log-error: #ef4444;
   --log-bg-console: #131314;
-  
+
   position: relative;
   height: 220px;
   min-height: 220px;
@@ -4289,10 +4290,18 @@ body.light-theme .log-filter-btn:hover {
   border-radius: 50%;
   display: inline-block;
 }
-.log-dot.debug { background: var(--log-debug); }
-.log-dot.info { background: var(--log-info); }
-.log-dot.warning { background: var(--log-warning); }
-.log-dot.error { background: var(--log-error); }
+.log-dot.debug {
+  background: var(--log-debug);
+}
+.log-dot.info {
+  background: var(--log-info);
+}
+.log-dot.warning {
+  background: var(--log-warning);
+}
+.log-dot.error {
+  background: var(--log-error);
+}
 
 .log-panel-actions {
   display: flex;
@@ -4461,10 +4470,18 @@ body.light-theme .log-row-message {
   color: #333333;
 }
 
-.log-row.debug .log-row-message { color: var(--log-debug); }
-.log-row.info .log-row-message { color: var(--log-info); }
-.log-row.warning .log-row-message { color: var(--log-warning); }
-.log-row.error .log-row-message { color: var(--log-error); }
+.log-row.debug .log-row-message {
+  color: var(--log-debug);
+}
+.log-row.info .log-row-message {
+  color: var(--log-info);
+}
+.log-row.warning .log-row-message {
+  color: var(--log-warning);
+}
+.log-row.error .log-row-message {
+  color: var(--log-error);
+}
 
 .statusbar-log-badges {
   display: flex;

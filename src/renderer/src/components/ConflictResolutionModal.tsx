@@ -73,7 +73,8 @@ export default function ConflictResolutionModal({
           style={{ padding: '10px 14px', margin: 0, fontSize: '12px', borderRadius: '4px' }}
         >
           <span>
-            Please select which version you would like to keep. The other version will be overwritten.
+            Please select which version you would like to keep. The other version will be
+            overwritten.
           </span>
         </div>
 

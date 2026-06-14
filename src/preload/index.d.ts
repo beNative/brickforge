@@ -2,14 +2,27 @@ import { ElectronAPI } from '@electron-toolkit/preload'
 
 export interface BrickForgeAPI {
   getAppVersion: () => Promise<string>
-  getSettings: () => Promise<{ success: boolean; settings?: { dbFolder: string; dbName: string; autoUpdateEnabled: boolean }; error?: string }>
-  updateSettings: (settings: { dbFolder: string; dbName: string; autoUpdateEnabled: boolean }) => Promise<{ success: boolean; error?: string }>
+  getSettings: () => Promise<{
+    success: boolean
+    settings?: { dbFolder: string; dbName: string; autoUpdateEnabled: boolean }
+    error?: string
+  }>
+  updateSettings: (settings: {
+    dbFolder: string
+    dbName: string
+    autoUpdateEnabled: boolean
+  }) => Promise<{ success: boolean; error?: string }>
   selectDbFolder: () => Promise<string | null>
   backupDatabase: () => Promise<{ success: boolean; error?: string }>
   restoreDatabase: () => Promise<{ success: boolean; error?: string }>
   vacuumDatabase: () => Promise<{ success: boolean; error?: string }>
   reindexDatabase: () => Promise<{ success: boolean; error?: string }>
-  checkForUpdates: () => Promise<{ success: boolean; updateAvailable?: boolean; version?: string; error?: string }>
+  checkForUpdates: () => Promise<{
+    success: boolean
+    updateAvailable?: boolean
+    version?: string
+    error?: string
+  }>
   importCsv: (
     filePath: string,
     type: string
@@ -116,13 +129,19 @@ export interface BrickForgeAPI {
   onUpdateDownloaded: (callback: (info: { version: string }) => void) => () => void
   onUpdateError: (callback: (errorMsg: string) => void) => () => void
   triggerUpdateRelaunch: () => Promise<void>
-  log: (level: 'DEBUG' | 'INFO' | 'WARNING' | 'ERROR', message: string) => Promise<{ success: boolean; error?: string }>
+  log: (
+    level: 'DEBUG' | 'INFO' | 'WARNING' | 'ERROR',
+    message: string
+  ) => Promise<{ success: boolean; error?: string }>
   getLogs: () => Promise<{ success: boolean; logs: any[]; error?: string }>
   clearLogs: () => Promise<{ success: boolean; error?: string }>
   openLogFolder: () => Promise<{ success: boolean; error?: string }>
   onLogMessage: (callback: (logObj: any) => void) => () => void
   onLogsCleared: (callback: () => void) => () => void
-  syncGoogleConnect: (clientId: string, clientSecret: string) => Promise<{ success: boolean; email?: string; error?: string }>
+  syncGoogleConnect: (
+    clientId: string,
+    clientSecret: string
+  ) => Promise<{ success: boolean; email?: string; error?: string }>
   syncGoogleDisconnect: () => Promise<{ success: boolean; error?: string }>
   syncRun: (options?: { forcePush?: boolean; forcePull?: boolean }) => Promise<{
     success: boolean
@@ -132,8 +151,15 @@ export interface BrickForgeAPI {
     remoteStats?: any
     error?: string
   }>
-  syncResolveConflict: (resolution: 'local' | 'remote') => Promise<{ success: boolean; error?: string; message?: string }>
-  syncGetStatus: () => Promise<{ success: boolean; email: string | null; enabled: boolean; lastCompletedAt: string | null }>
+  syncResolveConflict: (
+    resolution: 'local' | 'remote'
+  ) => Promise<{ success: boolean; error?: string; message?: string }>
+  syncGetStatus: () => Promise<{
+    success: boolean
+    email: string | null
+    enabled: boolean
+    lastCompletedAt: string | null
+  }>
   syncGetConfig: () => Promise<{
     syncEnabled: boolean
     clientId: string
@@ -148,8 +174,17 @@ export interface BrickForgeAPI {
     syncDatabaseName: string
   }>
   syncSaveConfig: (config: any) => Promise<{ success: boolean; error?: string }>
-  syncListRemoteDatabases: () => Promise<{ success: boolean; files?: { name: string; id: string; modifiedTime: string }[]; error?: string }>
-  onSyncStatus: (callback: (payload: { status: 'idle' | 'syncing' | 'error' | 'conflict'; message?: string }) => void) => () => void
+  syncListRemoteDatabases: () => Promise<{
+    success: boolean
+    files?: { name: string; id: string; modifiedTime: string }[]
+    error?: string
+  }>
+  onSyncStatus: (
+    callback: (payload: {
+      status: 'idle' | 'syncing' | 'error' | 'conflict'
+      message?: string
+    }) => void
+  ) => () => void
 }
 
 declare global {

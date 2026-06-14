@@ -264,26 +264,38 @@ export function getDatabaseStatsForFile(filePath: string) {
   let connection: Database.Database | null = null
   try {
     connection = new Database(filePath, { readonly: true })
-    
+
     // Check if tables exist before querying, to prevent errors on arbitrary db files
-    const userColExists = connection.prepare("SELECT name FROM sqlite_master WHERE type='table' AND name='user_collection'").get()
-    const checkSessionsExists = connection.prepare("SELECT name FROM sqlite_master WHERE type='table' AND name='check_sessions'").get()
-    const setNotesExists = connection.prepare("SELECT name FROM sqlite_master WHERE type='table' AND name='set_notes'").get()
+    const userColExists = connection
+      .prepare("SELECT name FROM sqlite_master WHERE type='table' AND name='user_collection'")
+      .get()
+    const checkSessionsExists = connection
+      .prepare("SELECT name FROM sqlite_master WHERE type='table' AND name='check_sessions'")
+      .get()
+    const setNotesExists = connection
+      .prepare("SELECT name FROM sqlite_master WHERE type='table' AND name='set_notes'")
+      .get()
 
     let userCollectionCount = 0
     let checkSessionsCount = 0
     let setNotesCount = 0
 
     if (userColExists) {
-      const row = connection.prepare("SELECT COUNT(*) as count FROM user_collection").get() as { count: number }
+      const row = connection.prepare('SELECT COUNT(*) as count FROM user_collection').get() as {
+        count: number
+      }
       userCollectionCount = row?.count ?? 0
     }
     if (checkSessionsExists) {
-      const row = connection.prepare("SELECT COUNT(*) as count FROM check_sessions").get() as { count: number }
+      const row = connection.prepare('SELECT COUNT(*) as count FROM check_sessions').get() as {
+        count: number
+      }
       checkSessionsCount = row?.count ?? 0
     }
     if (setNotesExists) {
-      const row = connection.prepare("SELECT COUNT(*) as count FROM set_notes").get() as { count: number }
+      const row = connection.prepare('SELECT COUNT(*) as count FROM set_notes').get() as {
+        count: number
+      }
       setNotesCount = row?.count ?? 0
     }
 
@@ -305,4 +317,3 @@ export function getDatabaseStatsForFile(filePath: string) {
     }
   }
 }
-

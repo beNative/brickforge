@@ -181,11 +181,7 @@ export default function LogPanel({ logs, onClose, onClear }: LogPanelProps) {
             <span>AutoScroll</span>
           </button>
 
-          <button
-            className="log-action-btn"
-            onClick={handleOpenFolder}
-            title="Open Logs Directory"
-          >
+          <button className="log-action-btn" onClick={handleOpenFolder} title="Open Logs Directory">
             <FolderOpen size={14} />
             <span>Folder</span>
           </button>

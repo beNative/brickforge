@@ -23,11 +23,14 @@ export default function StatusBar({
   const [version, setVersion] = useState<string>('1.4.0')
 
   useEffect(() => {
-    window.api.getAppVersion().then((ver) => {
-      setVersion(ver)
-    }).catch((err) => {
-      console.error('Failed to get app version in statusbar:', err)
-    })
+    window.api
+      .getAppVersion()
+      .then((ver) => {
+        setVersion(ver)
+      })
+      .catch((err) => {
+        console.error('Failed to get app version in statusbar:', err)
+      })
   }, [])
 
   return (
@@ -42,14 +45,19 @@ export default function StatusBar({
         {isDbPopulated && dbStats && (
           <div className="statusbar-item" title="Catalog counts">
             <span>
-              {dbStats.catalogSetsCount.toLocaleString()} Sets / {dbStats.catalogPartsCount.toLocaleString()} Parts
+              {dbStats.catalogSetsCount.toLocaleString()} Sets /{' '}
+              {dbStats.catalogPartsCount.toLocaleString()} Parts
             </span>
           </div>
         )}
 
         {isSessionActive && (
           <div className="statusbar-item" title="Active check in progress">
-            <Hammer size={12} className="animate-pulse" style={{ color: 'var(--status-partial)' }} />
+            <Hammer
+              size={12}
+              className="animate-pulse"
+              style={{ color: 'var(--status-partial)' }}
+            />
             <span style={{ color: 'rgba(255, 255, 255, 0.85)' }}>Inventory Check Active</span>
           </div>
         )}
@@ -73,7 +81,10 @@ export default function StatusBar({
                 </span>
               )}
               {logCounts.warning > 0 && (
-                <span className="statusbar-log-badge warning" title={`${logCounts.warning} Warnings`}>
+                <span
+                  className="statusbar-log-badge warning"
+                  title={`${logCounts.warning} Warnings`}
+                >
                   {logCounts.warning}
                 </span>
               )}
@@ -81,11 +92,7 @@ export default function StatusBar({
           )}
         </div>
 
-        <div
-          className="statusbar-item clickable"
-          onClick={onAboutClick}
-          title="About BrickForge"
-        >
+        <div className="statusbar-item clickable" onClick={onAboutClick} title="About BrickForge">
           <Info size={12} />
           <span>v{version}</span>
         </div>

@@ -355,7 +355,9 @@ export default function HomePage({
                         >
                           {session.status.replace('_', ' ')}
                         </span>
-                        <span style={{ fontSize: '11px', fontWeight: 700, fontFamily: 'monospace' }}>
+                        <span
+                          style={{ fontSize: '11px', fontWeight: 700, fontFamily: 'monospace' }}
+                        >
                           {session.qtyCompletionPct}% Complete
                         </span>
                       </div>
@@ -429,8 +431,8 @@ export default function HomePage({
                   margin: 0
                 }}
               >
-                Use filters like <strong>Missing parts only</strong> to quickly generate a parts list
-                for orders.
+                Use filters like <strong>Missing parts only</strong> to quickly generate a parts
+                list for orders.
               </p>
             </div>
           </div>

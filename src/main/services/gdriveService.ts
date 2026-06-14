@@ -230,7 +230,9 @@ export class GoogleDriveService {
 
     const data = (await res.json()) as DriveSearchResponse
     if (data.files && data.files.length > 0) {
-      info(`[Sync] Found cloud file with ID: ${data.files[0].id}, MD5: ${data.files[0].md5Checksum}`)
+      info(
+        `[Sync] Found cloud file with ID: ${data.files[0].id}, MD5: ${data.files[0].md5Checksum}`
+      )
       return data.files[0]
     }
     info(`[Sync] No database file named ${dbName} found in Google Drive appDataFolder.`)

@@ -4,13 +4,23 @@ This document logs all released versions of BrickForge, detailing features, upda
 
 ---
 
+## v1.6.2 — Release Automation Improvements (June 2026)
+
+This release updates the automated release workflows to properly support auto-updates.
+
+### Fixed
+
+- **Release Assets Packaging:** Included build metadata configurations (`dist/*.yml` and `dist/*.blockmap`) in the release runner matrices, enabling `electron-updater` to successfully discover and check version streams.
+
+---
+
 ## v1.6.1 — Software Updates & Resizable Console (June 2026)
 
 This release adds manual/automatic update settings and a draggable, resizable log console panel.
 
 ### Added
 
-- **Software Updates Configuration:** 
+- **Software Updates Configuration:**
   - **Automatic Updates Toggle:** Enable/disable automatic startup update checks, persisting immediately to the user settings.
   - **Check for Updates Button:** Manual check trigger in the settings panel with real-time status banners and automatic integration with the background updater toast download progress.
 - **Resizable Log Console Panel:**
@@ -43,7 +53,7 @@ This release introduces a dedicated Application Settings page, configurable data
 
 - **Application Settings Tab:** A new settings page in the sidebar navigation to configure the database folder and database file name.
 - **Dynamic Database Reconnection:** Swaps databases at runtime without requiring an application restart, running migrations automatically when a new path is configured.
-- **PowerShell ZIP Backup & Restore:** 
+- **PowerShell ZIP Backup & Restore:**
   - **ZIP Backup:** Safely copy the open SQLite file to a temporary location, close active file locks, and compress the file into a `.zip` archive.
   - **ZIP Restore:** Uncompress ZIP database backups with header validation (checking `SQLite format 3` magic bytes), safe `.bak` recovery safeguards, and dynamic reconnection.
 - **Database Maintenance Commands:** Integrates database optimization controls to run `VACUUM` (compact space) and `REINDEX` (rebuild indexes) directly from the UI.

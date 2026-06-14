@@ -101,10 +101,13 @@ export function startPeriodicSync(): void {
   stopPeriodicSync()
   if (syncConfig.syncEnabled && syncConfig.refreshToken) {
     info('[Sync] Starting periodic cloud sync (every 10 minutes).')
-    periodicSyncTimer = setInterval(() => {
-      info('[Sync] Running periodic background sync...')
-      runSyncInternal().catch((err) => error('[Sync] Periodic sync error:', err))
-    }, 10 * 60 * 1000)
+    periodicSyncTimer = setInterval(
+      () => {
+        info('[Sync] Running periodic background sync...')
+        runSyncInternal().catch((err) => error('[Sync] Periodic sync error:', err))
+      },
+      10 * 60 * 1000
+    )
   }
 }
 
@@ -161,14 +164,14 @@ export async function runSyncInternal(options?: {
     // 2. Local backup snapshot (prevents file locking issues during uploads)
     broadcastSyncStatus({ status: 'syncing', message: 'Creating database snapshot...' })
     const localDbPath = getDatabasePath()
-    
+
     if (!existsSync(localDbPath)) {
       // If the local database doesn't exist yet, we will pull or create it
       info('[Sync] Local database file does not exist yet.')
     }
 
     tempBackupPath = join(os.tmpdir(), `brickforge_sync_${Date.now()}.db`)
-    
+
     let localExists = existsSync(localDbPath)
     if (localExists) {
       await backupDatabase(tempBackupPath)
@@ -188,10 +191,14 @@ export async function runSyncInternal(options?: {
         localExists = true
         await backupDatabase(tempBackupPath)
       }
-      
+
       // Upload local to remote (since remote doesn't exist)
       broadcastSyncStatus({ status: 'syncing', message: 'Uploading database to cloud...' })
-      const uploaded = await GoogleDriveService.uploadDatabaseFile(accessToken, tempBackupPath, dbName)
+      const uploaded = await GoogleDriveService.uploadDatabaseFile(
+        accessToken,
+        tempBackupPath,
+        dbName
+      )
 
       syncConfig.lastLocalChecksum = await getFileChecksum(tempBackupPath)
       syncConfig.lastRemoteChecksum = uploaded.md5Checksum
@@ -219,7 +226,7 @@ export async function runSyncInternal(options?: {
 
       syncStatus = 'idle'
       broadcastSyncStatus({ status: 'idle', message: 'Pulled cloud database.' })
-      
+
       // Trigger UI reload
       const windows = BrowserWindow.getAllWindows()
       for (const win of windows) {
@@ -237,7 +244,11 @@ export async function runSyncInternal(options?: {
     // Handle force configurations
     if (options?.forcePush) {
       broadcastSyncStatus({ status: 'syncing', message: 'Force uploading database...' })
-      const updated = await GoogleDriveService.updateDatabaseFile(accessToken, cloudFile.id, tempBackupPath)
+      const updated = await GoogleDriveService.updateDatabaseFile(
+        accessToken,
+        cloudFile.id,
+        tempBackupPath
+      )
 
       syncConfig.lastLocalChecksum = localChecksum
       syncConfig.lastRemoteChecksum = updated.md5Checksum
@@ -296,7 +307,11 @@ export async function runSyncInternal(options?: {
     if (localChanged && !remoteChanged) {
       // Push local edits
       broadcastSyncStatus({ status: 'syncing', message: 'Uploading local changes...' })
-      const updated = await GoogleDriveService.updateDatabaseFile(accessToken, cloudFile.id, tempBackupPath)
+      const updated = await GoogleDriveService.updateDatabaseFile(
+        accessToken,
+        cloudFile.id,
+        tempBackupPath
+      )
 
       syncConfig.lastLocalChecksum = localChecksum
       syncConfig.lastRemoteChecksum = updated.md5Checksum
@@ -346,7 +361,11 @@ export async function runSyncInternal(options?: {
     // Both changed: Conflict!
     if (syncConfig.conflictResolution === 'prefer-local') {
       info('[Sync] Conflict resolution: Prefer Local. Overwriting cloud...')
-      const updated = await GoogleDriveService.updateDatabaseFile(accessToken, cloudFile.id, tempBackupPath)
+      const updated = await GoogleDriveService.updateDatabaseFile(
+        accessToken,
+        cloudFile.id,
+        tempBackupPath
+      )
       syncConfig.lastLocalChecksum = localChecksum
       syncConfig.lastRemoteChecksum = updated.md5Checksum
       syncConfig.lastCompletedAt = new Date().toISOString()

@@ -192,10 +192,7 @@ app.on('before-quit', (e) => {
     isSyncingBeforeQuit = true
     info('[Sync] Running final shutdown sync...')
 
-    Promise.race([
-      runSyncInternal(),
-      new Promise((resolve) => setTimeout(resolve, 3000))
-    ])
+    Promise.race([runSyncInternal(), new Promise((resolve) => setTimeout(resolve, 3000))])
       .then(() => {
         info('[Sync] Shutdown sync complete or timed out. Quitting.')
         app.quit()
@@ -206,4 +203,3 @@ app.on('before-quit', (e) => {
       })
   }
 })
-

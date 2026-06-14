@@ -379,416 +379,416 @@ export default function ImportPage({ onImportSuccess }: ImportPageProps) {
 
       <div className="page-content-scroll">
         <div className="import-checklist-summary">
-        <div className="glass-panel import-step-card recommended">
-          <div className="import-step-icon">
-            <FolderOpen size={16} />
+          <div className="glass-panel import-step-card recommended">
+            <div className="import-step-icon">
+              <FolderOpen size={16} />
+            </div>
+            <div>
+              <span className="import-step-title">1. Select files</span>
+              <span className="import-step-meta">
+                {selectedRequiredCount}/{requiredTables.length} required files selected
+              </span>
+            </div>
           </div>
-          <div>
-            <span className="import-step-title">1. Select files</span>
-            <span className="import-step-meta">
-              {selectedRequiredCount}/{requiredTables.length} required files selected
-            </span>
+          <div className="glass-panel import-step-card">
+            <div className="import-step-icon">
+              <Database size={16} />
+            </div>
+            <div>
+              <span className="import-step-title">2. Import catalog</span>
+              <span className="import-step-meta">
+                {completedCount}/{activeSelections || tables.length} selected files complete
+              </span>
+            </div>
           </div>
-        </div>
-        <div className="glass-panel import-step-card">
-          <div className="import-step-icon">
-            <Database size={16} />
-          </div>
-          <div>
-            <span className="import-step-title">2. Import catalog</span>
-            <span className="import-step-meta">
-              {completedCount}/{activeSelections || tables.length} selected files complete
-            </span>
-          </div>
-        </div>
-        <div className={`glass-panel import-step-card ${failedCount > 0 ? 'error' : ''}`}>
-          <div className="import-step-icon">
-            {failedCount > 0 ? <AlertTriangle size={16} /> : <CheckCircle size={16} />}
-          </div>
-          <div>
-            <span className="import-step-title">3. Verify results</span>
-            <span className="import-step-meta">
-              {failedCount > 0
-                ? `${failedCount} file imports need review`
-                : 'No import failures reported'}
-            </span>
-          </div>
-        </div>
-      </div>
-
-      {globalImporting && (
-        <div className="glass-panel import-progress-summary">
-          <div>
-            <strong>Importing catalog data</strong>
-            <span>
-              {importingTable ? `Current file: ${importingTable.name}` : 'Preparing next file...'}
-            </span>
-          </div>
-          <div className="import-progress-meter">
-            <span>{importProgress}%</span>
-            <div className="progress-track">
-              <div className="progress-bar" style={{ width: `${importProgress}%` }}></div>
+          <div className={`glass-panel import-step-card ${failedCount > 0 ? 'error' : ''}`}>
+            <div className="import-step-icon">
+              {failedCount > 0 ? <AlertTriangle size={16} /> : <CheckCircle size={16} />}
+            </div>
+            <div>
+              <span className="import-step-title">3. Verify results</span>
+              <span className="import-step-meta">
+                {failedCount > 0
+                  ? `${failedCount} file imports need review`
+                  : 'No import failures reported'}
+              </span>
             </div>
           </div>
         </div>
-      )}
 
-      <div className="import-section">
-        {/* Main Panel with global controls and grid */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-          {/* Global Controls Panel */}
-          <div
-            className="glass-panel"
-            style={{
-              padding: '8px 12px',
-              display: 'flex',
-              justifyContent: 'space-between',
-              alignItems: 'center',
-              gap: '12px',
-              flexWrap: 'wrap'
-            }}
-          >
+        {globalImporting && (
+          <div className="glass-panel import-progress-summary">
+            <div>
+              <strong>Importing catalog data</strong>
+              <span>
+                {importingTable ? `Current file: ${importingTable.name}` : 'Preparing next file...'}
+              </span>
+            </div>
+            <div className="import-progress-meter">
+              <span>{importProgress}%</span>
+              <div className="progress-track">
+                <div className="progress-bar" style={{ width: `${importProgress}%` }}></div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        <div className="import-section">
+          {/* Main Panel with global controls and grid */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+            {/* Global Controls Panel */}
             <div
+              className="glass-panel"
               style={{
+                padding: '8px 12px',
                 display: 'flex',
-                gap: '8px',
+                justifyContent: 'space-between',
                 alignItems: 'center',
-                flex: 1,
-                minWidth: '200px'
+                gap: '12px',
+                flexWrap: 'wrap'
               }}
             >
-              <Search size={14} style={{ color: 'var(--text-secondary)' }} />
-              <input
-                type="text"
-                className="form-input"
-                placeholder="Filter files..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
+              <div
                 style={{
-                  padding: '5px 10px',
-                  fontSize: '12px',
-                  borderRadius: '4px',
-                  width: '100%',
-                  maxWidth: '240px',
-                  height: '28px'
+                  display: 'flex',
+                  gap: '8px',
+                  alignItems: 'center',
+                  flex: 1,
+                  minWidth: '200px'
                 }}
-              />
-              {searchQuery && (
+              >
+                <Search size={14} style={{ color: 'var(--text-secondary)' }} />
+                <input
+                  type="text"
+                  className="form-input"
+                  placeholder="Filter files..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  style={{
+                    padding: '5px 10px',
+                    fontSize: '12px',
+                    borderRadius: '4px',
+                    width: '100%',
+                    maxWidth: '240px',
+                    height: '28px'
+                  }}
+                />
+                {searchQuery && (
+                  <button
+                    className="btn btn-secondary btn-sm"
+                    onClick={() => setSearchQuery('')}
+                    style={{ padding: '2px 8px', fontSize: '11px', height: '24px' }}
+                  >
+                    Clear
+                  </button>
+                )}
+              </div>
+
+              <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
                 <button
                   className="btn btn-secondary btn-sm"
-                  onClick={() => setSearchQuery('')}
-                  style={{ padding: '2px 8px', fontSize: '11px', height: '24px' }}
-                >
-                  Clear
-                </button>
-              )}
-            </div>
-
-            <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-              <button
-                className="btn btn-secondary btn-sm"
-                onClick={handleAutoDetectFolder}
-                style={{ height: '28px', fontSize: '11px', padding: '4px 10px' }}
-              >
-                <span>Auto-Fill from Folder</span>
-              </button>
-              {activeSelections > 0 && (
-                <button
-                  className="btn btn-secondary btn-sm btn-danger"
-                  onClick={handleClearAllSelections}
+                  onClick={handleAutoDetectFolder}
                   style={{ height: '28px', fontSize: '11px', padding: '4px 10px' }}
                 >
-                  <span>Clear All</span>
+                  <span>Auto-Fill from Folder</span>
                 </button>
-              )}
+                {activeSelections > 0 && (
+                  <button
+                    className="btn btn-secondary btn-sm btn-danger"
+                    onClick={handleClearAllSelections}
+                    style={{ height: '28px', fontSize: '11px', padding: '4px 10px' }}
+                  >
+                    <span>Clear All</span>
+                  </button>
+                )}
+              </div>
             </div>
-          </div>
 
-          {/* Cards Grid */}
-          {filteredTables.length === 0 ? (
-            <div
-              className="glass-panel empty-slate"
-              style={{
-                padding: '32px 16px',
-                gap: '8px',
-                borderStyle: 'dashed',
-                borderRadius: '4px'
-              }}
-            >
-              <Database size={24} style={{ opacity: 0.4 }} />
-              <p style={{ margin: 0, fontSize: '13px', color: 'var(--text-secondary)' }}>
-                No catalog tables match your search filter.
-              </p>
-            </div>
-          ) : (
-            <div className="shortcut-grid">
-              {filteredTables.map((table) => {
-                const isRequired = table.required
-
-                return (
-                  <div key={table.key} className="shortcut-card">
-                    <div>
-                      <div className="shortcut-card-header">
-                        <div className="shortcut-card-title-container">
-                          <span className="shortcut-card-title">{table.name.split(' ')[0]}</span>
-                          <span className="shortcut-card-filename">
-                            {table.name.substring(table.name.indexOf('('))}
-                          </span>
-                        </div>
-                        <span
-                          className={`shortcut-card-badge ${isRequired ? 'shortcut-card-badge-required' : 'shortcut-card-badge-optional'}`}
-                        >
-                          {isRequired ? 'required' : 'optional'}
-                        </span>
-                      </div>
-
-                      <div style={{ marginTop: '10px' }}>
-                        {table.filePath ? (
-                          <div className="shortcut-card-path" title={table.filePath}>
-                            <FolderOpen size={12} />
-                            <span>{table.filePath.split(/[\\/]/).pop()}</span>
-                          </div>
-                        ) : (
-                          <div className="shortcut-card-empty-path">No file selected</div>
-                        )}
-                      </div>
-                    </div>
-
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                      {/* Progress bar or stats logs */}
-                      {table.status === 'importing' && (
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                          <div
-                            style={{
-                              display: 'flex',
-                              justifyContent: 'space-between',
-                              fontSize: '10px',
-                              color: 'var(--text-secondary)'
-                            }}
-                          >
-                            <span>Importing...</span>
-                            <span>{table.progress}%</span>
-                          </div>
-                          <div
-                            className="progress-track"
-                            style={{ height: '4px', margin: 0, borderRadius: '2px' }}
-                          >
-                            <div
-                              className="progress-bar"
-                              style={{ width: `${table.progress}%` }}
-                            ></div>
-                          </div>
-                        </div>
-                      )}
-
-                      {table.status === 'completed' && (
-                        <div className="import-card-result">
-                          <span className="success">
-                            <CheckCircle size={12} /> {table.successCount} rows
-                          </span>
-                          {table.errorCount > 0 && (
-                            <span className="error">
-                              <AlertTriangle size={12} /> {table.errorCount} errors
-                            </span>
-                          )}
-                        </div>
-                      )}
-
-                      {table.status === 'failed' && (
-                        <div className="import-card-failed">
-                          <XCircle size={12} />
-                          <span>{table.errors[0] || 'Import failed'}</span>
-                        </div>
-                      )}
-
-                      {/* Import Errors Box */}
-                      {table.errors.length > 0 && (
-                        <div className="import-error-details">
-                          <button
-                            type="button"
-                            className="import-error-toggle"
-                            onClick={() =>
-                              setExpandedErrors((prev) => ({
-                                ...prev,
-                                [table.key]: !prev[table.key]
-                              }))
-                            }
-                          >
-                            <AlertTriangle size={12} />
-                            <span>
-                              {expandedErrors[table.key] ? 'Hide' : 'Show'} import details (
-                              {table.errors.length})
-                            </span>
-                          </button>
-                          {expandedErrors[table.key] && (
-                            <div className="import-error-list">
-                              {table.errors.map((err, idx) => (
-                                <div key={idx}>{err}</div>
-                              ))}
-                            </div>
-                          )}
-                        </div>
-                      )}
-
-                      <div className="shortcut-card-actions">
-                        <button
-                          className="btn btn-secondary btn-sm"
-                          onClick={() => handleSelectFile(table.key)}
-                          disabled={globalImporting || table.status === 'importing'}
-                          style={{ padding: '4px 8px', fontSize: '11px', height: '26px' }}
-                        >
-                          Browse...
-                        </button>
-
-                        {table.filePath &&
-                          table.status !== 'importing' &&
-                          table.status !== 'completed' && (
-                            <button
-                              className="btn btn-primary btn-sm"
-                              onClick={() => triggerImport(table.key)}
-                              disabled={globalImporting}
-                              style={{ padding: '4px 8px', fontSize: '11px', height: '26px' }}
-                            >
-                              Import
-                            </button>
-                          )}
-                      </div>
-                    </div>
-                  </div>
-                )
-              })}
-            </div>
-          )}
-        </div>
-
-        {/* Sidebar Help Card */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-          <div className="glass-panel" style={{ padding: '16px' }}>
-            <h3 style={{ fontSize: '14px', marginBottom: '8px', fontWeight: 700 }}>
-              Where to get files?
-            </h3>
-            <p
-              style={{
-                fontSize: '12px',
-                color: 'var(--text-secondary)',
-                lineHeight: 1.5,
-                marginBottom: '8px'
-              }}
-            >
-              You can download official database dumps directly from Rebrickable downloads page:
-            </p>
-            <a
-              href="https://rebrickable.com/downloads/"
-              target="_blank"
-              rel="noreferrer"
-              style={{
-                color: 'var(--accent)',
-                textDecoration: 'none',
-                fontWeight: 600,
-                fontSize: '12px',
-                display: 'inline-block'
-              }}
-            >
-              Rebrickable CSV Downloads
-            </a>
-          </div>
-
-          <div className="glass-panel" style={{ padding: '16px' }}>
-            <h3 style={{ fontSize: '14px', marginBottom: '8px', fontWeight: 700 }}>Notice</h3>
-            <p
-              style={{
-                fontSize: '12px',
-                color: 'var(--text-secondary)',
-                lineHeight: 1.5,
-                margin: 0
-              }}
-            >
-              The importer parses CSV tables inside transaction batches. Streaming files like{' '}
-              <strong>inventory_parts.csv</strong> can take 10-20 seconds.
-            </p>
-          </div>
-
-          <div
-            className="glass-panel"
-            style={{ padding: '16px', display: 'flex', flexDirection: 'column', gap: '8px' }}
-          >
-            <h3 style={{ fontSize: '14px', marginBottom: '4px', fontWeight: 700 }}>
-              Offline Image Cache
-            </h3>
-            <p
-              style={{
-                fontSize: '12px',
-                color: 'var(--text-secondary)',
-                lineHeight: 1.5,
-                marginBottom: '4px'
-              }}
-            >
-              Images for sets and parts in your collection can be cached locally inside SQLite for
-              offline access.
-            </p>
-            {cacheStats ? (
+            {/* Cards Grid */}
+            {filteredTables.length === 0 ? (
               <div
+                className="glass-panel empty-slate"
                 style={{
-                  fontSize: '12px',
-                  display: 'flex',
-                  flexDirection: 'column',
-                  gap: '4px',
-                  marginBottom: '8px'
+                  padding: '32px 16px',
+                  gap: '8px',
+                  borderStyle: 'dashed',
+                  borderRadius: '4px'
                 }}
               >
-                <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                  <span style={{ color: 'var(--text-secondary)' }}>Cached Images:</span>
-                  <span style={{ fontWeight: 600 }}>{cacheStats.totalImages}</span>
-                </div>
-                <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                  <span style={{ color: 'var(--text-secondary)' }}>Disk Usage:</span>
-                  <span style={{ fontWeight: 600 }}>
-                    {(cacheStats.totalSizeBytes / (1024 * 1024)).toFixed(2)} MB
-                  </span>
-                </div>
+                <Database size={24} style={{ opacity: 0.4 }} />
+                <p style={{ margin: 0, fontSize: '13px', color: 'var(--text-secondary)' }}>
+                  No catalog tables match your search filter.
+                </p>
               </div>
             ) : (
-              <div
+              <div className="shortcut-grid">
+                {filteredTables.map((table) => {
+                  const isRequired = table.required
+
+                  return (
+                    <div key={table.key} className="shortcut-card">
+                      <div>
+                        <div className="shortcut-card-header">
+                          <div className="shortcut-card-title-container">
+                            <span className="shortcut-card-title">{table.name.split(' ')[0]}</span>
+                            <span className="shortcut-card-filename">
+                              {table.name.substring(table.name.indexOf('('))}
+                            </span>
+                          </div>
+                          <span
+                            className={`shortcut-card-badge ${isRequired ? 'shortcut-card-badge-required' : 'shortcut-card-badge-optional'}`}
+                          >
+                            {isRequired ? 'required' : 'optional'}
+                          </span>
+                        </div>
+
+                        <div style={{ marginTop: '10px' }}>
+                          {table.filePath ? (
+                            <div className="shortcut-card-path" title={table.filePath}>
+                              <FolderOpen size={12} />
+                              <span>{table.filePath.split(/[\\/]/).pop()}</span>
+                            </div>
+                          ) : (
+                            <div className="shortcut-card-empty-path">No file selected</div>
+                          )}
+                        </div>
+                      </div>
+
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                        {/* Progress bar or stats logs */}
+                        {table.status === 'importing' && (
+                          <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                            <div
+                              style={{
+                                display: 'flex',
+                                justifyContent: 'space-between',
+                                fontSize: '10px',
+                                color: 'var(--text-secondary)'
+                              }}
+                            >
+                              <span>Importing...</span>
+                              <span>{table.progress}%</span>
+                            </div>
+                            <div
+                              className="progress-track"
+                              style={{ height: '4px', margin: 0, borderRadius: '2px' }}
+                            >
+                              <div
+                                className="progress-bar"
+                                style={{ width: `${table.progress}%` }}
+                              ></div>
+                            </div>
+                          </div>
+                        )}
+
+                        {table.status === 'completed' && (
+                          <div className="import-card-result">
+                            <span className="success">
+                              <CheckCircle size={12} /> {table.successCount} rows
+                            </span>
+                            {table.errorCount > 0 && (
+                              <span className="error">
+                                <AlertTriangle size={12} /> {table.errorCount} errors
+                              </span>
+                            )}
+                          </div>
+                        )}
+
+                        {table.status === 'failed' && (
+                          <div className="import-card-failed">
+                            <XCircle size={12} />
+                            <span>{table.errors[0] || 'Import failed'}</span>
+                          </div>
+                        )}
+
+                        {/* Import Errors Box */}
+                        {table.errors.length > 0 && (
+                          <div className="import-error-details">
+                            <button
+                              type="button"
+                              className="import-error-toggle"
+                              onClick={() =>
+                                setExpandedErrors((prev) => ({
+                                  ...prev,
+                                  [table.key]: !prev[table.key]
+                                }))
+                              }
+                            >
+                              <AlertTriangle size={12} />
+                              <span>
+                                {expandedErrors[table.key] ? 'Hide' : 'Show'} import details (
+                                {table.errors.length})
+                              </span>
+                            </button>
+                            {expandedErrors[table.key] && (
+                              <div className="import-error-list">
+                                {table.errors.map((err, idx) => (
+                                  <div key={idx}>{err}</div>
+                                ))}
+                              </div>
+                            )}
+                          </div>
+                        )}
+
+                        <div className="shortcut-card-actions">
+                          <button
+                            className="btn btn-secondary btn-sm"
+                            onClick={() => handleSelectFile(table.key)}
+                            disabled={globalImporting || table.status === 'importing'}
+                            style={{ padding: '4px 8px', fontSize: '11px', height: '26px' }}
+                          >
+                            Browse...
+                          </button>
+
+                          {table.filePath &&
+                            table.status !== 'importing' &&
+                            table.status !== 'completed' && (
+                              <button
+                                className="btn btn-primary btn-sm"
+                                onClick={() => triggerImport(table.key)}
+                                disabled={globalImporting}
+                                style={{ padding: '4px 8px', fontSize: '11px', height: '26px' }}
+                              >
+                                Import
+                              </button>
+                            )}
+                        </div>
+                      </div>
+                    </div>
+                  )
+                })}
+              </div>
+            )}
+          </div>
+
+          {/* Sidebar Help Card */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+            <div className="glass-panel" style={{ padding: '16px' }}>
+              <h3 style={{ fontSize: '14px', marginBottom: '8px', fontWeight: 700 }}>
+                Where to get files?
+              </h3>
+              <p
                 style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '6px',
                   fontSize: '12px',
                   color: 'var(--text-secondary)',
+                  lineHeight: 1.5,
                   marginBottom: '8px'
                 }}
               >
-                <Loader2 className="animate-spin" size={12} />
-                <span>Loading cache stats...</span>
-              </div>
-            )}
-            <div style={{ display: 'flex', gap: '8px' }}>
-              <button
-                className="btn btn-secondary btn-sm"
-                onClick={loadCacheStats}
-                disabled={clearingCache}
-                style={{ flex: 1, height: '28px', fontSize: '11px' }}
-              >
-                Refresh
-              </button>
-              <button
-                className="btn btn-secondary btn-sm"
-                onClick={handleClearCache}
-                disabled={clearingCache || !cacheStats || cacheStats.totalImages === 0}
+                You can download official database dumps directly from Rebrickable downloads page:
+              </p>
+              <a
+                href="https://rebrickable.com/downloads/"
+                target="_blank"
+                rel="noreferrer"
                 style={{
-                  flex: 1,
-                  borderColor: '#ef4444',
-                  color: '#fca5a5',
-                  height: '28px',
-                  fontSize: '11px'
+                  color: 'var(--accent)',
+                  textDecoration: 'none',
+                  fontWeight: 600,
+                  fontSize: '12px',
+                  display: 'inline-block'
                 }}
               >
-                {clearingCache ? 'Clearing...' : 'Clear Cache'}
-              </button>
+                Rebrickable CSV Downloads
+              </a>
+            </div>
+
+            <div className="glass-panel" style={{ padding: '16px' }}>
+              <h3 style={{ fontSize: '14px', marginBottom: '8px', fontWeight: 700 }}>Notice</h3>
+              <p
+                style={{
+                  fontSize: '12px',
+                  color: 'var(--text-secondary)',
+                  lineHeight: 1.5,
+                  margin: 0
+                }}
+              >
+                The importer parses CSV tables inside transaction batches. Streaming files like{' '}
+                <strong>inventory_parts.csv</strong> can take 10-20 seconds.
+              </p>
+            </div>
+
+            <div
+              className="glass-panel"
+              style={{ padding: '16px', display: 'flex', flexDirection: 'column', gap: '8px' }}
+            >
+              <h3 style={{ fontSize: '14px', marginBottom: '4px', fontWeight: 700 }}>
+                Offline Image Cache
+              </h3>
+              <p
+                style={{
+                  fontSize: '12px',
+                  color: 'var(--text-secondary)',
+                  lineHeight: 1.5,
+                  marginBottom: '4px'
+                }}
+              >
+                Images for sets and parts in your collection can be cached locally inside SQLite for
+                offline access.
+              </p>
+              {cacheStats ? (
+                <div
+                  style={{
+                    fontSize: '12px',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: '4px',
+                    marginBottom: '8px'
+                  }}
+                >
+                  <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                    <span style={{ color: 'var(--text-secondary)' }}>Cached Images:</span>
+                    <span style={{ fontWeight: 600 }}>{cacheStats.totalImages}</span>
+                  </div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                    <span style={{ color: 'var(--text-secondary)' }}>Disk Usage:</span>
+                    <span style={{ fontWeight: 600 }}>
+                      {(cacheStats.totalSizeBytes / (1024 * 1024)).toFixed(2)} MB
+                    </span>
+                  </div>
+                </div>
+              ) : (
+                <div
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '6px',
+                    fontSize: '12px',
+                    color: 'var(--text-secondary)',
+                    marginBottom: '8px'
+                  }}
+                >
+                  <Loader2 className="animate-spin" size={12} />
+                  <span>Loading cache stats...</span>
+                </div>
+              )}
+              <div style={{ display: 'flex', gap: '8px' }}>
+                <button
+                  className="btn btn-secondary btn-sm"
+                  onClick={loadCacheStats}
+                  disabled={clearingCache}
+                  style={{ flex: 1, height: '28px', fontSize: '11px' }}
+                >
+                  Refresh
+                </button>
+                <button
+                  className="btn btn-secondary btn-sm"
+                  onClick={handleClearCache}
+                  disabled={clearingCache || !cacheStats || cacheStats.totalImages === 0}
+                  style={{
+                    flex: 1,
+                    borderColor: '#ef4444',
+                    color: '#fca5a5',
+                    height: '28px',
+                    fontSize: '11px'
+                  }}
+                >
+                  {clearingCache ? 'Clearing...' : 'Clear Cache'}
+                </button>
+              </div>
             </div>
           </div>
         </div>
-      </div>
       </div>
     </div>
   )

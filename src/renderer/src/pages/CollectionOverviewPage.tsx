@@ -471,270 +471,271 @@ export default function CollectionOverviewPage({
 
       <div className="page-content-scroll">
         <div className="collection-summary-grid">
-        <div className="glass-panel collection-summary-card">
-          <span className="collection-summary-label">Total Sets</span>
-          <strong>{collectionStats.total}</strong>
-          <span>in collection</span>
-        </div>
-        <div className="glass-panel collection-summary-card complete">
-          <span className="collection-summary-label">Complete</span>
-          <strong>{collectionStats.complete}</strong>
-          <span>fully checked</span>
-        </div>
-        <div className="glass-panel collection-summary-card partial">
-          <span className="collection-summary-label">Incomplete</span>
-          <strong>{collectionStats.incomplete}</strong>
-          <span>need attention</span>
-        </div>
-        <div className="glass-panel collection-summary-card missing">
-          <span className="collection-summary-label">Missing Parts</span>
-          <strong>{collectionStats.missing}</strong>
-          <span>sets affected</span>
-        </div>
-      </div>
-
-      {/* Filters bar */}
-      <div className="glass-panel filter-panel" style={{ gridTemplateColumns: '2fr 1fr' }}>
-        <div className="form-group" style={{ margin: 0 }}>
-          <label className="form-label">Search collection</label>
-          <div style={{ position: 'relative' }}>
-            <input
-              type="text"
-              className="form-input"
-              placeholder="Search by set number or name..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              style={{
-                paddingLeft: '36px',
-                paddingTop: '8px',
-                paddingBottom: '8px',
-                borderRadius: '8px'
-              }}
-            />
-            <Search
-              size={14}
-              style={{ position: 'absolute', left: '12px', top: '11px', color: '#64748b' }}
-            />
+          <div className="glass-panel collection-summary-card">
+            <span className="collection-summary-label">Total Sets</span>
+            <strong>{collectionStats.total}</strong>
+            <span>in collection</span>
+          </div>
+          <div className="glass-panel collection-summary-card complete">
+            <span className="collection-summary-label">Complete</span>
+            <strong>{collectionStats.complete}</strong>
+            <span>fully checked</span>
+          </div>
+          <div className="glass-panel collection-summary-card partial">
+            <span className="collection-summary-label">Incomplete</span>
+            <strong>{collectionStats.incomplete}</strong>
+            <span>need attention</span>
+          </div>
+          <div className="glass-panel collection-summary-card missing">
+            <span className="collection-summary-label">Missing Parts</span>
+            <strong>{collectionStats.missing}</strong>
+            <span>sets affected</span>
           </div>
         </div>
 
-        <div className="form-group" style={{ margin: 0 }}>
-          <label className="form-label">Completeness Filter</label>
-          <select
-            className="form-input form-select"
-            style={{ paddingTop: '8px', paddingBottom: '8px', borderRadius: '8px' }}
-            value={statusFilter}
-            onChange={(e) => setStatusFilter(e.target.value)}
-          >
-            <option value="all">All Sets</option>
-            <option value="complete">100% Complete</option>
-            <option value="incomplete">Incomplete</option>
-            <option value="missing">Missing Required Parts</option>
-          </select>
-        </div>
-      </div>
+        {/* Filters bar */}
+        <div className="glass-panel filter-panel" style={{ gridTemplateColumns: '2fr 1fr' }}>
+          <div className="form-group" style={{ margin: 0 }}>
+            <label className="form-label">Search collection</label>
+            <div style={{ position: 'relative' }}>
+              <input
+                type="text"
+                className="form-input"
+                placeholder="Search by set number or name..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                style={{
+                  paddingLeft: '36px',
+                  paddingTop: '8px',
+                  paddingBottom: '8px',
+                  borderRadius: '8px'
+                }}
+              />
+              <Search
+                size={14}
+                style={{ position: 'absolute', left: '12px', top: '11px', color: '#64748b' }}
+              />
+            </div>
+          </div>
 
-      {/* Main Table */}
-      {filteredCollection.length === 0 ? (
-        <div className="glass-panel" style={{ padding: '48px' }}>
-          <div className="empty-slate">
-            <Layers />
-            <p>Your collection is empty or no sets match the current filter.</p>
-            <button className="btn btn-primary btn-sm" onClick={() => setIsAddModalOpen(true)}>
-              <Search size={16} />
-              <span>Search Sets to Add</span>
-            </button>
+          <div className="form-group" style={{ margin: 0 }}>
+            <label className="form-label">Completeness Filter</label>
+            <select
+              className="form-input form-select"
+              style={{ paddingTop: '8px', paddingBottom: '8px', borderRadius: '8px' }}
+              value={statusFilter}
+              onChange={(e) => setStatusFilter(e.target.value)}
+            >
+              <option value="all">All Sets</option>
+              <option value="complete">100% Complete</option>
+              <option value="incomplete">Incomplete</option>
+              <option value="missing">Missing Required Parts</option>
+            </select>
           </div>
         </div>
-      ) : (
-        <div className="glass-panel" style={{ overflow: 'hidden' }}>
-          <table className="collection-table">
-            <thead>
-              <tr>
-                <th>Set</th>
-                <th>Completeness</th>
-                <th>Missing / Extra</th>
-                <th>Last Checked</th>
-                <th>Status</th>
-                <th style={{ textAlign: 'right' }}>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {filteredCollection.map((set) => {
-                const isComplete = set.completion_percentage === 100 && set.unchecked_count === 0
 
-                return (
-                  <tr
-                    key={set.set_num}
-                    style={{ cursor: 'pointer' }}
-                    onClick={() => handleOpenDetails(set)}
-                  >
-                    <td>
-                      <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
-                        {set.image_url ? (
-                          <CachedImage
-                            url={set.image_url}
-                            alt={set.name}
-                            style={{
-                              width: '40px',
-                              height: '40px',
-                              objectFit: 'contain',
-                              background: 'rgba(0,0,0,0.3)',
-                              padding: '2px',
-                              borderRadius: '4px'
-                            }}
-                          />
-                        ) : (
-                          <div
-                            style={{
-                              width: '40px',
-                              height: '40px',
-                              background: 'var(--bg-main)',
-                              borderRadius: '4px',
-                              display: 'flex',
-                              alignItems: 'center',
-                              justifyContent: 'center'
-                            }}
-                          >
-                            <Layers size={18} />
+        {/* Main Table */}
+        {filteredCollection.length === 0 ? (
+          <div className="glass-panel" style={{ padding: '48px' }}>
+            <div className="empty-slate">
+              <Layers />
+              <p>Your collection is empty or no sets match the current filter.</p>
+              <button className="btn btn-primary btn-sm" onClick={() => setIsAddModalOpen(true)}>
+                <Search size={16} />
+                <span>Search Sets to Add</span>
+              </button>
+            </div>
+          </div>
+        ) : (
+          <div className="glass-panel" style={{ overflow: 'hidden' }}>
+            <table className="collection-table">
+              <thead>
+                <tr>
+                  <th>Set</th>
+                  <th>Completeness</th>
+                  <th>Missing / Extra</th>
+                  <th>Last Checked</th>
+                  <th>Status</th>
+                  <th style={{ textAlign: 'right' }}>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {filteredCollection.map((set) => {
+                  const isComplete = set.completion_percentage === 100 && set.unchecked_count === 0
+
+                  return (
+                    <tr
+                      key={set.set_num}
+                      style={{ cursor: 'pointer' }}
+                      onClick={() => handleOpenDetails(set)}
+                    >
+                      <td>
+                        <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
+                          {set.image_url ? (
+                            <CachedImage
+                              url={set.image_url}
+                              alt={set.name}
+                              style={{
+                                width: '40px',
+                                height: '40px',
+                                objectFit: 'contain',
+                                background: 'rgba(0,0,0,0.3)',
+                                padding: '2px',
+                                borderRadius: '4px'
+                              }}
+                            />
+                          ) : (
+                            <div
+                              style={{
+                                width: '40px',
+                                height: '40px',
+                                background: 'var(--bg-main)',
+                                borderRadius: '4px',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center'
+                              }}
+                            >
+                              <Layers size={18} />
+                            </div>
+                          )}
+                          <div>
+                            <span
+                              style={{
+                                fontSize: '11px',
+                                fontWeight: 700,
+                                color: 'var(--accent)',
+                                fontFamily: 'monospace'
+                              }}
+                            >
+                              {set.set_num}
+                            </span>
+                            <span style={{ display: 'block', fontSize: '14px', fontWeight: 600 }}>
+                              {set.name}
+                            </span>
                           </div>
-                        )}
-                        <div>
-                          <span
-                            style={{
-                              fontSize: '11px',
-                              fontWeight: 700,
-                              color: 'var(--accent)',
-                              fontFamily: 'monospace'
-                            }}
-                          >
-                            {set.set_num}
-                          </span>
-                          <span style={{ display: 'block', fontSize: '14px', fontWeight: 600 }}>
-                            {set.name}
+                        </div>
+                      </td>
+                      <td>
+                        <div style={{ display: 'flex', alignItems: 'center' }}>
+                          <div className="collection-bar-container">
+                            <div
+                              className={`collection-bar ${isComplete ? '' : 'partial'}`}
+                              style={{ width: `${set.completion_percentage}%` }}
+                            ></div>
+                          </div>
+                          <span style={{ fontSize: '13px', fontWeight: 700 }}>
+                            {set.completion_percentage}%
                           </span>
                         </div>
-                      </div>
-                    </td>
-                    <td>
-                      <div style={{ display: 'flex', alignItems: 'center' }}>
-                        <div className="collection-bar-container">
-                          <div
-                            className={`collection-bar ${isComplete ? '' : 'partial'}`}
-                            style={{ width: `${set.completion_percentage}%` }}
-                          ></div>
-                        </div>
-                        <span style={{ fontSize: '13px', fontWeight: 700 }}>
-                          {set.completion_percentage}%
-                        </span>
-                      </div>
-                    </td>
-                    <td>
-                      <div
-                        style={{
-                          display: 'flex',
-                          flexDirection: 'column',
-                          gap: '2px',
-                          fontSize: '12px'
-                        }}
-                      >
-                        {set.session_status === 'not_started' ? (
-                          <span style={{ color: 'var(--text-secondary)' }}>Not started yet</span>
-                        ) : (
-                          <>
-                            {set.missing_required_count > 0 && (
-                              <span className="collection-status-line missing">
-                                <X size={12} /> {set.missing_required_count} missing parts
-                              </span>
-                            )}
-                            {set.missing_spares_count > 0 && (
-                              <span className="collection-status-line partial">
-                                <AlertTriangle size={12} /> {set.missing_spares_count} missing
-                                spares
-                              </span>
-                            )}
-                            {set.extra_count > 0 && (
-                              <span className="collection-status-line extra">
-                                <Plus size={12} /> {set.extra_count} extra parts
-                              </span>
-                            )}
-                            {set.missing_required_count === 0 && set.missing_spares_count === 0 && (
-                              <span className="collection-status-line complete">
-                                <Check size={12} /> All parts accounted for
-                              </span>
-                            )}
-                          </>
-                        )}
-                      </div>
-                    </td>
-                    <td style={{ fontSize: '13px', color: 'var(--text-secondary)' }}>
-                      {set.last_checked_date
-                        ? new Date(set.last_checked_date).toLocaleDateString()
-                        : 'N/A'}
-                    </td>
-                    <td>
-                      <span
-                        className={`badge badge-${
-                          set.session_status === 'in_progress'
-                            ? 'partial'
-                            : set.session_status === 'not_started'
-                              ? 'not_checked'
-                              : 'complete'
-                        }`}
-                      >
-                        {set.session_status.replace('_', ' ')}
-                      </span>
-                    </td>
-                    <td style={{ textAlign: 'right' }}>
-                      <div
-                        style={{ display: 'inline-flex', gap: '6px' }}
-                        onClick={(e) => e.stopPropagation()}
-                      >
-                        <Tooltip
-                          content={
-                            set.manual_complete
-                              ? 'Clear manual complete'
-                              : 'Mark boxed set complete'
-                          }
+                      </td>
+                      <td>
+                        <div
+                          style={{
+                            display: 'flex',
+                            flexDirection: 'column',
+                            gap: '2px',
+                            fontSize: '12px'
+                          }}
                         >
-                          <button
-                            className={`btn btn-secondary btn-sm btn-icon-only ${set.manual_complete ? '' : 'btn-manual-complete'}`}
-                            onClick={(e) =>
-                              handleSetManualComplete(e, set.set_num, !set.manual_complete)
+                          {set.session_status === 'not_started' ? (
+                            <span style={{ color: 'var(--text-secondary)' }}>Not started yet</span>
+                          ) : (
+                            <>
+                              {set.missing_required_count > 0 && (
+                                <span className="collection-status-line missing">
+                                  <X size={12} /> {set.missing_required_count} missing parts
+                                </span>
+                              )}
+                              {set.missing_spares_count > 0 && (
+                                <span className="collection-status-line partial">
+                                  <AlertTriangle size={12} /> {set.missing_spares_count} missing
+                                  spares
+                                </span>
+                              )}
+                              {set.extra_count > 0 && (
+                                <span className="collection-status-line extra">
+                                  <Plus size={12} /> {set.extra_count} extra parts
+                                </span>
+                              )}
+                              {set.missing_required_count === 0 &&
+                                set.missing_spares_count === 0 && (
+                                  <span className="collection-status-line complete">
+                                    <Check size={12} /> All parts accounted for
+                                  </span>
+                                )}
+                            </>
+                          )}
+                        </div>
+                      </td>
+                      <td style={{ fontSize: '13px', color: 'var(--text-secondary)' }}>
+                        {set.last_checked_date
+                          ? new Date(set.last_checked_date).toLocaleDateString()
+                          : 'N/A'}
+                      </td>
+                      <td>
+                        <span
+                          className={`badge badge-${
+                            set.session_status === 'in_progress'
+                              ? 'partial'
+                              : set.session_status === 'not_started'
+                                ? 'not_checked'
+                                : 'complete'
+                          }`}
+                        >
+                          {set.session_status.replace('_', ' ')}
+                        </span>
+                      </td>
+                      <td style={{ textAlign: 'right' }}>
+                        <div
+                          style={{ display: 'inline-flex', gap: '6px' }}
+                          onClick={(e) => e.stopPropagation()}
+                        >
+                          <Tooltip
+                            content={
+                              set.manual_complete
+                                ? 'Clear manual complete'
+                                : 'Mark boxed set complete'
                             }
                           >
-                            {set.manual_complete ? (
-                              <RotateCcw size={14} />
-                            ) : (
-                              <CheckCircle size={14} />
-                            )}
-                          </button>
-                        </Tooltip>
-                        <Tooltip content="View Details">
-                          <button
-                            className="btn btn-secondary btn-sm btn-icon-only"
-                            onClick={() => handleOpenDetails(set)}
-                          >
-                            <FileText size={14} />
-                          </button>
-                        </Tooltip>
-                        <Tooltip content="Remove from Collection">
-                          <button
-                            className="btn btn-secondary btn-sm btn-icon-only btn-danger"
-                            onClick={(e) => handleRemoveFromCollection(e, set.set_num)}
-                          >
-                            <Trash2 size={14} />
-                          </button>
-                        </Tooltip>
-                      </div>
-                    </td>
-                  </tr>
-                )
-              })}
-            </tbody>
-          </table>
-        </div>
-      )}
+                            <button
+                              className={`btn btn-secondary btn-sm btn-icon-only ${set.manual_complete ? '' : 'btn-manual-complete'}`}
+                              onClick={(e) =>
+                                handleSetManualComplete(e, set.set_num, !set.manual_complete)
+                              }
+                            >
+                              {set.manual_complete ? (
+                                <RotateCcw size={14} />
+                              ) : (
+                                <CheckCircle size={14} />
+                              )}
+                            </button>
+                          </Tooltip>
+                          <Tooltip content="View Details">
+                            <button
+                              className="btn btn-secondary btn-sm btn-icon-only"
+                              onClick={() => handleOpenDetails(set)}
+                            >
+                              <FileText size={14} />
+                            </button>
+                          </Tooltip>
+                          <Tooltip content="Remove from Collection">
+                            <button
+                              className="btn btn-secondary btn-sm btn-icon-only btn-danger"
+                              onClick={(e) => handleRemoveFromCollection(e, set.set_num)}
+                            >
+                              <Trash2 size={14} />
+                            </button>
+                          </Tooltip>
+                        </div>
+                      </td>
+                    </tr>
+                  )
+                })}
+              </tbody>
+            </table>
+          </div>
+        )}
       </div>
 
       {/* Add Set Modal Overlay */}
@@ -932,19 +933,21 @@ export default function CollectionOverviewPage({
               {/* Left Column (Info Panel) */}
               <div className="set-details-sidebar">
                 {selectedSetDetails.image_url ? (
-                  <div style={{
-                    width: '100%',
-                    height: '180px',
-                    background: '#ffffff',
-                    borderRadius: '8px',
-                    border: '1px solid var(--border-glass)',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    overflow: 'hidden',
-                    position: 'relative',
-                    marginBottom: '4px'
-                  }}>
+                  <div
+                    style={{
+                      width: '100%',
+                      height: '180px',
+                      background: '#ffffff',
+                      borderRadius: '8px',
+                      border: '1px solid var(--border-glass)',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      overflow: 'hidden',
+                      position: 'relative',
+                      marginBottom: '4px'
+                    }}
+                  >
                     <CachedImage
                       url={selectedSetDetails.image_url}
                       alt={selectedSetDetails.name}

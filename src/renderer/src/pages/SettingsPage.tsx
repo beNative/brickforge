@@ -1,5 +1,15 @@
 import { useEffect, useState } from 'react'
-import { FolderOpen, Save, Database, RefreshCw, FileArchive, AlertCircle, Cloud, Info, Sparkles } from 'lucide-react'
+import {
+  FolderOpen,
+  Save,
+  Database,
+  RefreshCw,
+  FileArchive,
+  AlertCircle,
+  Cloud,
+  Info,
+  Sparkles
+} from 'lucide-react'
 import ConflictResolutionModal from '../components/ConflictResolutionModal'
 
 interface AppSettings {
@@ -13,11 +23,18 @@ interface SettingsPageProps {
 }
 
 export default function SettingsPage({ onSettingsSaved }: SettingsPageProps) {
-  const [settings, setSettings] = useState<AppSettings>({ dbFolder: '', dbName: '', autoUpdateEnabled: true })
+  const [settings, setSettings] = useState<AppSettings>({
+    dbFolder: '',
+    dbName: '',
+    autoUpdateEnabled: true
+  })
   const [loading, setLoading] = useState<boolean>(true)
   const [saving, setSaving] = useState<boolean>(false)
-  const [message, setMessage] = useState<{ type: 'success' | 'error' | 'info'; text: string } | null>(null)
-  
+  const [message, setMessage] = useState<{
+    type: 'success' | 'error' | 'info'
+    text: string
+  } | null>(null)
+
   // Checking updates states
   const [checkingUpdates, setCheckingUpdates] = useState<boolean>(false)
   const [appVersion, setAppVersion] = useState<string>('')
@@ -56,7 +73,9 @@ export default function SettingsPage({ onSettingsSaved }: SettingsPageProps) {
   const [syncStatusTone, setSyncStatusTone] = useState<'info' | 'success' | 'error'>('info')
   const [showSetupGuide, setShowSetupGuide] = useState(false)
 
-  const [remoteDbs, setRemoteDbs] = useState<{ name: string; id: string; modifiedTime: string }[]>([])
+  const [remoteDbs, setRemoteDbs] = useState<{ name: string; id: string; modifiedTime: string }[]>(
+    []
+  )
   const [isLoadingDbs, setIsLoadingDbs] = useState(false)
   const [selectedDbName, setSelectedDbName] = useState('brickforge.db')
   const [customDbNameInput, setCustomDbNameInput] = useState('')
@@ -121,7 +140,10 @@ export default function SettingsPage({ onSettingsSaved }: SettingsPageProps) {
   useEffect(() => {
     loadSettings()
     loadSyncConfig()
-    window.api.getAppVersion().then((v) => setAppVersion(v)).catch(console.error)
+    window.api
+      .getAppVersion()
+      .then((v) => setAppVersion(v))
+      .catch(console.error)
 
     const unsubscribe = window.api.onSyncStatus((payload) => {
       if (payload.status === 'syncing') {
@@ -445,7 +467,6 @@ export default function SettingsPage({ onSettingsSaved }: SettingsPageProps) {
     }
   }
 
-
   if (loading) {
     return (
       <div className="flex-center" style={{ height: '300px' }}>
@@ -459,502 +480,697 @@ export default function SettingsPage({ onSettingsSaved }: SettingsPageProps) {
     <div className="page-container animate-fade-in" style={{ maxWidth: '800px' }}>
       <div>
         <h1>Application Settings</h1>
-        <p className="subtitle">Configure database location, perform backups, and optimize settings.</p>
+        <p className="subtitle">
+          Configure database location, perform backups, and optimize settings.
+        </p>
       </div>
 
       <div className="page-content-scroll" style={{ gap: '20px' }}>
         {message && (
-        <div className={`settings-alert ${message.type}`}>
-          <AlertCircle size={14} style={{ marginTop: '2px', flexShrink: 0 }} />
-          <span>{message.text}</span>
-        </div>
-      )}
+          <div className={`settings-alert ${message.type}`}>
+            <AlertCircle size={14} style={{ marginTop: '2px', flexShrink: 0 }} />
+            <span>{message.text}</span>
+          </div>
+        )}
 
-      {/* Database Location Configuration */}
-      <div className="glass-panel settings-card">
-        <h2 className="settings-section-title">
-          <Database size={13} style={{ marginRight: '6px', verticalAlign: 'middle' }} />
-          Database Connection
-        </h2>
+        {/* Database Location Configuration */}
+        <div className="glass-panel settings-card">
+          <h2 className="settings-section-title">
+            <Database size={13} style={{ marginRight: '6px', verticalAlign: 'middle' }} />
+            Database Connection
+          </h2>
 
-        <div className="settings-row">
-          <label className="form-label">Database Directory Path</label>
-          <div className="settings-input-group">
+          <div className="settings-row">
+            <label className="form-label">Database Directory Path</label>
+            <div className="settings-input-group">
+              <input
+                type="text"
+                className="form-input"
+                value={settings.dbFolder}
+                onChange={(e) => setSettings((prev) => ({ ...prev, dbFolder: e.target.value }))}
+                placeholder="e.g. C:\Users\name\AppData\Roaming\brickforge"
+              />
+              <button
+                className="btn btn-secondary"
+                onClick={handleBrowseFolder}
+                title="Browse database folder"
+              >
+                <FolderOpen size={14} />
+                <span>Browse</span>
+              </button>
+            </div>
+          </div>
+
+          <div className="settings-row" style={{ marginBottom: '24px' }}>
+            <label className="form-label">Database File Name</label>
             <input
               type="text"
               className="form-input"
-              value={settings.dbFolder}
-              onChange={(e) => setSettings((prev) => ({ ...prev, dbFolder: e.target.value }))}
-              placeholder="e.g. C:\Users\name\AppData\Roaming\brickforge"
-            />
-            <button className="btn btn-secondary" onClick={handleBrowseFolder} title="Browse database folder">
-              <FolderOpen size={14} />
-              <span>Browse</span>
-            </button>
-          </div>
-        </div>
-
-        <div className="settings-row" style={{ marginBottom: '24px' }}>
-          <label className="form-label">Database File Name</label>
-          <input
-            type="text"
-            className="form-input"
-            value={settings.dbName}
-            onChange={(e) => setSettings((prev) => ({ ...prev, dbName: e.target.value }))}
-            placeholder="e.g. brickforge.db"
-          />
-        </div>
-
-        <div className="settings-actions">
-          <button className="btn btn-primary" onClick={handleSaveSettings} disabled={saving}>
-            <Save size={14} />
-            <span>{saving ? 'Applying...' : 'Apply & Reconnect'}</span>
-          </button>
-        </div>
-      </div>
-
-      {/* Backup and Restore */}
-      <div className="glass-panel settings-card">
-        <h2 className="settings-section-title">
-          <FileArchive size={13} style={{ marginRight: '6px', verticalAlign: 'middle' }} />
-          Backup & Restore
-        </h2>
-        <p className="subtitle" style={{ marginBottom: '16px' }}>
-          Export or import your complete database (including sessions, parts checklist, cache) using native ZIP archives.
-        </p>
-
-        <div className="maintenance-grid">
-          <div className="maintenance-card">
-            <div>
-              <div className="maintenance-card-title">Database Backup</div>
-              <div className="maintenance-card-desc">
-                Creates a backup of the database in a compressed ZIP file. Perfect for sharing or manual safety backups.
-              </div>
-            </div>
-            <button className="btn btn-secondary btn-sm" onClick={handleBackup} disabled={backingUp}>
-              {backingUp ? <RefreshCw className="animate-spin" size={12} /> : null}
-              <span>Backup to ZIP</span>
-            </button>
-          </div>
-
-          <div className="maintenance-card">
-            <div>
-              <div className="maintenance-card-title">Database Restore</div>
-              <div className="maintenance-card-desc">
-                Restores a database file from a previously saved ZIP backup. Overwrites the current active database!
-              </div>
-            </div>
-            <button className="btn btn-danger btn-sm" onClick={handleRestore} disabled={restoring}>
-              {restoring ? <RefreshCw className="animate-spin" size={12} /> : null}
-              <span>Restore from ZIP</span>
-            </button>
-          </div>
-        </div>
-      </div>
-
-      {/* Database Maintenance */}
-      <div className="glass-panel settings-card">
-        <h2 className="settings-section-title">
-          <RefreshCw size={13} style={{ marginRight: '6px', verticalAlign: 'middle' }} />
-          Database Maintenance
-        </h2>
-        <p className="subtitle" style={{ marginBottom: '16px' }}>
-          Execute SQL maintenance commands directly on the database to improve query speed and clean up deleted records.
-        </p>
-
-        <div className="maintenance-grid">
-          <div className="maintenance-card">
-            <div>
-              <div className="maintenance-card-title">Optimize DB (VACUUM)</div>
-              <div className="maintenance-card-desc">
-                Cleans up unused database space, shrinks the size of the database file on disk, and defragments storage.
-              </div>
-            </div>
-            <button className="btn btn-secondary btn-sm" onClick={handleVacuum} disabled={vacuuming}>
-              {vacuuming ? <RefreshCw className="animate-spin" size={12} /> : null}
-              <span>Optimize Database</span>
-            </button>
-          </div>
-
-          <div className="maintenance-card">
-            <div>
-              <div className="maintenance-card-title">Rebuild Indexes (REINDEX)</div>
-              <div className="maintenance-card-desc">
-                Rebuilds the database indexes. Execute this if search queries feel slow or database index corruption is suspected.
-              </div>
-            </div>
-            <button className="btn btn-secondary btn-sm" onClick={handleReindex} disabled={reindexing}>
-              {reindexing ? <RefreshCw className="animate-spin" size={12} /> : null}
-              <span>Rebuild Indexes</span>
-            </button>
-          </div>
-        </div>
-      </div>
-
-      {/* Application Updates */}
-      <div className="glass-panel settings-card">
-        <h2 className="settings-section-title">
-          <Sparkles size={13} style={{ marginRight: '6px', verticalAlign: 'middle' }} />
-          Software Updates
-        </h2>
-        <p className="subtitle" style={{ marginBottom: '16px' }}>
-          Configure automatic update checks or manually search for the latest version of BrickForge.
-        </p>
-
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <div>
-              <span className="form-label" style={{ display: 'block', fontSize: '12px', marginBottom: '2px' }}>Automatic Update Checks</span>
-              <span style={{ fontSize: '11px', color: 'var(--text-secondary)' }}>
-                Check for updates automatically on application startup.
-              </span>
-            </div>
-            <input
-              type="checkbox"
-              checked={settings.autoUpdateEnabled}
-              onChange={(e) => handleToggleAutoUpdate(e.target.checked)}
-              style={{ width: '18px', height: '18px', cursor: 'pointer' }}
+              value={settings.dbName}
+              onChange={(e) => setSettings((prev) => ({ ...prev, dbName: e.target.value }))}
+              placeholder="e.g. brickforge.db"
             />
           </div>
 
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: '1px solid var(--border-glass)', paddingTop: '16px' }}>
-            <div>
-              <span className="form-label" style={{ display: 'block', fontSize: '12px', marginBottom: '2px' }}>Check for Updates Manually</span>
-              <span style={{ fontSize: '11px', color: 'var(--text-secondary)' }}>
-                Search for the latest releases right now.
-              </span>
+          <div className="settings-actions">
+            <button className="btn btn-primary" onClick={handleSaveSettings} disabled={saving}>
+              <Save size={14} />
+              <span>{saving ? 'Applying...' : 'Apply & Reconnect'}</span>
+            </button>
+          </div>
+        </div>
+
+        {/* Backup and Restore */}
+        <div className="glass-panel settings-card">
+          <h2 className="settings-section-title">
+            <FileArchive size={13} style={{ marginRight: '6px', verticalAlign: 'middle' }} />
+            Backup & Restore
+          </h2>
+          <p className="subtitle" style={{ marginBottom: '16px' }}>
+            Export or import your complete database (including sessions, parts checklist, cache)
+            using native ZIP archives.
+          </p>
+
+          <div className="maintenance-grid">
+            <div className="maintenance-card">
+              <div>
+                <div className="maintenance-card-title">Database Backup</div>
+                <div className="maintenance-card-desc">
+                  Creates a backup of the database in a compressed ZIP file. Perfect for sharing or
+                  manual safety backups.
+                </div>
+              </div>
+              <button
+                className="btn btn-secondary btn-sm"
+                onClick={handleBackup}
+                disabled={backingUp}
+              >
+                {backingUp ? <RefreshCw className="animate-spin" size={12} /> : null}
+                <span>Backup to ZIP</span>
+              </button>
             </div>
-            <button
-              className="btn btn-secondary btn-sm"
-              onClick={handleCheckForUpdates}
-              disabled={checkingUpdates}
+
+            <div className="maintenance-card">
+              <div>
+                <div className="maintenance-card-title">Database Restore</div>
+                <div className="maintenance-card-desc">
+                  Restores a database file from a previously saved ZIP backup. Overwrites the
+                  current active database!
+                </div>
+              </div>
+              <button
+                className="btn btn-danger btn-sm"
+                onClick={handleRestore}
+                disabled={restoring}
+              >
+                {restoring ? <RefreshCw className="animate-spin" size={12} /> : null}
+                <span>Restore from ZIP</span>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        {/* Database Maintenance */}
+        <div className="glass-panel settings-card">
+          <h2 className="settings-section-title">
+            <RefreshCw size={13} style={{ marginRight: '6px', verticalAlign: 'middle' }} />
+            Database Maintenance
+          </h2>
+          <p className="subtitle" style={{ marginBottom: '16px' }}>
+            Execute SQL maintenance commands directly on the database to improve query speed and
+            clean up deleted records.
+          </p>
+
+          <div className="maintenance-grid">
+            <div className="maintenance-card">
+              <div>
+                <div className="maintenance-card-title">Optimize DB (VACUUM)</div>
+                <div className="maintenance-card-desc">
+                  Cleans up unused database space, shrinks the size of the database file on disk,
+                  and defragments storage.
+                </div>
+              </div>
+              <button
+                className="btn btn-secondary btn-sm"
+                onClick={handleVacuum}
+                disabled={vacuuming}
+              >
+                {vacuuming ? <RefreshCw className="animate-spin" size={12} /> : null}
+                <span>Optimize Database</span>
+              </button>
+            </div>
+
+            <div className="maintenance-card">
+              <div>
+                <div className="maintenance-card-title">Rebuild Indexes (REINDEX)</div>
+                <div className="maintenance-card-desc">
+                  Rebuilds the database indexes. Execute this if search queries feel slow or
+                  database index corruption is suspected.
+                </div>
+              </div>
+              <button
+                className="btn btn-secondary btn-sm"
+                onClick={handleReindex}
+                disabled={reindexing}
+              >
+                {reindexing ? <RefreshCw className="animate-spin" size={12} /> : null}
+                <span>Rebuild Indexes</span>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        {/* Application Updates */}
+        <div className="glass-panel settings-card">
+          <h2 className="settings-section-title">
+            <Sparkles size={13} style={{ marginRight: '6px', verticalAlign: 'middle' }} />
+            Software Updates
+          </h2>
+          <p className="subtitle" style={{ marginBottom: '16px' }}>
+            Configure automatic update checks or manually search for the latest version of
+            BrickForge.
+          </p>
+
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <div>
+                <span
+                  className="form-label"
+                  style={{ display: 'block', fontSize: '12px', marginBottom: '2px' }}
+                >
+                  Automatic Update Checks
+                </span>
+                <span style={{ fontSize: '11px', color: 'var(--text-secondary)' }}>
+                  Check for updates automatically on application startup.
+                </span>
+              </div>
+              <input
+                type="checkbox"
+                checked={settings.autoUpdateEnabled}
+                onChange={(e) => handleToggleAutoUpdate(e.target.checked)}
+                style={{ width: '18px', height: '18px', cursor: 'pointer' }}
+              />
+            </div>
+
+            <div
+              style={{
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                borderTop: '1px solid var(--border-glass)',
+                paddingTop: '16px'
+              }}
             >
-              {checkingUpdates ? <RefreshCw className="animate-spin" size={12} style={{ marginRight: '4px' }} /> : null}
-              <span>Check for Updates</span>
-            </button>
+              <div>
+                <span
+                  className="form-label"
+                  style={{ display: 'block', fontSize: '12px', marginBottom: '2px' }}
+                >
+                  Check for Updates Manually
+                </span>
+                <span style={{ fontSize: '11px', color: 'var(--text-secondary)' }}>
+                  Search for the latest releases right now.
+                </span>
+              </div>
+              <button
+                className="btn btn-secondary btn-sm"
+                onClick={handleCheckForUpdates}
+                disabled={checkingUpdates}
+              >
+                {checkingUpdates ? (
+                  <RefreshCw className="animate-spin" size={12} style={{ marginRight: '4px' }} />
+                ) : null}
+                <span>Check for Updates</span>
+              </button>
+            </div>
           </div>
         </div>
-      </div>
 
-      {/* Cloud Synchronization Section */}
-      <div className="glass-panel settings-card">
-        <h2 className="settings-section-title">
-          <Cloud size={13} style={{ marginRight: '6px', verticalAlign: 'middle' }} />
-          Cloud Database Sync (Google Drive)
-        </h2>
-        <p className="subtitle" style={{ marginBottom: '16px' }}>
-          Securely backup and synchronize your database to a private application folder on Google Drive.
-        </p>
+        {/* Cloud Synchronization Section */}
+        <div className="glass-panel settings-card">
+          <h2 className="settings-section-title">
+            <Cloud size={13} style={{ marginRight: '6px', verticalAlign: 'middle' }} />
+            Cloud Database Sync (Google Drive)
+          </h2>
+          <p className="subtitle" style={{ marginBottom: '16px' }}>
+            Securely backup and synchronize your database to a private application folder on Google
+            Drive.
+          </p>
 
-        {/* Collapsible Guide */}
-        <div style={{
-          marginBottom: '20px',
-          padding: '12px',
-          background: 'rgba(255, 255, 255, 0.02)',
-          border: '1px solid var(--border-glass)',
-          borderRadius: '4px',
-          fontSize: '11px'
-        }}>
+          {/* Collapsible Guide */}
           <div
-            onClick={() => setShowSetupGuide(!showSetupGuide)}
+            style={{
+              marginBottom: '20px',
+              padding: '12px',
+              background: 'rgba(255, 255, 255, 0.02)',
+              border: '1px solid var(--border-glass)',
+              borderRadius: '4px',
+              fontSize: '11px'
+            }}
+          >
+            <div
+              onClick={() => setShowSetupGuide(!showSetupGuide)}
+              style={{
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                cursor: 'pointer',
+                fontWeight: 600,
+                color: 'var(--text-secondary)'
+              }}
+            >
+              <span style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                <Info size={13} style={{ color: 'var(--primary)' }} />
+                First-Time Google Drive API Setup Guide
+              </span>
+              <span style={{ fontSize: '10px', textTransform: 'uppercase', opacity: 0.8 }}>
+                {showSetupGuide ? 'Hide' : 'Show'}
+              </span>
+            </div>
+
+            {showSetupGuide && (
+              <div
+                style={{
+                  marginTop: '12px',
+                  borderTop: '1px solid var(--border-glass)',
+                  paddingTop: '10px',
+                  color: 'var(--text-secondary)',
+                  lineHeight: 1.5
+                }}
+              >
+                <p style={{ marginBottom: '8px' }}>
+                  BrickForge uses your own Google Cloud Console credentials to sync your SQLite
+                  database to a secure private sandbox on your Google Drive:
+                </p>
+                <ol
+                  style={{
+                    paddingLeft: '16px',
+                    margin: '0 0 10px 0',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: '6px'
+                  }}
+                >
+                  <li>
+                    Go to the{' '}
+                    <a
+                      href="https://console.cloud.google.com/"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      style={{ color: 'var(--primary)', textDecoration: 'underline' }}
+                    >
+                      Google Cloud Console
+                    </a>{' '}
+                    and create a project.
+                  </li>
+                  <li>
+                    Search for <strong>Google Drive API</strong> in the API Library and enable it
+                    for your project.
+                  </li>
+                  <li>
+                    Go to OAuth Consent Screen, set up an External screen, add scope{' '}
+                    <code
+                      style={{
+                        background: 'rgba(0,0,0,0.3)',
+                        padding: '1px 4px',
+                        borderRadius: '3px'
+                      }}
+                    >
+                      .../auth/drive.appdata
+                    </code>
+                    , and add your email as a Test User.
+                  </li>
+                  <li>
+                    Go to Credentials, click Create Credentials &gt; OAuth Client ID. Choose{' '}
+                    <strong>Desktop Application</strong> as the type.
+                  </li>
+                  <li>
+                    Copy the generated Client ID and Client Secret, paste them below, and click
+                    Connect Account.
+                  </li>
+                </ol>
+                <div
+                  style={{
+                    background: 'rgba(0, 122, 204, 0.05)',
+                    padding: '8px 12px',
+                    borderRadius: '3px',
+                    borderLeft: '3px solid var(--primary)'
+                  }}
+                >
+                  <strong>🔒 Sandbox Security:</strong> BrickForge has zero access to your other
+                  Google Drive files. It works entirely within an isolated application data space.
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Credentials row */}
+          <div className="settings-row">
+            <label className="form-label">Google Client ID</label>
+            <input
+              type="text"
+              className="form-input"
+              value={syncConfig.clientId}
+              onChange={(e) => setSyncConfig((prev) => ({ ...prev, clientId: e.target.value }))}
+              disabled={isConnecting || isDisconnecting || isSyncing || !!syncConfig.email}
+              placeholder="Enter OAuth Client ID"
+              style={{ padding: '8px 12px', fontSize: '12px' }}
+            />
+          </div>
+
+          <div className="settings-row" style={{ marginBottom: '20px' }}>
+            <label className="form-label">Google Client Secret</label>
+            <input
+              type="password"
+              className="form-input"
+              value={syncConfig.clientSecret}
+              onChange={(e) => setSyncConfig((prev) => ({ ...prev, clientSecret: e.target.value }))}
+              disabled={isConnecting || isDisconnecting || isSyncing || !!syncConfig.email}
+              placeholder="Enter OAuth Client Secret"
+              style={{ padding: '8px 12px', fontSize: '12px' }}
+            />
+          </div>
+
+          {/* OAuth Authentication Connection Status */}
+          <div
             style={{
               display: 'flex',
               justifyContent: 'space-between',
               alignItems: 'center',
-              cursor: 'pointer',
-              fontWeight: 600,
-              color: 'var(--text-secondary)'
+              marginBottom: '24px',
+              borderTop: '1px solid var(--border-glass)',
+              paddingTop: '16px'
             }}
           >
-            <span style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-              <Info size={13} style={{ color: 'var(--primary)' }} />
-              First-Time Google Drive API Setup Guide
-            </span>
-            <span style={{ fontSize: '10px', textTransform: 'uppercase', opacity: 0.8 }}>
-              {showSetupGuide ? 'Hide' : 'Show'}
-            </span>
+            <div style={{ display: 'flex', flexDirection: 'column' }}>
+              <span className="form-label" style={{ fontSize: '12px', marginBottom: '2px' }}>
+                Authentication Status
+              </span>
+              <span style={{ fontSize: '11px', color: 'var(--text-secondary)' }}>
+                {syncConfig.email ? (
+                  <span
+                    className="badge badge-complete"
+                    style={{ fontSize: '10px', textTransform: 'none' }}
+                  >
+                    Connected: {syncConfig.email}
+                  </span>
+                ) : (
+                  'Not connected to Google Drive'
+                )}
+              </span>
+            </div>
+            <div>
+              {syncConfig.email ? (
+                <button
+                  className="btn btn-secondary btn-sm"
+                  onClick={handleDisconnect}
+                  disabled={isDisconnecting || isSyncing}
+                >
+                  {isDisconnecting ? 'Disconnecting...' : 'Disconnect Account'}
+                </button>
+              ) : (
+                <button
+                  className="btn btn-primary btn-sm"
+                  onClick={handleConnect}
+                  disabled={
+                    isConnecting || !syncConfig.clientId.trim() || !syncConfig.clientSecret.trim()
+                  }
+                >
+                  {isConnecting ? 'Connecting...' : 'Connect Account'}
+                </button>
+              )}
+            </div>
           </div>
 
-          {showSetupGuide && (
-            <div style={{ marginTop: '12px', borderTop: '1px solid var(--border-glass)', paddingTop: '10px', color: 'var(--text-secondary)', lineHeight: 1.5 }}>
-              <p style={{ marginBottom: '8px' }}>
-                BrickForge uses your own Google Cloud Console credentials to sync your SQLite database to a secure private sandbox on your Google Drive:
-              </p>
-              <ol style={{ paddingLeft: '16px', margin: '0 0 10px 0', display: 'flex', flexDirection: 'column', gap: '6px' }}>
-                <li>Go to the <a href="https://console.cloud.google.com/" target="_blank" rel="noopener noreferrer" style={{ color: 'var(--primary)', textDecoration: 'underline' }}>Google Cloud Console</a> and create a project.</li>
-                <li>Search for <strong>Google Drive API</strong> in the API Library and enable it for your project.</li>
-                <li>Go to OAuth Consent Screen, set up an External screen, add scope <code style={{ background: 'rgba(0,0,0,0.3)', padding: '1px 4px', borderRadius: '3px' }}>.../auth/drive.appdata</code>, and add your email as a Test User.</li>
-                <li>Go to Credentials, click Create Credentials &gt; OAuth Client ID. Choose <strong>Desktop Application</strong> as the type.</li>
-                <li>Copy the generated Client ID and Client Secret, paste them below, and click Connect Account.</li>
-              </ol>
-              <div style={{ background: 'rgba(0, 122, 204, 0.05)', padding: '8px 12px', borderRadius: '3px', borderLeft: '3px solid var(--primary)' }}>
-                <strong>🔒 Sandbox Security:</strong> BrickForge has zero access to your other Google Drive files. It works entirely within an isolated application data space.
+          {/* Sync Controls (Visible only when connected) */}
+          {syncConfig.email && (
+            <div
+              style={{
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '16px',
+                borderTop: '1px solid var(--border-glass)',
+                paddingTop: '16px'
+              }}
+            >
+              <div
+                style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}
+              >
+                <div>
+                  <span className="form-label" style={{ display: 'block', fontSize: '12px' }}>
+                    Enable Cloud Sync
+                  </span>
+                  <span style={{ fontSize: '11px', color: 'var(--text-secondary)' }}>
+                    Keep cloud synchronization active and auto-update metadata.
+                  </span>
+                </div>
+                <input
+                  type="checkbox"
+                  checked={syncConfig.syncEnabled}
+                  onChange={(e) => handleSaveSyncConfig({ syncEnabled: e.target.checked })}
+                  style={{ width: '18px', height: '18px', cursor: 'pointer' }}
+                />
               </div>
+
+              <div
+                style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start' }}
+              >
+                <div style={{ maxWidth: '65%' }}>
+                  <span className="form-label" style={{ display: 'block', fontSize: '12px' }}>
+                    Google Drive Database File
+                  </span>
+                  <span style={{ fontSize: '11px', color: 'var(--text-secondary)' }}>
+                    Select the database filename to sync with or create a custom name.
+                  </span>
+                </div>
+                <div
+                  style={{ display: 'flex', flexDirection: 'column', gap: '6px', width: '200px' }}
+                >
+                  {!isCustomNaming ? (
+                    <div style={{ display: 'flex', gap: '6px' }}>
+                      <select
+                        className="form-select"
+                        value={selectedDbName}
+                        onChange={(e) => {
+                          const val = e.target.value
+                          if (val === '__custom__') {
+                            setIsCustomNaming(true)
+                            setCustomDbNameInput('')
+                            setDbNameError('Database name must end with .db')
+                          } else {
+                            setSelectedDbName(val)
+                            handleSaveSyncConfig({ syncDatabaseName: val })
+                          }
+                        }}
+                        style={{
+                          padding: '6px 10px',
+                          fontSize: '11px',
+                          height: '32px',
+                          borderRadius: '4px'
+                        }}
+                      >
+                        <option value="brickforge.db">brickforge.db (Default)</option>
+                        {selectedDbName !== 'brickforge.db' &&
+                          !remoteDbs.some((d) => d.name === selectedDbName) && (
+                            <option value={selectedDbName}>{selectedDbName} (Configured)</option>
+                          )}
+                        {remoteDbs.map((d) => {
+                          if (d.name === 'brickforge.db') return null
+                          return (
+                            <option key={d.id} value={d.name}>
+                              {d.name} (Cloud)
+                            </option>
+                          )
+                        })}
+                        <option value="__custom__">+ Custom name...</option>
+                      </select>
+                      <button
+                        className="btn btn-secondary btn-sm"
+                        onClick={() => fetchRemoteDbs()}
+                        disabled={isLoadingDbs}
+                        title="Refresh remote database files list"
+                        style={{ width: '32px', height: '32px', padding: 0 }}
+                      >
+                        {isLoadingDbs ? <RefreshCw className="animate-spin" size={12} /> : '🔄'}
+                      </button>
+                    </div>
+                  ) : (
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                      <div style={{ display: 'flex', gap: '4px' }}>
+                        <input
+                          type="text"
+                          className="form-input"
+                          value={customDbNameInput}
+                          onChange={(e) => {
+                            const val = e.target.value
+                            setCustomDbNameInput(val)
+                            if (!val.trim()) {
+                              setDbNameError('Name cannot be empty')
+                            } else if (!val.toLowerCase().endsWith('.db')) {
+                              setDbNameError('Must end with .db')
+                            } else {
+                              setDbNameError(null)
+                            }
+                          }}
+                          placeholder="e.g. brickforge-sync.db"
+                          style={{
+                            padding: '6px 10px',
+                            fontSize: '11px',
+                            height: '32px',
+                            borderRadius: '4px'
+                          }}
+                        />
+                        <button
+                          className="btn btn-primary btn-sm"
+                          onClick={() => {
+                            if (!dbNameError && customDbNameInput.trim()) {
+                              const name = customDbNameInput.trim()
+                              setSelectedDbName(name)
+                              handleSaveSyncConfig({ syncDatabaseName: name })
+                              setIsCustomNaming(false)
+                            }
+                          }}
+                          disabled={!!dbNameError || !customDbNameInput.trim()}
+                          style={{ height: '32px' }}
+                        >
+                          Apply
+                        </button>
+                        <button
+                          className="btn btn-secondary btn-sm"
+                          onClick={() => setIsCustomNaming(false)}
+                          style={{ height: '32px' }}
+                        >
+                          X
+                        </button>
+                      </div>
+                      {dbNameError && (
+                        <span style={{ fontSize: '9px', color: 'var(--status-missing)' }}>
+                          {dbNameError}
+                        </span>
+                      )}
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              <div
+                style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}
+              >
+                <div>
+                  <span className="form-label" style={{ display: 'block', fontSize: '12px' }}>
+                    Sync on Startup & Shutdown
+                  </span>
+                  <span style={{ fontSize: '11px', color: 'var(--text-secondary)' }}>
+                    Automatically sync changes when opening or closing BrickForge.
+                  </span>
+                </div>
+                <input
+                  type="checkbox"
+                  checked={syncConfig.syncAutoOnOpenClose}
+                  onChange={(e) => handleSaveSyncConfig({ syncAutoOnOpenClose: e.target.checked })}
+                  style={{ width: '18px', height: '18px', cursor: 'pointer' }}
+                />
+              </div>
+
+              <div
+                style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}
+              >
+                <div>
+                  <span className="form-label" style={{ display: 'block', fontSize: '12px' }}>
+                    Conflict Resolution Policy
+                  </span>
+                  <span style={{ fontSize: '11px', color: 'var(--text-secondary)' }}>
+                    Preferred action when database versions diverge on local and cloud.
+                  </span>
+                </div>
+                <select
+                  className="form-select"
+                  value={syncConfig.conflictResolution}
+                  onChange={(e) =>
+                    handleSaveSyncConfig({ conflictResolution: e.target.value as any })
+                  }
+                  style={{
+                    width: '180px',
+                    padding: '6px 10px',
+                    fontSize: '11px',
+                    height: '32px',
+                    borderRadius: '4px'
+                  }}
+                >
+                  <option value="ask">Ask (Show dialog)</option>
+                  <option value="prefer-local">Prefer Local</option>
+                  <option value="prefer-cloud">Prefer Cloud</option>
+                </select>
+              </div>
+
+              <div
+                style={{
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
+                  marginTop: '10px',
+                  borderTop: '1px solid var(--border-glass)',
+                  paddingTop: '16px'
+                }}
+              >
+                <div style={{ display: 'flex', flexDirection: 'column' }}>
+                  <span className="form-label" style={{ fontSize: '12px', marginBottom: '2px' }}>
+                    Manual Sync
+                  </span>
+                  <span style={{ fontSize: '11px', color: 'var(--text-secondary)' }}>
+                    {syncConfig.lastCompletedAt
+                      ? `Last synced: ${new Date(syncConfig.lastCompletedAt).toLocaleString()}`
+                      : 'Never synchronized before'}
+                  </span>
+                </div>
+                <div>
+                  <button
+                    className="btn btn-secondary btn-sm"
+                    onClick={handleSyncNow}
+                    disabled={isSyncing || !syncConfig.syncEnabled}
+                  >
+                    {isSyncing ? (
+                      <RefreshCw
+                        className="animate-spin"
+                        size={12}
+                        style={{ marginRight: '4px' }}
+                      />
+                    ) : null}
+                    <span>Sync Now</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Sync Status Logs / Messages */}
+          {syncStatusMsg && (
+            <div
+              className={`settings-alert ${syncStatusTone === 'error' ? 'error' : syncStatusTone === 'success' ? 'success' : 'info'}`}
+              style={{
+                margin: '16px 0 0 0',
+                padding: '10px 14px',
+                fontSize: '12px',
+                borderRadius: '4px',
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center'
+              }}
+            >
+              <span>{syncStatusMsg}</span>
+              {isSyncing && <RefreshCw className="animate-spin" size={12} />}
             </div>
           )}
         </div>
 
-        {/* Credentials row */}
-        <div className="settings-row">
-          <label className="form-label">Google Client ID</label>
-          <input
-            type="text"
-            className="form-input"
-            value={syncConfig.clientId}
-            onChange={(e) => setSyncConfig(prev => ({ ...prev, clientId: e.target.value }))}
-            disabled={isConnecting || isDisconnecting || isSyncing || !!syncConfig.email}
-            placeholder="Enter OAuth Client ID"
-            style={{ padding: '8px 12px', fontSize: '12px' }}
+        {conflictData && (
+          <ConflictResolutionModal
+            localStats={conflictData.localStats}
+            remoteStats={conflictData.remoteStats}
+            onResolve={handleResolveConflict}
+            onClose={() => setConflictData(null)}
           />
-        </div>
-
-        <div className="settings-row" style={{ marginBottom: '20px' }}>
-          <label className="form-label">Google Client Secret</label>
-          <input
-            type="password"
-            className="form-input"
-            value={syncConfig.clientSecret}
-            onChange={(e) => setSyncConfig(prev => ({ ...prev, clientSecret: e.target.value }))}
-            disabled={isConnecting || isDisconnecting || isSyncing || !!syncConfig.email}
-            placeholder="Enter OAuth Client Secret"
-            style={{ padding: '8px 12px', fontSize: '12px' }}
-          />
-        </div>
-
-        {/* OAuth Authentication Connection Status */}
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px', borderTop: '1px solid var(--border-glass)', paddingTop: '16px' }}>
-          <div style={{ display: 'flex', flexDirection: 'column' }}>
-            <span className="form-label" style={{ fontSize: '12px', marginBottom: '2px' }}>Authentication Status</span>
-            <span style={{ fontSize: '11px', color: 'var(--text-secondary)' }}>
-              {syncConfig.email ? (
-                <span className="badge badge-complete" style={{ fontSize: '10px', textTransform: 'none' }}>
-                  Connected: {syncConfig.email}
-                </span>
-              ) : (
-                'Not connected to Google Drive'
-              )}
-            </span>
-          </div>
-          <div>
-            {syncConfig.email ? (
-              <button
-                className="btn btn-secondary btn-sm"
-                onClick={handleDisconnect}
-                disabled={isDisconnecting || isSyncing}
-              >
-                {isDisconnecting ? 'Disconnecting...' : 'Disconnect Account'}
-              </button>
-            ) : (
-              <button
-                className="btn btn-primary btn-sm"
-                onClick={handleConnect}
-                disabled={isConnecting || !syncConfig.clientId.trim() || !syncConfig.clientSecret.trim()}
-              >
-                {isConnecting ? 'Connecting...' : 'Connect Account'}
-              </button>
-            )}
-          </div>
-        </div>
-
-        {/* Sync Controls (Visible only when connected) */}
-        {syncConfig.email && (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', borderTop: '1px solid var(--border-glass)', paddingTop: '16px' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <div>
-                <span className="form-label" style={{ display: 'block', fontSize: '12px' }}>Enable Cloud Sync</span>
-                <span style={{ fontSize: '11px', color: 'var(--text-secondary)' }}>
-                  Keep cloud synchronization active and auto-update metadata.
-                </span>
-              </div>
-              <input
-                type="checkbox"
-                checked={syncConfig.syncEnabled}
-                onChange={(e) => handleSaveSyncConfig({ syncEnabled: e.target.checked })}
-                style={{ width: '18px', height: '18px', cursor: 'pointer' }}
-              />
-            </div>
-
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start' }}>
-              <div style={{ maxWidth: '65%' }}>
-                <span className="form-label" style={{ display: 'block', fontSize: '12px' }}>Google Drive Database File</span>
-                <span style={{ fontSize: '11px', color: 'var(--text-secondary)' }}>
-                  Select the database filename to sync with or create a custom name.
-                </span>
-              </div>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', width: '200px' }}>
-                {!isCustomNaming ? (
-                  <div style={{ display: 'flex', gap: '6px' }}>
-                    <select
-                      className="form-select"
-                      value={selectedDbName}
-                      onChange={(e) => {
-                        const val = e.target.value
-                        if (val === '__custom__') {
-                          setIsCustomNaming(true)
-                          setCustomDbNameInput('')
-                          setDbNameError('Database name must end with .db')
-                        } else {
-                          setSelectedDbName(val)
-                          handleSaveSyncConfig({ syncDatabaseName: val })
-                        }
-                      }}
-                      style={{ padding: '6px 10px', fontSize: '11px', height: '32px', borderRadius: '4px' }}
-                    >
-                      <option value="brickforge.db">brickforge.db (Default)</option>
-                      {selectedDbName !== 'brickforge.db' && !remoteDbs.some(d => d.name === selectedDbName) && (
-                        <option value={selectedDbName}>{selectedDbName} (Configured)</option>
-                      )}
-                      {remoteDbs.map((d) => {
-                        if (d.name === 'brickforge.db') return null
-                        return (
-                          <option key={d.id} value={d.name}>
-                            {d.name} (Cloud)
-                          </option>
-                        )
-                      })}
-                      <option value="__custom__">+ Custom name...</option>
-                    </select>
-                    <button
-                      className="btn btn-secondary btn-sm"
-                      onClick={() => fetchRemoteDbs()}
-                      disabled={isLoadingDbs}
-                      title="Refresh remote database files list"
-                      style={{ width: '32px', height: '32px', padding: 0 }}
-                    >
-                      {isLoadingDbs ? <RefreshCw className="animate-spin" size={12} /> : '🔄'}
-                    </button>
-                  </div>
-                ) : (
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                    <div style={{ display: 'flex', gap: '4px' }}>
-                      <input
-                        type="text"
-                        className="form-input"
-                        value={customDbNameInput}
-                        onChange={(e) => {
-                          const val = e.target.value
-                          setCustomDbNameInput(val)
-                          if (!val.trim()) {
-                            setDbNameError('Name cannot be empty')
-                          } else if (!val.toLowerCase().endsWith('.db')) {
-                            setDbNameError('Must end with .db')
-                          } else {
-                            setDbNameError(null)
-                          }
-                        }}
-                        placeholder="e.g. brickforge-sync.db"
-                        style={{ padding: '6px 10px', fontSize: '11px', height: '32px', borderRadius: '4px' }}
-                      />
-                      <button
-                        className="btn btn-primary btn-sm"
-                        onClick={() => {
-                          if (!dbNameError && customDbNameInput.trim()) {
-                            const name = customDbNameInput.trim()
-                            setSelectedDbName(name)
-                            handleSaveSyncConfig({ syncDatabaseName: name })
-                            setIsCustomNaming(false)
-                          }
-                        }}
-                        disabled={!!dbNameError || !customDbNameInput.trim()}
-                        style={{ height: '32px' }}
-                      >
-                        Apply
-                      </button>
-                      <button
-                        className="btn btn-secondary btn-sm"
-                        onClick={() => setIsCustomNaming(false)}
-                        style={{ height: '32px' }}
-                      >
-                        X
-                      </button>
-                    </div>
-                    {dbNameError && (
-                      <span style={{ fontSize: '9px', color: 'var(--status-missing)' }}>
-                        {dbNameError}
-                      </span>
-                    )}
-                  </div>
-                )}
-              </div>
-            </div>
-
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <div>
-                <span className="form-label" style={{ display: 'block', fontSize: '12px' }}>Sync on Startup & Shutdown</span>
-                <span style={{ fontSize: '11px', color: 'var(--text-secondary)' }}>
-                  Automatically sync changes when opening or closing BrickForge.
-                </span>
-              </div>
-              <input
-                type="checkbox"
-                checked={syncConfig.syncAutoOnOpenClose}
-                onChange={(e) => handleSaveSyncConfig({ syncAutoOnOpenClose: e.target.checked })}
-                style={{ width: '18px', height: '18px', cursor: 'pointer' }}
-              />
-            </div>
-
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <div>
-                <span className="form-label" style={{ display: 'block', fontSize: '12px' }}>Conflict Resolution Policy</span>
-                <span style={{ fontSize: '11px', color: 'var(--text-secondary)' }}>
-                  Preferred action when database versions diverge on local and cloud.
-                </span>
-              </div>
-              <select
-                className="form-select"
-                value={syncConfig.conflictResolution}
-                onChange={(e) => handleSaveSyncConfig({ conflictResolution: e.target.value as any })}
-                style={{ width: '180px', padding: '6px 10px', fontSize: '11px', height: '32px', borderRadius: '4px' }}
-              >
-                <option value="ask">Ask (Show dialog)</option>
-                <option value="prefer-local">Prefer Local</option>
-                <option value="prefer-cloud">Prefer Cloud</option>
-              </select>
-            </div>
-
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '10px', borderTop: '1px solid var(--border-glass)', paddingTop: '16px' }}>
-              <div style={{ display: 'flex', flexDirection: 'column' }}>
-                <span className="form-label" style={{ fontSize: '12px', marginBottom: '2px' }}>Manual Sync</span>
-                <span style={{ fontSize: '11px', color: 'var(--text-secondary)' }}>
-                  {syncConfig.lastCompletedAt
-                    ? `Last synced: ${new Date(syncConfig.lastCompletedAt).toLocaleString()}`
-                    : 'Never synchronized before'}
-                </span>
-              </div>
-              <div>
-                <button
-                  className="btn btn-secondary btn-sm"
-                  onClick={handleSyncNow}
-                  disabled={isSyncing || !syncConfig.syncEnabled}
-                >
-                  {isSyncing ? <RefreshCw className="animate-spin" size={12} style={{ marginRight: '4px' }} /> : null}
-                  <span>Sync Now</span>
-                </button>
-              </div>
-            </div>
-          </div>
         )}
-
-        {/* Sync Status Logs / Messages */}
-        {syncStatusMsg && (
-          <div
-            className={`settings-alert ${syncStatusTone === 'error' ? 'error' : syncStatusTone === 'success' ? 'success' : 'info'}`}
-            style={{ margin: '16px 0 0 0', padding: '10px 14px', fontSize: '12px', borderRadius: '4px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}
-          >
-            <span>{syncStatusMsg}</span>
-            {isSyncing && <RefreshCw className="animate-spin" size={12} />}
-          </div>
-        )}
-      </div>
-
-      {conflictData && (
-        <ConflictResolutionModal
-          localStats={conflictData.localStats}
-          remoteStats={conflictData.remoteStats}
-          onResolve={handleResolveConflict}
-          onClose={() => setConflictData(null)}
-        />
-      )}
       </div>
     </div>
   )

@@ -52,7 +52,9 @@ export function registerSyncHandlers(): void {
 
     const newDbName = syncConfig.syncDatabaseName || 'brickforge.db'
     if (newDbName !== oldDbName) {
-      info(`[Sync] Target database changed from ${oldDbName} to ${newDbName}. Resetting tracking checksums.`)
+      info(
+        `[Sync] Target database changed from ${oldDbName} to ${newDbName}. Resetting tracking checksums.`
+      )
       syncConfig.lastLocalChecksum = null
       syncConfig.lastRemoteChecksum = null
       syncConfig.lastCompletedAt = null

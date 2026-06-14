@@ -4,6 +4,47 @@ This document logs all released versions of BrickForge, detailing features, upda
 
 ---
 
+## v1.6.2 — Release Automation Improvements (June 2026)
+
+This release updates the automated release workflows to properly support auto-updates.
+
+### Fixed
+
+- **Release Assets Packaging:** Included build metadata configurations (`dist/*.yml` and `dist/*.blockmap`) in the release runner matrices, enabling `electron-updater` to successfully discover and check version streams.
+
+---
+
+## v1.6.1 — Software Updates & Resizable Console (June 2026)
+
+This release adds manual/automatic update settings and a draggable, resizable log console panel.
+
+### Added
+
+- **Software Updates Configuration:**
+  - **Automatic Updates Toggle:** Enable/disable automatic startup update checks, persisting immediately to the user settings.
+  - **Check for Updates Button:** Manual check trigger in the settings panel with real-time status banners and automatic integration with the background updater toast download progress.
+- **Resizable Log Console Panel:**
+  - **Draggable Splitter Bar:** Added a vertical drag handle splitter at the top of the logs console.
+  - **Delta-Based Resizing:** Smooth drag actions on document mouse events, clamping heights between 100px and viewport bounds.
+  - **Size Persistence:** Saves your preferred console height in `localStorage`, retaining layout preferences across restarts.
+
+---
+
+## v1.6.0 — Google Drive Database Sync (June 2026)
+
+This release implements a private cloud synchronization engine using Google Drive's isolated sandbox space. Users can optionally backup, load, and restore their database across machines using their own Google Cloud Console credentials.
+
+### Added
+
+- **Private Google Drive Sync Panel:** Adds Google Drive setup and configuration controls inside the Settings Page, utilizing the secure `appDataFolder` sandbox.
+- **Local OAuth Listener:** Spins up a temporary server on port `52080` to safely exchange authorization codes for refresh tokens and user info, closing automatically on completion.
+- **Checksum-Based Conflict Detection:** Calculates database file MD5 hashes to identify local vs. remote modifications.
+- **Side-by-Side Conflict Resolution Modal:** Displays file parameters (modified dates, sizes, collections count, active check sessions, notes count) when a sync conflict is detected.
+- **Automated Lifecycle Sync:** Configurable options to run background synchronization tasks on application startup and quit events.
+- **Dynamic Swapping:** Intercepts active SQLite connections, close files, apply remote database overlays, and reload the UI automatically.
+
+---
+
 ## v1.5.0 — Application Settings & Database Maintenance (June 2026)
 
 This release introduces a dedicated Application Settings page, configurable database folder and file name settings, SQLite database optimization commands, and database backup and restore features via compressed ZIP archives.
@@ -12,7 +53,7 @@ This release introduces a dedicated Application Settings page, configurable data
 
 - **Application Settings Tab:** A new settings page in the sidebar navigation to configure the database folder and database file name.
 - **Dynamic Database Reconnection:** Swaps databases at runtime without requiring an application restart, running migrations automatically when a new path is configured.
-- **PowerShell ZIP Backup & Restore:** 
+- **PowerShell ZIP Backup & Restore:**
   - **ZIP Backup:** Safely copy the open SQLite file to a temporary location, close active file locks, and compress the file into a `.zip` archive.
   - **ZIP Restore:** Uncompress ZIP database backups with header validation (checking `SQLite format 3` magic bytes), safe `.bak` recovery safeguards, and dynamic reconnection.
 - **Database Maintenance Commands:** Integrates database optimization controls to run `VACUUM` (compact space) and `REINDEX` (rebuild indexes) directly from the UI.
