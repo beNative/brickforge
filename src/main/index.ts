@@ -1,7 +1,13 @@
-import { app, shell, BrowserWindow, ipcMain, protocol } from 'electron'
+import { app, shell, BrowserWindow, ipcMain, protocol, nativeImage } from 'electron'
 import { join } from 'path'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
-import icon from '../../resources/icon.png?asset'
+import iconPng from '../../resources/icon.png?asset'
+import iconIco from '../../resources/icon.ico?asset'
+
+const iconPath = process.platform === 'win32' ? iconIco : iconPng
+const icon = process.platform === 'win32'
+  ? nativeImage.createFromPath(iconPath.replace('app.asar', 'app.asar.unpacked'))
+  : iconPath
 
 import { initDatabase } from './database/connection'
 import { registerImportHandlers } from './ipc/importHandlers'

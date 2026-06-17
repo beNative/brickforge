@@ -60,6 +60,22 @@ export default function InventorySessionPage({
   >('all_missing')
   const [exporting, setExporting] = useState(false)
 
+  // Hide Completed & Grid Scale state (persisted to localStorage)
+  const [hideCompleted, setHideCompleted] = useState<boolean>(() => {
+    return localStorage.getItem('brickforge_hide_completed') === 'true'
+  })
+  const [gridScale, setGridScale] = useState<'sm' | 'md' | 'lg'>(() => {
+    return (localStorage.getItem('brickforge_grid_scale') as any) || 'md'
+  })
+
+  useEffect(() => {
+    localStorage.setItem('brickforge_hide_completed', String(hideCompleted))
+  }, [hideCompleted])
+
+  useEffect(() => {
+    localStorage.setItem('brickforge_grid_scale', gridScale)
+  }, [gridScale])
+
   // Keyboard navigation & focus state
   const [focusedIndex, setFocusedIndex] = useState<number | null>(null)
   const gridRef = useRef<HTMLDivElement>(null)
@@ -268,8 +284,19 @@ export default function InventorySessionPage({
     }
 
     // 2. Status Filter
-    if (statusFilter !== 'all') {
+    if (statusFilter === 'to_count') {
+      // Show unchecked, partial, and missing (expected not matched by counted)
+      result = result.filter((item) => item.status !== 'complete' && item.status !== 'extra')
+    } else if (statusFilter === 'checked_active') {
+      // Show anything that is checked (any status other than unchecked)
+      result = result.filter((item) => item.status !== 'not_checked')
+    } else if (statusFilter !== 'all') {
       result = result.filter((item) => item.status === statusFilter)
+    }
+
+    // Hide Completed toggle
+    if (hideCompleted) {
+      result = result.filter((item) => item.status !== 'complete')
     }
 
     // 3. Spares filter
@@ -318,7 +345,7 @@ export default function InventorySessionPage({
     })
 
     return result
-  }, [items, selectedGroup, statusFilter, sparesFilter, searchQuery, sortField])
+  }, [items, selectedGroup, statusFilter, sparesFilter, searchQuery, sortField, hideCompleted])
 
   const visibleItems = useMemo(() => {
     return filteredAndSortedItems.slice(0, visibleCount)
@@ -327,7 +354,7 @@ export default function InventorySessionPage({
   // Reset focus when filters or viewMode changes
   useEffect(() => {
     setFocusedIndex(null)
-  }, [selectedGroup, statusFilter, sparesFilter, searchQuery, sortField, viewMode])
+  }, [selectedGroup, statusFilter, sparesFilter, searchQuery, sortField, viewMode, hideCompleted])
 
   // Keydown listener for keyboard-driven counting
   useEffect(() => {
@@ -683,11 +710,13 @@ export default function InventorySessionPage({
               }}
             >
               <option value="all">All Statuses</option>
-              <option value="not_checked">Unchecked</option>
-              <option value="complete">Complete</option>
-              <option value="missing">Missing (0 counted)</option>
-              <option value="partial">Partial (incomplete)</option>
-              <option value="extra">Extra (surplus)</option>
+              <option value="to_count">To Count (Unchecked/Partial)</option>
+              <option value="checked_active">Checked (Active)</option>
+              <option value="not_checked">Unchecked Only</option>
+              <option value="complete">Complete Only</option>
+              <option value="missing">Missing Only (0 counted)</option>
+              <option value="partial">Partial Only (incomplete)</option>
+              <option value="extra">Extra Only (surplus)</option>
             </select>
           </div>
 
@@ -709,24 +738,56 @@ export default function InventorySessionPage({
             </select>
           </div>
 
-          {/* View Toggle + Spares filter */}
-          <div className="inventory-filter-actions">
-            <div className="form-group">
-              <label className="form-label">Spares</label>
-              <select
-                className="form-input form-select"
-                value={sparesFilter}
-                onChange={(e) => {
-                  setSparesFilter(e.target.value)
-                  setVisibleCount(48)
-                }}
-              >
-                <option value="all">Show Spares</option>
-                <option value="no_spares">Hide Spares</option>
-                <option value="spares_only">Spares Only</option>
-              </select>
-            </div>
+          {/* Spares Filter */}
+          <div className="form-group">
+            <label className="form-label">Spares</label>
+            <select
+              className="form-input form-select"
+              value={sparesFilter}
+              onChange={(e) => {
+                setSparesFilter(e.target.value)
+                setVisibleCount(48)
+              }}
+            >
+              <option value="all">Show Spares</option>
+              <option value="no_spares">Hide Spares</option>
+              <option value="spares_only">Spares Only</option>
+            </select>
+          </div>
 
+          {/* Scalable Size Control (Grid only) */}
+          {viewMode === 'grid' && (
+            <div className="form-group" style={{ minWidth: '100px' }}>
+              <label className="form-label">Tile Size</label>
+              <div className="segmented-icon-control">
+                <button
+                  className={`btn btn-secondary btn-sm ${gridScale === 'sm' ? 'active' : ''}`}
+                  style={{ minWidth: '32px', padding: '4px 8px', fontSize: '11px', fontWeight: 700 }}
+                  onClick={() => setGridScale('sm')}
+                >
+                  S
+                </button>
+                <button
+                  className={`btn btn-secondary btn-sm ${gridScale === 'md' ? 'active' : ''}`}
+                  style={{ minWidth: '32px', padding: '4px 8px', fontSize: '11px', fontWeight: 700 }}
+                  onClick={() => setGridScale('md')}
+                >
+                  M
+                </button>
+                <button
+                  className={`btn btn-secondary btn-sm ${gridScale === 'lg' ? 'active' : ''}`}
+                  style={{ minWidth: '32px', padding: '4px 8px', fontSize: '11px', fontWeight: 700 }}
+                  onClick={() => setGridScale('lg')}
+                >
+                  L
+                </button>
+              </div>
+            </div>
+          )}
+
+          {/* View Toggle */}
+          <div className="form-group" style={{ minWidth: '76px' }}>
+            <label className="form-label">View</label>
             <div className="segmented-icon-control">
               <Tooltip content="Grid view">
                 <button
@@ -746,6 +807,27 @@ export default function InventorySessionPage({
               </Tooltip>
             </div>
           </div>
+
+          {/* Hide Completed Checkbox */}
+          <div className="form-group checkbox-group" style={{ minWidth: '120px' }}>
+            <label className="form-label" style={{ userSelect: 'none' }}>&nbsp;</label>
+            <div className="checkbox-control-wrapper" style={{ display: 'flex', alignItems: 'center', height: '34px', gap: '8px' }}>
+              <input
+                type="checkbox"
+                id="hide-completed-toggle"
+                className="form-checkbox"
+                checked={hideCompleted}
+                onChange={(e) => {
+                  setHideCompleted(e.target.checked)
+                  setVisibleCount(48)
+                }}
+                style={{ width: '16px', height: '16px', cursor: 'pointer' }}
+              />
+              <label htmlFor="hide-completed-toggle" style={{ margin: 0, cursor: 'pointer', userSelect: 'none', fontWeight: 600, fontSize: '13px', color: 'var(--text-secondary)' }}>
+                Hide Completed
+              </label>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -760,7 +842,11 @@ export default function InventorySessionPage({
           </div>
         ) : viewMode === 'grid' ? (
           /* Card Grid View */
-          <div className="parts-grid" ref={gridRef}>
+          <div
+            className={`parts-grid parts-grid-${gridScale}`}
+            ref={gridRef}
+            style={{ '--card-min-width': gridScale === 'sm' ? '150px' : gridScale === 'lg' ? '270px' : '210px' } as React.CSSProperties}
+          >
             {visibleItems.map((item, idx) => {
               const hasCounted = item.counted_qty !== null
               const isNotesActive = activeNoteItemId === item.id
@@ -769,196 +855,178 @@ export default function InventorySessionPage({
               return (
                 <div
                   key={item.id}
-                  className={`glass-panel part-card ${isKeyboardFocused ? 'keyboard-focused' : ''}`}
+                  className={`glass-panel part-card part-card-${item.status} ${isKeyboardFocused ? 'keyboard-focused' : ''} ${item.notes ? 'has-notes' : ''}`}
                   onClick={() => setFocusedIndex(idx)}
                   tabIndex={-1}
                   style={{
                     borderColor: hasCounted ? 'rgba(255,255,255,0.08)' : 'rgba(59,130,246,0.3)'
                   }}
                 >
-                  <div className="part-card-img-container">
-                    {item.source_img_url ? (
-                      <CachedImage
-                        url={item.source_img_url}
-                        alt={item.part_name}
-                        className="part-card-img"
-                      />
-                    ) : (
-                      <HelpCircle size={40} style={{ color: '#475569' }} />
-                    )}
-                    {item.is_spare && (
-                      <span
-                        style={{
-                          position: 'absolute',
-                          top: '8px',
-                          right: '8px',
-                          fontSize: '9px',
-                          background: 'rgba(245,158,11,0.15)',
-                          color: '#fde68a',
-                          padding: '1px 5px',
-                          borderRadius: '4px',
-                          fontWeight: 600
+                  {/* Absolute positioned Note Button in top right */}
+                  {!isNotesActive && (
+                    <Tooltip content={item.notes ? 'Edit note' : 'Add note'}>
+                      <button
+                        className={`btn btn-secondary btn-sm part-card-note-btn ${item.notes ? 'has-notes' : ''}`}
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          setActiveNoteItemId(item.id)
+                          setItemNoteText(item.notes || '')
                         }}
                       >
-                        Spare
-                      </span>
-                    )}
-                  </div>
+                        <StickyNote size={12} />
+                      </button>
+                    </Tooltip>
+                  )}
 
-                  <span className="part-card-num">{item.part_num}</span>
-                  <Tooltip content={item.part_name || 'Unknown Part'}>
-                    <h3 className="part-card-name" style={{ cursor: 'help' }}>
-                      {item.part_name || 'Unknown Part'}
-                    </h3>
-                  </Tooltip>
-
-                  <div className="part-card-color">
-                    <span
-                      className="color-swatch"
-                      style={{ backgroundColor: `#${item.color_rgb || 'FFFFFF'}` }}
-                    ></span>
-                    <span
-                      style={{
-                        textOverflow: 'ellipsis',
-                        overflow: 'hidden',
-                        whiteSpace: 'nowrap',
-                        maxWidth: '160px'
-                      }}
-                    >
-                      {item.color_name} {item.color_transparent ? '(Trans)' : ''}
-                    </span>
-                  </div>
-
-                  <div className="part-card-status-row">
-                    <span className={`badge badge-${item.status}`}>
-                      {item.status.replace('_', ' ')}
-                    </span>
-                    {item.notes && (
-                      <Tooltip content={item.notes}>
-                        <span className="part-note-preview">
-                          <StickyNote size={12} />
-                          <span>{item.notes}</span>
+                  {/* Top block: Image (left) + Info (right) */}
+                  <div className="part-card-top">
+                    <div className="part-card-img-container">
+                      {item.source_img_url ? (
+                        <CachedImage
+                          url={item.source_img_url}
+                          alt={item.part_name}
+                          className="part-card-img"
+                        />
+                      ) : (
+                        <HelpCircle size={32} style={{ color: '#475569' }} />
+                      )}
+                      {item.is_spare && (
+                        <span className="part-card-spare-badge">
+                          Spare
                         </span>
+                      )}
+                    </div>
+
+                    <div className="part-card-info">
+                      <span className="part-card-num">{item.part_num}</span>
+                      <Tooltip content={item.part_name || 'Unknown Part'}>
+                        <h3 className="part-card-name" style={{ cursor: 'help' }}>
+                          {item.part_name || 'Unknown Part'}
+                        </h3>
                       </Tooltip>
-                    )}
+                      <div className="part-card-color">
+                        <span
+                          className="color-swatch"
+                          style={{ backgroundColor: `#${item.color_rgb || 'FFFFFF'}` }}
+                        ></span>
+                        <span className="color-name-text">
+                          {item.color_name} {item.color_transparent ? '(Trans)' : ''}
+                        </span>
+                      </div>
+                    </div>
                   </div>
 
-                  <div className="part-card-qtys">
-                    <span className="part-card-qty-label">
-                      Expected: <strong>{item.expected_qty}</strong>
-                    </span>
-                    <span className="part-card-qty-label">
-                      Counted:{' '}
-                      <strong style={{ color: hasCounted ? 'inherit' : '#64748b' }}>
-                        {hasCounted ? item.counted_qty : '—'}
-                      </strong>
-                    </span>
+                  {/* Middle block: Quantities & Status badge */}
+                  <div className="part-card-middle">
+                    <div className="part-card-qtys-compact">
+                      <span>Exp: <strong>{item.expected_qty}</strong></span>
+                      <span>Count: <strong style={{ color: hasCounted ? 'inherit' : '#64748b' }}>{hasCounted ? item.counted_qty : '—'}</strong></span>
+                    </div>
+                    <div className="part-card-status-badge-container">
+                      <span className={`badge badge-${item.status}`}>
+                        {item.status.replace('_', ' ')}
+                      </span>
+                    </div>
                   </div>
 
-                  {/* Quantity Actions */}
-                  <div className="qty-controls part-count-controls">
-                    <Tooltip content="Decrease count">
-                      <button
-                        className="btn-qty"
-                        onClick={() =>
-                          handleQtyChange(item.id, Math.max(0, (item.counted_qty || 0) - 1))
-                        }
-                      >
-                        <Minus size={13} />
-                      </button>
-                    </Tooltip>
-                    <input
-                      type="number"
-                      className="qty-input-box"
-                      value={item.counted_qty === null ? '' : item.counted_qty}
-                      onChange={(e) => {
-                        const val = e.target.value === '' ? null : parseInt(e.target.value, 10)
-                        if (val === null || (!isNaN(val) && val >= 0)) {
-                          handleQtyChange(item.id, val)
-                        }
-                      }}
-                      placeholder="—"
-                    />
-                    <Tooltip content="Increase count">
-                      <button
-                        className="btn-qty"
-                        onClick={() => handleQtyChange(item.id, (item.counted_qty || 0) + 1)}
-                      >
-                        <Plus size={13} />
-                      </button>
-                    </Tooltip>
+                  {/* Bottom block: Qty controls, Quick actions */}
+                  <div className="part-card-bottom">
+                    <div className="qty-controls part-count-controls">
+                      <Tooltip content="Decrease count">
+                        <button
+                          className="btn-qty"
+                          onClick={() =>
+                            handleQtyChange(item.id, Math.max(0, (item.counted_qty || 0) - 1))
+                          }
+                        >
+                          <Minus size={12} />
+                        </button>
+                      </Tooltip>
+                      <input
+                        type="number"
+                        className="qty-input-box"
+                        value={item.counted_qty === null ? '' : item.counted_qty}
+                        onChange={(e) => {
+                          const val = e.target.value === '' ? null : parseInt(e.target.value, 10)
+                          if (val === null || (!isNaN(val) && val >= 0)) {
+                            handleQtyChange(item.id, val)
+                          }
+                        }}
+                        placeholder="—"
+                      />
+                      <Tooltip content="Increase count">
+                        <button
+                          className="btn-qty"
+                          onClick={() => handleQtyChange(item.id, (item.counted_qty || 0) + 1)}
+                        >
+                          <Plus size={12} />
+                        </button>
+                      </Tooltip>
+                    </div>
+
+                    <div className="part-quick-actions">
+                      <Tooltip content="All present">
+                        <button
+                          className="btn btn-secondary btn-sm part-action-ok"
+                          onClick={() => handleQtyChange(item.id, item.expected_qty)}
+                        >
+                          <Check size={12} />
+                          <span>OK</span>
+                        </button>
+                      </Tooltip>
+                      <Tooltip content="All missing">
+                        <button
+                          className="btn btn-secondary btn-sm part-action-miss"
+                          onClick={() => handleQtyChange(item.id, 0)}
+                        >
+                          <X size={12} />
+                          <span>Missing</span>
+                        </button>
+                      </Tooltip>
+                      <Tooltip content="Reset count">
+                        <button
+                          className="btn btn-secondary btn-sm part-action-reset"
+                          onClick={() => handleQtyChange(item.id, null)}
+                        >
+                          <RotateCcw size={12} />
+                          <span>Reset</span>
+                        </button>
+                      </Tooltip>
+                    </div>
                   </div>
 
-                  <div className="part-quick-actions">
-                    <Tooltip content="All present">
-                      <button
-                        className="btn btn-secondary btn-sm part-action-ok"
-                        onClick={() => handleQtyChange(item.id, item.expected_qty)}
-                      >
-                        <Check size={13} />
-                        OK
-                      </button>
-                    </Tooltip>
-                    <Tooltip content="All missing">
-                      <button
-                        className="btn btn-secondary btn-sm part-action-miss"
-                        onClick={() => handleQtyChange(item.id, 0)}
-                      >
-                        <X size={13} />
-                        Missing
-                      </button>
-                    </Tooltip>
-                    <Tooltip content="Reset count">
-                      <button
-                        className="btn btn-secondary btn-sm part-action-reset"
-                        onClick={() => handleQtyChange(item.id, null)}
-                      >
-                        <RotateCcw size={13} />
-                        Reset
-                      </button>
-                    </Tooltip>
-                  </div>
-
-                  {/* Note editor button/input */}
-                  {isNotesActive ? (
-                    <div style={{ marginTop: '12px', display: 'flex', gap: '4px' }}>
+                  {/* Note editor input */}
+                  {isNotesActive && (
+                    <div className="part-card-note-edit-row">
                       <input
                         type="text"
                         className="form-input"
-                        style={{ padding: '4px 8px', fontSize: '12px' }}
                         value={itemNoteText}
                         onChange={(e) => setItemNoteText(e.target.value)}
                         placeholder="Add note..."
                         autoFocus
                       />
-                      <Tooltip content="Save note">
-                        <button
-                          className="btn btn-primary btn-sm btn-icon-only"
-                          onClick={() => handleSaveItemNote(item.id)}
-                        >
-                          <Check size={12} />
-                        </button>
-                      </Tooltip>
-                      <Tooltip content="Cancel note">
-                        <button
-                          className="btn btn-secondary btn-sm btn-icon-only"
-                          onClick={() => setActiveNoteItemId(null)}
-                        >
-                          <X size={12} />
-                        </button>
-                      </Tooltip>
+                      <button
+                        className="btn btn-primary btn-sm btn-icon-only"
+                        onClick={() => handleSaveItemNote(item.id)}
+                      >
+                        <Check size={12} />
+                      </button>
+                      <button
+                        className="btn btn-secondary btn-sm btn-icon-only"
+                        onClick={() => setActiveNoteItemId(null)}
+                      >
+                        <X size={12} />
+                      </button>
                     </div>
-                  ) : (
-                    <button
-                      className="part-note-button"
-                      onClick={() => {
-                        setActiveNoteItemId(item.id)
-                        setItemNoteText(item.notes || '')
-                      }}
-                    >
-                      <StickyNote size={12} />
-                      <span>{item.notes ? 'Edit note' : 'Add item note'}</span>
-                    </button>
+                  )}
+
+                  {/* Display note preview if any notes are saved and not editing */}
+                  {!isNotesActive && item.notes && (
+                    <div className="part-card-note-preview">
+                      <StickyNote size={11} />
+                      <span className="note-text">{item.notes}</span>
+                    </div>
                   )}
                 </div>
               )
@@ -986,7 +1054,7 @@ export default function InventorySessionPage({
               return (
                 <div
                   key={item.id}
-                  className={`part-row ${isKeyboardFocused ? 'keyboard-focused' : ''}`}
+                  className={`part-row part-row-${item.status} ${isKeyboardFocused ? 'keyboard-focused' : ''}`}
                   onClick={() => setFocusedIndex(idx)}
                   tabIndex={-1}
                 >
@@ -1089,7 +1157,7 @@ export default function InventorySessionPage({
                         onClick={() => handleQtyChange(item.id, item.expected_qty)}
                       >
                         <Check size={12} />
-                        OK
+                        <span>OK</span>
                       </button>
                     </Tooltip>
 
@@ -1099,7 +1167,7 @@ export default function InventorySessionPage({
                         onClick={() => handleQtyChange(item.id, 0)}
                       >
                         <X size={12} />
-                        Miss
+                        <span>Miss</span>
                       </button>
                     </Tooltip>
 

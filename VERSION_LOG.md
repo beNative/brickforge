@@ -4,6 +4,19 @@ This document logs all released versions of BrickForge, detailing features, upda
 
 ---
 
+## v1.6.5 — Control Alignment & Windows Icon Resolution (June 2026)
+
+This release resolves grid card controls alignment and packages the application window and executable taskbar icons properly.
+
+### Fixed
+
+- **Control Alignment:** Removed bottom margin offset from part quantity controls to align them perfectly vertically with action buttons.
+- **Windows Taskbar Icon:** Resolved production app taskbar icon loading using Electron's `nativeImage` to fetch the asset from the unpacked ASAR archive (`app.asar.unpacked`).
+- **High-Quality Executable Icon:** Compiled a multi-resolution `.ico` containing standard icon scales to support desktop shortcuts and Explorer views.
+- **Build Script Stability:** Transitioned compiler execution to `npx tsc` for robust typechecking in all Windows terminal environments.
+
+---
+
 ## v1.6.4 — Keyboard Shortcuts & Navigation (June 2026)
 
 This release implements a keyboard-driven interface in the inventory check sessions. Users can navigate, edit, and mark parts as complete, missing, or reset them using only their keyboard.
