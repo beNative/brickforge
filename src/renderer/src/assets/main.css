@@ -948,6 +948,15 @@ body.light-theme .group-tab:hover {
   display: flex;
   flex-direction: column;
   height: 100%;
+  border: 1px solid var(--border-glass);
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.part-card.keyboard-focused {
+  border-color: var(--primary) !important;
+  box-shadow: 0 0 14px rgba(0, 122, 204, 0.45) !important;
+  outline: 2px solid var(--primary);
+  outline-offset: -2px;
 }
 
 .part-card-img-container {
@@ -1101,6 +1110,8 @@ body.light-theme .btn-qty:hover {
   align-items: center;
   padding: 12px 16px;
   border-bottom: 1px solid var(--border-glass);
+  border-left: 3px solid transparent; /* prevent layout shift on focus */
+  transition: background 0.15s ease, border-left-color 0.15s ease;
 }
 
 .part-row:hover {
@@ -1108,6 +1119,11 @@ body.light-theme .btn-qty:hover {
 }
 body.light-theme .part-row:hover {
   background: rgba(0, 0, 0, 0.01);
+}
+
+.part-row.keyboard-focused {
+  background: rgba(0, 122, 204, 0.08) !important;
+  border-left-color: var(--primary) !important;
 }
 
 .part-row-img {

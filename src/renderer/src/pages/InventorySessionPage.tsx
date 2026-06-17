@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from 'react'
+import { useState, useEffect, useMemo, useRef, useCallback } from 'react'
 import {
   ArrowLeft,
   Grid,
@@ -60,7 +60,12 @@ export default function InventorySessionPage({
   >('all_missing')
   const [exporting, setExporting] = useState(false)
 
-  const loadSession = async () => {
+  // Keyboard navigation & focus state
+  const [focusedIndex, setFocusedIndex] = useState<number | null>(null)
+  const gridRef = useRef<HTMLDivElement>(null)
+  const listRef = useRef<HTMLDivElement>(null)
+
+  const loadSession = useCallback(async () => {
     try {
       const res = await window.api.getSession(sessionId)
       if (res.success) {
@@ -74,14 +79,14 @@ export default function InventorySessionPage({
     } finally {
       setLoading(false)
     }
-  }
+  }, [sessionId])
 
   useEffect(() => {
     loadSession()
-  }, [sessionId])
+  }, [sessionId, loadSession])
 
   // Handle item quantity change
-  const handleQtyChange = async (itemId: number, value: number | null) => {
+  const handleQtyChange = useCallback(async (itemId: number, value: number | null) => {
     // Optimistic local state update for snappy UI
     const updatedItems = items.map((item) => {
       if (item.id === itemId) {
@@ -115,7 +120,7 @@ export default function InventorySessionPage({
       console.error('Failed to save quantity', e)
       loadSession() // Rollback
     }
-  }
+  }, [items, loadSession])
 
   // Recalculate session progress metrics locally to avoid layout flashes
   const recalculateLocalProgress = (currentItems: any[]) => {
@@ -318,6 +323,162 @@ export default function InventorySessionPage({
   const visibleItems = useMemo(() => {
     return filteredAndSortedItems.slice(0, visibleCount)
   }, [filteredAndSortedItems, visibleCount])
+
+  // Reset focus when filters or viewMode changes
+  useEffect(() => {
+    setFocusedIndex(null)
+  }, [selectedGroup, statusFilter, sparesFilter, searchQuery, sortField, viewMode])
+
+  // Keydown listener for keyboard-driven counting
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      const activeEl = document.activeElement as HTMLElement
+      const isInputFocused =
+        activeEl &&
+        (activeEl.tagName === 'INPUT' || activeEl.tagName === 'TEXTAREA') &&
+        !activeEl.classList.contains('qty-input-box')
+
+      if (isInputFocused || notesOpen || isExportOpen) {
+        return
+      }
+
+      const totalVisible = visibleItems.length
+      if (totalVisible === 0) return
+
+      const focusWrapper = (index: number) => {
+        setFocusedIndex(index)
+        setTimeout(() => {
+          const focusedEl = document.querySelector(
+            viewMode === 'grid' ? '.part-card.keyboard-focused' : '.part-row.keyboard-focused'
+          )
+          if (focusedEl) {
+            focusedEl.scrollIntoView({ block: 'nearest', behavior: 'smooth' })
+          }
+        }, 30)
+      }
+
+      const isQtyInputActive = activeEl && activeEl.classList.contains('qty-input-box')
+
+      if (isQtyInputActive) {
+        if (e.key === 'Enter') {
+          e.preventDefault()
+          activeEl.blur()
+          const parentWrapper = activeEl.closest(viewMode === 'grid' ? '.part-card' : '.part-row') as HTMLElement
+          if (parentWrapper) {
+            parentWrapper.focus()
+          }
+        }
+        return
+      }
+
+      const navKeys = [
+        'ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown',
+        'a', 'd', 'w', 's',
+        'A', 'D', 'W', 'S'
+      ]
+
+      if (focusedIndex === null) {
+        if (navKeys.includes(e.key)) {
+          e.preventDefault()
+          focusWrapper(0)
+        }
+        return
+      }
+
+      if (e.key === 'ArrowLeft' || e.key === 'a' || e.key === 'A') {
+        e.preventDefault()
+        const nextIdx = Math.max(0, focusedIndex - 1)
+        focusWrapper(nextIdx)
+      } else if (e.key === 'ArrowRight' || e.key === 'd' || e.key === 'D') {
+        e.preventDefault()
+        const nextIdx = Math.min(totalVisible - 1, focusedIndex + 1)
+        if (nextIdx === totalVisible - 1 && filteredAndSortedItems.length > visibleCount) {
+          setVisibleCount((prev) => prev + 48)
+        }
+        focusWrapper(nextIdx)
+      } else if (e.key === 'ArrowUp' || e.key === 'w' || e.key === 'W') {
+        e.preventDefault()
+        if (viewMode === 'list') {
+          const nextIdx = Math.max(0, focusedIndex - 1)
+          focusWrapper(nextIdx)
+        } else {
+          let cols = 1
+          if (gridRef.current) {
+            const computedStyle = window.getComputedStyle(gridRef.current)
+            cols = computedStyle.gridTemplateColumns.split(' ').length || 1
+          }
+          const nextIdx = Math.max(0, focusedIndex - cols)
+          focusWrapper(nextIdx)
+        }
+      } else if (e.key === 'ArrowDown' || e.key === 's' || e.key === 'S') {
+        e.preventDefault()
+        if (viewMode === 'list') {
+          const nextIdx = Math.min(totalVisible - 1, focusedIndex + 1)
+          if (nextIdx === totalVisible - 1 && filteredAndSortedItems.length > visibleCount) {
+            setVisibleCount((prev) => prev + 48)
+          }
+          focusWrapper(nextIdx)
+        } else {
+          let cols = 1
+          if (gridRef.current) {
+            const computedStyle = window.getComputedStyle(gridRef.current)
+            cols = computedStyle.gridTemplateColumns.split(' ').length || 1
+          }
+          const nextIdx = Math.min(totalVisible - 1, focusedIndex + cols)
+          if (nextIdx >= totalVisible - cols && filteredAndSortedItems.length > visibleCount) {
+            setVisibleCount((prev) => prev + 48)
+          }
+          focusWrapper(nextIdx)
+        }
+      }
+
+      const currentItem = visibleItems[focusedIndex]
+      if (!currentItem) return
+
+      if (e.key === ' ') {
+        e.preventDefault()
+        handleQtyChange(currentItem.id, currentItem.expected_qty)
+      } else if (e.key.toLowerCase() === 'x' || e.key === 'Delete' || e.key === 'Backspace') {
+        e.preventDefault()
+        handleQtyChange(currentItem.id, 0)
+      } else if (e.key.toLowerCase() === 'r') {
+        e.preventDefault()
+        handleQtyChange(currentItem.id, null)
+      } else if (e.key === '+' || e.key === '=') {
+        e.preventDefault()
+        handleQtyChange(currentItem.id, (currentItem.counted_qty || 0) + 1)
+      } else if (e.key === '-') {
+        e.preventDefault()
+        handleQtyChange(currentItem.id, Math.max(0, (currentItem.counted_qty || 0) - 1))
+      } else if (e.key === 'Enter') {
+        e.preventDefault()
+        const focusedEl = document.querySelector(
+          viewMode === 'grid' ? '.part-card.keyboard-focused' : '.part-row.keyboard-focused'
+        )
+        if (focusedEl) {
+          const qtyInput = focusedEl.querySelector('.qty-input-box') as HTMLInputElement
+          if (qtyInput) {
+            qtyInput.focus()
+            qtyInput.select()
+          }
+        }
+      }
+    }
+
+    window.addEventListener('keydown', handleKeyDown)
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown)
+    }
+  }, [
+    focusedIndex,
+    visibleItems,
+    viewMode,
+    filteredAndSortedItems,
+    visibleCount,
+    notesOpen,
+    isExportOpen,
+    handleQtyChange
+  ])
 
   if (loading) {
     return (
@@ -599,15 +760,18 @@ export default function InventorySessionPage({
           </div>
         ) : viewMode === 'grid' ? (
           /* Card Grid View */
-          <div className="parts-grid">
-            {visibleItems.map((item) => {
+          <div className="parts-grid" ref={gridRef}>
+            {visibleItems.map((item, idx) => {
               const hasCounted = item.counted_qty !== null
               const isNotesActive = activeNoteItemId === item.id
+              const isKeyboardFocused = focusedIndex === idx
 
               return (
                 <div
                   key={item.id}
-                  className="glass-panel part-card"
+                  className={`glass-panel part-card ${isKeyboardFocused ? 'keyboard-focused' : ''}`}
+                  onClick={() => setFocusedIndex(idx)}
+                  tabIndex={-1}
                   style={{
                     borderColor: hasCounted ? 'rgba(255,255,255,0.08)' : 'rgba(59,130,246,0.3)'
                   }}
@@ -802,7 +966,7 @@ export default function InventorySessionPage({
           </div>
         ) : (
           /* List Row View */
-          <div className="glass-panel inventory-list-panel">
+          <div className="glass-panel inventory-list-panel" ref={listRef}>
             {/* Header row */}
             <div className="part-row part-row-header">
               <span>Image</span>
@@ -814,12 +978,18 @@ export default function InventorySessionPage({
               <span>Actions</span>
             </div>
 
-            {visibleItems.map((item) => {
+            {visibleItems.map((item, idx) => {
               const hasCounted = item.counted_qty !== null
               const isNotesActive = activeNoteItemId === item.id
+              const isKeyboardFocused = focusedIndex === idx
 
               return (
-                <div key={item.id} className="part-row">
+                <div
+                  key={item.id}
+                  className={`part-row ${isKeyboardFocused ? 'keyboard-focused' : ''}`}
+                  onClick={() => setFocusedIndex(idx)}
+                  tabIndex={-1}
+                >
                   <div className="part-row-img">
                     {item.source_img_url ? (
                       <CachedImage

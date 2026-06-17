@@ -4,6 +4,20 @@ This document logs all released versions of BrickForge, detailing features, upda
 
 ---
 
+## v1.6.4 — Keyboard Shortcuts & Navigation (June 2026)
+
+This release implements a keyboard-driven interface in the inventory check sessions. Users can navigate, edit, and mark parts as complete, missing, or reset them using only their keyboard.
+
+### Added
+
+- **Keyboard Navigation (WASD / Arrows):** Navigate cards in Grid View and rows in List View, automatically scrolling active elements into view. Grid navigation dynamically adapts to columns.
+- **Count Modifiers:** Press `Space` to set a part to complete, `x` / `Delete` / `Backspace` to mark it missing, and `r` to reset the count.
+- **Increment/Decrement:** Use `+` and `-` to adjust quantity values by 1.
+- **Inline Input Focus:** Press `Enter` to focus the quantity input box for typing, and press `Enter` again to save and return focus to the card.
+- **Active Border Styles:** Subtle and premium glowing borders highlight the active selection.
+
+---
+
 ## v1.6.3 — Cloud Sync Setup Documentation Update (June 2026)
 
 This release actualizes the Google Drive cloud synchronization instructions in the User Manual and Settings setup panel to match the latest Google Cloud Console OAuth setup steps.
