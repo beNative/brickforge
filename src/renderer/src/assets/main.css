@@ -76,9 +76,9 @@ body.light-theme {
 body {
   margin: 0;
   display: flex;
-  min-height: 100vh;
+  height: 100vh;
   background: var(--bg-main);
-  overflow-x: hidden;
+  overflow: hidden;
   transition: background 0.3s ease;
 }
 
@@ -88,9 +88,10 @@ body.light-theme {
 
 #root {
   width: 100%;
-  min-height: 100vh;
+  height: 100%;
   display: flex;
   flex-direction: column;
+  overflow: hidden;
 }
 
 /* Custom Scrollbar */
@@ -195,45 +196,15 @@ body.light-theme .glass-panel:hover {
   border-color: rgba(0, 0, 0, 0.12);
 }
 
-/* App Layout adjusted for titlebar & statusbar */
-.app-container {
-  display: flex;
-  min-height: calc(100vh - 28px - 22px);
-  margin-top: 28px;
-  margin-bottom: 22px;
-}
-
-.sidebar {
-  width: 200px;
-  border-right: 1px solid var(--border-glass);
-  background: var(--bg-surface);
-  display: flex;
-  flex-direction: column;
-  padding: 8px;
-  position: fixed;
-  top: 28px;
-  height: calc(100vh - 28px - 22px);
-  z-index: 10;
-  transition: all 0.2s ease;
-}
-
-.main-content {
-  flex: 1;
-  margin-left: 200px;
-  padding: 12px;
-  min-height: calc(100vh - 28px - 22px);
-  display: flex;
-  flex-direction: column;
-}
+/* Base App Layout definitions moved/merged to theme override section */
 
 .page-container {
   display: flex;
   flex-direction: column;
-  height: 100%;
-  overflow: hidden;
-  gap: 16px;
   flex: 1;
   min-height: 0;
+  overflow: hidden;
+  gap: 16px;
 }
 
 .page-content-scroll {
@@ -244,6 +215,10 @@ body.light-theme .glass-panel:hover {
   flex-direction: column;
   gap: 16px;
   padding-right: 4px;
+}
+
+.page-content-scroll > * {
+  flex-shrink: 0;
 }
 
 /* Navigation Links */
@@ -2035,8 +2010,7 @@ body.light-theme {
   --window-titlebar: #f8f8f8;
 }
 
-html,
-body {
+html {
   height: 100vh;
   margin: 0;
   padding: 0;
@@ -2099,6 +2073,7 @@ body.light-theme .titlebar-btn:hover {
 
 .app-container {
   height: calc(100vh - 32px - 22px);
+  min-height: 0;
   margin-top: 32px;
   margin-bottom: 22px;
   width: 100%;
@@ -2112,14 +2087,17 @@ body.light-theme .titlebar-btn:hover {
   height: calc(100vh - 32px - 22px);
   padding: 6px;
   background: var(--bg-surface);
-  border-right-color: var(--border-glass);
+  border-right: 1px solid var(--border-glass);
   position: fixed;
   display: flex;
   flex-direction: column;
+  z-index: 10;
+  transition: all 0.2s ease;
 }
 
 .main-content {
-  height: 100%;
+  flex: 1;
+  min-height: 0;
   margin-left: 188px;
   min-width: 0;
   max-width: calc(100vw - 188px);
@@ -2520,6 +2498,10 @@ body.light-theme .part-row-img {
   font-size: 11px;
   padding: 8px 10px;
   letter-spacing: 0;
+  position: sticky;
+  top: 0;
+  background: var(--bg-surface-solid);
+  z-index: 1;
 }
 
 .collection-table td {
@@ -4217,12 +4199,19 @@ body.light-theme .settings-alert.info {
   color: #475569;
 }
 
-/* Page wrapper to hold pages in a flexbox so they flex nicely above the log panel */
 .main-page-wrapper {
   flex: 1;
   min-height: 0;
-  display: flex;
-  flex-direction: column;
+  position: relative;
+  overflow: hidden;
+}
+
+.main-page-wrapper > * {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
   overflow: hidden;
 }
 

@@ -54,7 +54,7 @@ export default function InventorySessionPage({
 
   // Export Modal state
   const [isExportOpen, setIsExportOpen] = useState(false)
-  const [exportFormat, setExportFormat] = useState<'csv' | 'json'>('csv')
+  const [exportFormat, setExportFormat] = useState<'csv' | 'json' | 'xml'>('csv')
   const [exportFilter, setExportFilter] = useState<
     'all_missing' | 'non_spares_missing' | 'spares_missing'
   >('all_missing')
@@ -1291,6 +1291,7 @@ export default function InventorySessionPage({
                 >
                   <option value="csv">CSV File (*.csv)</option>
                   <option value="json">JSON File (*.json)</option>
+                  <option value="xml">BrickLink Wanted List XML (*.xml)</option>
                 </select>
               </div>
 

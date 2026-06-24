@@ -65,6 +65,7 @@ export default function CollectionOverviewPage({
   const [newSessionIncludeSpares, setNewSessionIncludeSpares] = useState(false)
   const [creatingSession, setCreatingSession] = useState(false)
 
+
   const loadCollection = async (showLoading = true): Promise<any[]> => {
     if (showLoading) setLoading(true)
     try {
@@ -547,7 +548,7 @@ export default function CollectionOverviewPage({
             </div>
           </div>
         ) : (
-          <div className="glass-panel" style={{ overflow: 'hidden' }}>
+          <div className="glass-panel" style={{ flex: 1, minHeight: 0, overflow: 'auto' }}>
             <table className="collection-table">
               <thead>
                 <tr>

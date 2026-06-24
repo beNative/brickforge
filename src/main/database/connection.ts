@@ -3,6 +3,7 @@ import { join, dirname } from 'path'
 import { existsSync, mkdirSync, statSync } from 'fs'
 import { getSettings } from '../services/settingsService'
 import { info, error } from '../services/loggerService'
+import { getTechnicGroupId } from '../../shared/constants/technicGroups'
 
 let db: Database.Database
 
@@ -249,6 +250,38 @@ function runMigrations(database: Database.Database): void {
       }
     }
   })()
+
+  // Rebuild the mapping table using the updated getTechnicGroupId logic
+  try {
+    rebuildTechnicGroupMappings(database)
+  } catch (e) {
+    error('Error rebuilding Technic Group mappings at startup:', e)
+  }
+}
+
+function rebuildTechnicGroupMappings(database: Database.Database): void {
+  const partsCount = database.prepare('SELECT count(*) as count FROM parts').get() as { count: number }
+  if (partsCount.count === 0) return
+
+  info('Rebuilding Technic Group mappings to apply category rules updates...')
+  const parts = database.prepare(`
+    SELECT p.part_num, p.name as part_name, pc.name as cat_name
+    FROM parts p
+    JOIN part_categories pc ON p.part_cat_id = pc.id
+  `).all() as { part_num: string; part_name: string; cat_name: string }[]
+
+  const insertStmt = database.prepare(`
+    INSERT OR REPLACE INTO part_technic_group_mapping (part_num, technic_group_id)
+    VALUES (?, ?)
+  `)
+
+  database.transaction(() => {
+    for (const part of parts) {
+      const groupId = getTechnicGroupId(part.cat_name, part.part_name)
+      insertStmt.run(part.part_num, groupId)
+    }
+  })()
+  info('Technic Group mappings rebuilt successfully.')
 }
 
 export async function backupDatabase(filePath: string): Promise<void> {

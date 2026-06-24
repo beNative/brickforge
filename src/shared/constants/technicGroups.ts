@@ -31,63 +31,63 @@ export function getTechnicGroupId(categoryName: string, partName: string): numbe
   const cat = categoryName.toLowerCase()
   const name = partName.toLowerCase()
 
-  // Match stickers
+  // 1. Match stickers
   if (cat.includes('sticker') || name.includes('sticker') || cat.includes('decal')) {
     return 16
   }
-  // Match pins
-  if (cat.includes('pins') || cat.includes('pin ') || name.includes('technic pin')) {
-    return 1
-  }
-  // Match axles
-  if (cat.includes('axles') || name.startsWith('technic axle') || name.includes('axle ')) {
-    return 2
-  }
-  // Match bushes
-  if (cat.includes('bush') || name.includes('bush ') || name.endsWith('bush')) {
-    return 3
-  }
-  // Match liftarms and beams
+
+  // 2. Match electronics
   if (
-    cat.includes('liftarm') ||
-    name.includes('liftarm') ||
-    cat.includes('beams') ||
-    name.includes('technic beam')
+    cat.includes('electric') ||
+    cat.includes('power functions') ||
+    cat.includes('mindstorms') ||
+    cat.includes('nxt') ||
+    cat.includes('ev3') ||
+    name.includes('motor') ||
+    name.includes('battery') ||
+    name.includes('led') ||
+    name.includes('cable') ||
+    name.includes('sensor') ||
+    name.includes('receiver') ||
+    name.includes('transceiver') ||
+    name.includes('mindstorms') ||
+    (name.includes('hub') && (name.includes('smart') || name.includes('control+')))
   ) {
-    // Frames are a sub-set of liftarms/beams. Let's see:
-    if (name.includes('frame') || name.includes('rectangular') || name.includes(' H-shape')) {
-      return 6 // Frames
-    }
-    return 5 // Liftarms
+    return 14
   }
-  // Match panels
-  if (cat.includes('panels') || name.includes('panel')) {
-    return 7
-  }
-  // Match gears
-  if (cat.includes('gears') || name.includes('gear ')) {
-    if (name.includes('differential') || name.includes('diff ')) {
-      return 9 // Differentials
-    }
-    return 8 // Gears
-  }
-  // Match differentials
-  if (name.includes('differential')) {
-    return 9
-  }
-  // Match steering & suspension
+
+  // 3. Match pneumatics
   if (
-    cat.includes('steering') ||
-    cat.includes('suspension') ||
-    name.includes('steering') ||
-    name.includes('suspension') ||
-    name.includes('shock absorber') ||
-    name.includes('wishbone') ||
-    name.includes('portal axle')
+    cat.includes('pneumatic') ||
+    name.includes('pneumatic') ||
+    name.includes('pump') ||
+    (name.includes('cylinder') && (name.includes('pneumatic') || name.includes('valve'))) ||
+    name.includes('pneumatic hose') ||
+    name.includes('pneumatic switch')
   ) {
-    return 10
+    return 12
   }
-  // Match wheels and tyres
+
+  // 4. Match hoses, strings, and flex parts (except pneumatic hoses matched above)
+  if (
+    cat.includes('hoses') ||
+    cat.includes('strings') ||
+    cat.includes('flexible') ||
+    name.includes('hose') ||
+    name.includes('string') ||
+    name.includes('ribbon') ||
+    name.includes('flex ') ||
+    name.includes('flex-system')
+  ) {
+    return 15
+  }
+
+  // 5. Match linear actuators
+  if (name.includes('linear actuator') || name.includes('actuator')) {
+    return 13
+  }
+
+  // 6. Match wheels and tyres
   if (
     cat.includes('wheels') ||
     cat.includes('tyres') ||
@@ -96,52 +96,126 @@ export function getTechnicGroupId(categoryName: string, partName: string): numbe
     name.includes('tyre ') ||
     name.includes('tire ') ||
     name.includes('sprocket') ||
-    name.includes('track link')
+    name.includes('track link') ||
+    name.includes('rim ')
   ) {
     return 11
   }
-  // Match connectors
-  if (cat.includes('connectors') || name.includes('connector') || name.includes('cross block')) {
+
+  // 7. Match steering & suspension (Check before axles/connectors to catch portal axle/housing/joints)
+  if (
+    cat.includes('steering') ||
+    cat.includes('suspension') ||
+    name.includes('steering') ||
+    name.includes('suspension') ||
+    name.includes('shock absorber') ||
+    name.includes('wishbone') ||
+    name.includes('portal axle') ||
+    name.includes('axle housing') ||
+    name.includes('axle hub') ||
+    name.includes('axle joint') ||
+    name.includes('hub carrier') ||
+    name.includes('cv joint') ||
+    name.includes('steering arm') ||
+    name.includes('steering hub')
+  ) {
+    return 10
+  }
+
+  // 8. Match differentials
+  if (cat.includes('differential') || name.includes('differential')) {
+    return 9
+  }
+
+  // 9. Match gears
+  if (
+    cat.includes('gears') ||
+    name.includes('gear ') ||
+    name.includes('spur gear') ||
+    name.includes('bevel gear') ||
+    name.includes('worm gear') ||
+    name.includes('gear rack') ||
+    name.includes('turntable')
+  ) {
+    return 8
+  }
+
+  // 10. Match bushes (Check before pins/connectors/axles to catch axle bushes)
+  if (
+    cat.includes('bush') ||
+    name.includes('bush ') ||
+    name.endsWith('bush') ||
+    name.includes('axle bush') ||
+    name.includes('sleeve')
+  ) {
+    return 3
+  }
+
+  // 11. Match connectors (Check before pins/axles/liftarms to catch driving rings, axle yokes, axle connectors)
+  if (
+    cat.includes('connectors') ||
+    name.includes('connector') ||
+    name.includes('cross block') ||
+    name.includes('driving ring') ||
+    name.includes('driving yoke') ||
+    name.includes('changeover catch') ||
+    name.includes('axle joiner') ||
+    name.includes('axle extension') ||
+    name.includes('ball joint') ||
+    name.includes('towball')
+  ) {
     return 4
   }
-  // Match pneumatics
+
+  // 12. Match pins (Check before axles/liftarms to catch axle pins)
   if (
-    cat.includes('pneumatic') ||
-    name.includes('pneumatic') ||
-    name.includes('pump') ||
-    name.includes('cylinder')
+    cat.includes('pins') ||
+    cat.includes('pin ') ||
+    name.includes('technic pin') ||
+    name.includes('axle pin') ||
+    name.includes('pin/axle') ||
+    name.includes('pin with') ||
+    name.includes('pin without') ||
+    name.includes('double pin')
   ) {
-    return 12
+    return 1
   }
-  // Match linear actuators
-  if (name.includes('linear actuator') || name.includes('actuator')) {
-    return 13
-  }
-  // Match electronics
+
+  // 13. Match frames (Check before liftarms)
   if (
-    cat.includes('electric') ||
-    cat.includes('power functions') ||
-    cat.includes('mindstorms') ||
-    name.includes('motor') ||
-    name.includes('battery') ||
-    name.includes('led') ||
-    name.includes('cable') ||
-    name.includes('sensor') ||
-    name.includes('receiver')
+    cat.includes('frames') ||
+    cat.includes('frame') ||
+    name.includes('frame') ||
+    name.includes('rectangular') ||
+    name.includes(' H-shape')
   ) {
-    return 14
+    return 6
   }
-  // Match hoses and strings
+
+  // 14. Match liftarms and beams
   if (
-    cat.includes('hoses') ||
-    cat.includes('strings') ||
-    cat.includes('flexible') ||
-    name.includes('hose') ||
-    name.includes('string') ||
-    name.includes('ribbon') ||
-    name.includes('flex ')
+    cat.includes('liftarm') ||
+    name.includes('liftarm') ||
+    cat.includes('beams') ||
+    name.includes('technic beam') ||
+    name.includes('beam ')
   ) {
-    return 15
+    return 5
+  }
+
+  // 15. Match axles (Safe to match axles now because exclusions/reordering are in place)
+  if (
+    cat.includes('axles') ||
+    name.startsWith('technic axle') ||
+    name.includes('axle ') ||
+    name.includes('flexible axle')
+  ) {
+    return 2
+  }
+
+  // 16. Match panels
+  if (cat.includes('panels') || name.includes('panel')) {
+    return 7
   }
 
   // Fallback to "Other"

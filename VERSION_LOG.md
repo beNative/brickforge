@@ -4,6 +4,21 @@ This document logs all released versions of BrickForge, detailing features, upda
 
 ---
 
+## v1.7.0 — BrickLink XML Exporter & Category Mapping Improvements (June 2026)
+
+This release implements a BrickLink Wanted List XML exporter and updates Technic category mapping logic.
+
+### Added
+
+- **BrickLink Wanted List XML Exporter:** Added support for exporting missing parts from check sessions into the standard BrickLink XML Wanted List format. Automatically translates Rebrickable Color IDs to BrickLink Color IDs using a local lookup map.
+- **Enhanced Technic Group Auto-Mapping:** Re-structured categorization order and matching criteria in `technicGroups.ts` to improve classification for electronics, pneumatics, suspension, axles, and connectors.
+
+### Improved
+
+- **User Manual Updates:** Documented the new BrickLink XML export format in the manual.
+
+---
+
 ## v1.6.5 — Control Alignment & Windows Icon Resolution (June 2026)
 
 This release resolves grid card controls alignment and packages the application window and executable taskbar icons properly.

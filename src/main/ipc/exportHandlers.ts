@@ -7,15 +7,22 @@ export function registerExportHandlers(): void {
     async (
       event,
       sessionId: number,
-      format: 'csv' | 'json',
+      format: 'csv' | 'json' | 'xml',
       filter: 'all_missing' | 'non_spares_missing' | 'spares_missing'
     ) => {
       try {
         const window = BrowserWindow.fromWebContents(event.sender)
         if (!window) throw new Error('No parent window found for dialog.')
 
-        const ext = format === 'csv' ? 'csv' : 'json'
-        const filterLabel = format === 'csv' ? 'CSV Files (*.csv)' : 'JSON Files (*.json)'
+        let ext = 'csv'
+        let filterLabel = 'CSV Files (*.csv)'
+        if (format === 'json') {
+          ext = 'json'
+          filterLabel = 'JSON Files (*.json)'
+        } else if (format === 'xml') {
+          ext = 'xml'
+          filterLabel = 'XML Files (*.xml)'
+        }
 
         const { filePath, canceled } = await dialog.showSaveDialog(window, {
           title: 'Export Missing Parts',

@@ -1,11 +1,12 @@
 import fs from 'fs'
 import Papa from 'papaparse'
 import { getDb } from '../database/connection'
+import { mapRebrickableToBrickLinkColor } from './colorMapping'
 
 export interface ExportParams {
   sessionId: number
   filePath: string
-  format: 'csv' | 'json'
+  format: 'csv' | 'json' | 'xml'
   filter: 'all_missing' | 'non_spares_missing' | 'spares_missing'
 }
 
@@ -37,6 +38,7 @@ export function exportMissingParts(params: ExportParams): void {
       `
     SELECT 
       ci.part_num, 
+      ci.color_id,
       p.name as part_name,
       c.name as color_name,
       ci.expected_qty,
@@ -76,6 +78,7 @@ export function exportMissingParts(params: ExportParams): void {
       'Part Number': item.part_num,
       'Part Name': item.part_name,
       'Color Name': item.color_name,
+      'Color ID': item.color_id,
       'Expected Qty': expected,
       'Counted Qty': item.counted_qty === null ? '' : item.counted_qty,
       'Missing Qty': missingQty,
@@ -87,10 +90,26 @@ export function exportMissingParts(params: ExportParams): void {
 
   // 4. Serialize and write
   if (params.format === 'csv') {
-    const csvContent = Papa.unparse(missingRows)
+    // Remove "Color ID" to keep standard format if needed, or leave it
+    const csvRows = missingRows.map(({ 'Color ID': _, ...rest }) => rest)
+    const csvContent = Papa.unparse(csvRows)
     fs.writeFileSync(params.filePath, csvContent, 'utf-8')
-  } else {
+  } else if (params.format === 'json') {
     const jsonContent = JSON.stringify(missingRows, null, 2)
     fs.writeFileSync(params.filePath, jsonContent, 'utf-8')
+  } else if (params.format === 'xml') {
+    // Generate BrickLink Wanted List XML
+    let xmlContent = '<INVENTORY>\n'
+    for (const row of missingRows) {
+      const blColorId = mapRebrickableToBrickLinkColor(row['Color ID'])
+      xmlContent += '  <ITEM>\n'
+      xmlContent += '    <ITEMTYPE>P</ITEMTYPE>\n'
+      xmlContent += `    <ITEMID>${row['Part Number']}</ITEMID>\n`
+      xmlContent += `    <COLOR>${blColorId}</COLOR>\n`
+      xmlContent += `    <MINQTY>${row['Missing Qty']}</MINQTY>\n`
+      xmlContent += '  </ITEM>\n'
+    }
+    xmlContent += '</INVENTORY>\n'
+    fs.writeFileSync(params.filePath, xmlContent, 'utf-8')
   }
 }

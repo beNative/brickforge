@@ -66,7 +66,7 @@ export interface BrickForgeAPI {
   getGeneralStats: () => Promise<{ success: boolean; error?: string; stats?: any }>
   exportMissingParts: (
     sessionId: number,
-    format: 'csv' | 'json',
+    format: 'csv' | 'json' | 'xml',
     filter: 'all_missing' | 'non_spares_missing' | 'spares_missing'
   ) => Promise<{ success: boolean; error?: string; filePath?: string; canceled?: boolean }>
   addToCollection: (setNum: string) => Promise<{ success: boolean; error?: string }>

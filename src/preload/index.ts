@@ -68,8 +68,11 @@ const api = {
 
   getGeneralStats: () => ipcRenderer.invoke('get-general-stats'),
 
-  exportMissingParts: (sessionId: number, format: 'csv' | 'json', filter: string) =>
-    ipcRenderer.invoke('export-missing-parts', sessionId, format, filter),
+  exportMissingParts: (
+    sessionId: number,
+    format: 'csv' | 'json' | 'xml',
+    filter: 'all_missing' | 'non_spares_missing' | 'spares_missing'
+  ) => ipcRenderer.invoke('export-missing-parts', sessionId, format, filter),
 
   addToCollection: (setNum: string) => ipcRenderer.invoke('add-to-collection', setNum),
 

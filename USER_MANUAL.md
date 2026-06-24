@@ -125,6 +125,7 @@ If you finish counting and have missing pieces, you can generate an export file 
 2. Select the **Export Format**:
    - **CSV File (\*.csv):** Best to view in spreadsheet editors (Excel, Google Sheets).
    - **JSON File (\*.json):** Best for developers or programmatic importing.
+   - **BrickLink Wanted List XML (\*.xml):** Creates an XML wanted-list file mapping Rebrickable Color IDs to BrickLink Color IDs, which can be uploaded directly to BrickLink to source missing parts.
 3. Choose the **Filter Parts** rule:
    - _All Missing Parts:_ Export both required build parts and spare parts that are missing.
    - _Required Build Parts Only:_ Excludes spares.
