@@ -271,7 +271,7 @@ export default function PartLookupPage({ onNavigateToSet }: PartLookupPageProps)
               className="parts-grid parts-grid-md"
               style={{
                 display: 'grid',
-                gridTemplateColumns: 'repeat(auto-fill, minmax(210px, 1fr))',
+                gridTemplateColumns: 'repeat(auto-fill, 210px)',
                 gap: '16px',
                 flex: 1
               }}
