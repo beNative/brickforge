@@ -20,6 +20,7 @@ import { registerSettingsHandlers } from './ipc/settingsHandlers'
 import { registerMaintenanceHandlers } from './ipc/maintenanceHandlers'
 import { registerLogHandlers } from './ipc/logHandlers'
 import { registerSyncHandlers } from './ipc/syncHandlers'
+import { registerPartHandlers } from './ipc/partHandlers'
 import { info, error as logError } from './services/loggerService'
 import { getCachedImage } from './services/imageService'
 import { initUpdater } from './services/updateService'
@@ -106,6 +107,7 @@ app.whenReady().then(() => {
   registerMaintenanceHandlers()
   registerLogHandlers()
   registerSyncHandlers()
+  registerPartHandlers()
 
   // Load sync config and run initial sync if enabled
   void loadSyncConfig().then((config) => {

@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { Home, Database, Search, Layers, BookOpen, Settings } from 'lucide-react'
+import { Home, Database, Search, Layers, BookOpen, Settings, Component } from 'lucide-react'
 
 // Import Components
 import TitleBar from './components/TitleBar'
@@ -18,6 +18,7 @@ import CollectionOverviewPage from './pages/CollectionOverviewPage'
 import HelpDocsPage from './pages/HelpDocsPage'
 import SettingsPage from './pages/SettingsPage'
 import LogPanel, { LogMessage } from './components/LogPanel'
+import PartLookupPage from './pages/PartLookupPage'
 
 function App() {
   const [currentPage, setCurrentPage] = useState<string>('home')
@@ -142,6 +143,12 @@ function App() {
     setCurrentPage('session')
   }
 
+  const navigateToSet = (setNum: string) => {
+    setActiveSetNum(setNum)
+    setCurrentPage('search')
+    setActiveSessionId(null)
+  }
+
   // Database is populated if there are sets and parts in the catalog
   const isDbPopulated = !!(dbStats && dbStats.catalogSetsCount > 0 && dbStats.catalogPartsCount > 0)
 
@@ -189,6 +196,17 @@ function App() {
             >
               <Search />
               <span>Search Sets</span>
+            </button>
+
+            <button
+              className={`nav-link ${currentPage === 'parts' ? 'active' : ''}`}
+              onClick={() => {
+                setCurrentPage('parts')
+                setActiveSessionId(null)
+              }}
+            >
+              <Component />
+              <span>Part Search</span>
             </button>
 
             <button
@@ -290,6 +308,9 @@ function App() {
                   loadDbStats()
                 }}
               />
+            )}
+            {currentPage === 'parts' && (
+              <PartLookupPage onNavigateToSet={navigateToSet} />
             )}
           </div>
           {isLogPanelOpen && (

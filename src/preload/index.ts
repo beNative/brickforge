@@ -197,7 +197,14 @@ const api = {
     return () => {
       ipcRenderer.removeListener('sync:status', listener)
     }
-  }
+  },
+
+  partsSearch: (query: string, groupId: number | null, limit: number, offset: number) =>
+    ipcRenderer.invoke('parts:search', query, groupId, limit, offset),
+
+  partsGetDetails: (partNum: string) => ipcRenderer.invoke('parts:get-details', partNum),
+
+  partsGetTechnicGroups: () => ipcRenderer.invoke('parts:get-technic-groups')
 }
 
 // Use `contextBridge` APIs to expose Electron APIs to

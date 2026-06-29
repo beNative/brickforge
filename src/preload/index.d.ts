@@ -191,6 +191,30 @@ export interface BrickForgeAPI {
       message?: string
     }) => void
   ) => () => void
+  partsSearch: (
+    query: string,
+    groupId: number | null,
+    limit: number,
+    offset: number
+  ) => Promise<{
+    success: boolean
+    parts?: any[]
+    totalCount?: number
+    error?: string
+  }>
+  partsGetDetails: (
+    partNum: string
+  ) => Promise<{
+    success: boolean
+    part?: any
+    crossReferences?: any[]
+    error?: string
+  }>
+  partsGetTechnicGroups: () => Promise<{
+    success: boolean
+    groups?: any[]
+    error?: string
+  }>
 }
 
 declare global {
