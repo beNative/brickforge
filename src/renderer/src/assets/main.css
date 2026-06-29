@@ -4217,7 +4217,7 @@ body.light-theme .settings-alert.info {
 
 /* Logging System CSS variables and scope */
 .log-panel {
-  --log-debug: #10b981;
+  --log-debug: #22c55e;
   --log-info: #3b82f6;
   --log-warning: #f59e0b;
   --log-error: #ef4444;
@@ -4253,8 +4253,8 @@ body.light-theme .settings-alert.info {
 }
 
 body.light-theme .log-panel {
-  --log-debug: #059669;
-  --log-info: #0284c7;
+  --log-debug: #16a34a;
+  --log-info: #2563eb;
   --log-warning: #d97706;
   --log-error: #dc2626;
   --log-bg-console: #f9f9f9;

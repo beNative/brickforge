@@ -102,41 +102,102 @@ export default function InventorySessionPage({
   }, [sessionId, loadSession])
 
   // Handle item quantity change
-  const handleQtyChange = useCallback(async (itemId: number, value: number | null) => {
-    // Optimistic local state update for snappy UI
-    const updatedItems = items.map((item) => {
-      if (item.id === itemId) {
-        const expected = item.expected_qty
-        const counted = value
+  const handleQtyChange = useCallback(
+    async (itemId: number, value: number | null) => {
+      // Optimistic local state update for snappy UI
+      const updatedItems = items.map((item) => {
+        if (item.id === itemId) {
+          const expected = item.expected_qty
+          const counted = value
 
-        let status: any = 'not_checked'
-        if (counted === null) status = 'not_checked'
-        else if (counted === 0 && expected > 0) status = 'missing'
-        else if (counted > 0 && counted < expected) status = 'partial'
-        else if (counted === expected) status = 'complete'
-        else status = 'extra'
+          let status: any = 'not_checked'
+          if (counted === null) status = 'not_checked'
+          else if (counted === 0 && expected > 0) status = 'missing'
+          else if (counted > 0 && counted < expected) status = 'partial'
+          else if (counted === expected) status = 'complete'
+          else status = 'extra'
 
-        return {
-          ...item,
-          counted_qty: value,
-          status
+          return {
+            ...item,
+            counted_qty: value,
+            status
+          }
         }
+        return item
+      })
+
+      setItems(updatedItems)
+
+      // Recalculate progress metrics locally
+      recalculateLocalProgress(updatedItems)
+
+      try {
+        await window.api.updateCountedQty(itemId, value)
+      } catch (e) {
+        console.error('Failed to save quantity', e)
+        loadSession() // Rollback
       }
-      return item
-    })
+    },
+    [items, loadSession]
+  )
 
-    setItems(updatedItems)
+  // Handle expected quantity override
+  const handleOverrideExpected = useCallback(
+    async (itemId: number, currentExpected: number) => {
+      const res = await dialog.prompt(
+        'Enter new expected count for this part (this will also update the global catalog count for this set):',
+        String(currentExpected),
+        'Override Expected Quantity',
+        'Expected Quantity'
+      )
+      if (res === null) return // Canceled
 
-    // Recalculate progress metrics locally
-    recalculateLocalProgress(updatedItems)
+      const parsed = parseInt(res, 10)
+      if (isNaN(parsed) || parsed < 0) {
+        await dialog.alert('Please enter a valid non-negative integer.')
+        return
+      }
 
-    try {
-      await window.api.updateCountedQty(itemId, value)
-    } catch (e) {
-      console.error('Failed to save quantity', e)
-      loadSession() // Rollback
-    }
-  }, [items, loadSession])
+      // Optimistic local state update for snappy UI
+      const updatedItems = items.map((item) => {
+        if (item.id === itemId) {
+          const expected = parsed
+          const counted = item.counted_qty
+
+          let status: any = 'not_checked'
+          if (counted === null) status = 'not_checked'
+          else if (counted === 0 && expected > 0) status = 'missing'
+          else if (counted > 0 && counted < expected) status = 'partial'
+          else if (counted === expected) status = 'complete'
+          else status = 'extra'
+
+          return {
+            ...item,
+            expected_qty: expected,
+            status
+          }
+        }
+        return item
+      })
+
+      setItems(updatedItems)
+
+      // Recalculate progress metrics locally
+      recalculateLocalProgress(updatedItems)
+
+      try {
+        const response = await window.api.updateExpectedQty(itemId, parsed)
+        if (!response.success) {
+          throw new Error(response.error || 'Failed to update expected quantity')
+        }
+      } catch (e: any) {
+        console.error('Failed to save expected quantity', e)
+        await dialog.alert(e.message || 'Failed to save expected quantity')
+        loadSession() // Rollback
+      }
+    },
+    [items, loadSession, dialog]
+  )
 
   // Recalculate session progress metrics locally to avoid layout flashes
   const recalculateLocalProgress = (currentItems: any[]) => {
@@ -390,7 +451,9 @@ export default function InventorySessionPage({
         if (e.key === 'Enter') {
           e.preventDefault()
           activeEl.blur()
-          const parentWrapper = activeEl.closest(viewMode === 'grid' ? '.part-card' : '.part-row') as HTMLElement
+          const parentWrapper = activeEl.closest(
+            viewMode === 'grid' ? '.part-card' : '.part-row'
+          ) as HTMLElement
           if (parentWrapper) {
             parentWrapper.focus()
           }
@@ -399,9 +462,18 @@ export default function InventorySessionPage({
       }
 
       const navKeys = [
-        'ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown',
-        'a', 'd', 'w', 's',
-        'A', 'D', 'W', 'S'
+        'ArrowLeft',
+        'ArrowRight',
+        'ArrowUp',
+        'ArrowDown',
+        'a',
+        'd',
+        'w',
+        's',
+        'A',
+        'D',
+        'W',
+        'S'
       ]
 
       if (focusedIndex === null) {
@@ -762,21 +834,36 @@ export default function InventorySessionPage({
               <div className="segmented-icon-control">
                 <button
                   className={`btn btn-secondary btn-sm ${gridScale === 'sm' ? 'active' : ''}`}
-                  style={{ minWidth: '32px', padding: '4px 8px', fontSize: '11px', fontWeight: 700 }}
+                  style={{
+                    minWidth: '32px',
+                    padding: '4px 8px',
+                    fontSize: '11px',
+                    fontWeight: 700
+                  }}
                   onClick={() => setGridScale('sm')}
                 >
                   S
                 </button>
                 <button
                   className={`btn btn-secondary btn-sm ${gridScale === 'md' ? 'active' : ''}`}
-                  style={{ minWidth: '32px', padding: '4px 8px', fontSize: '11px', fontWeight: 700 }}
+                  style={{
+                    minWidth: '32px',
+                    padding: '4px 8px',
+                    fontSize: '11px',
+                    fontWeight: 700
+                  }}
                   onClick={() => setGridScale('md')}
                 >
                   M
                 </button>
                 <button
                   className={`btn btn-secondary btn-sm ${gridScale === 'lg' ? 'active' : ''}`}
-                  style={{ minWidth: '32px', padding: '4px 8px', fontSize: '11px', fontWeight: 700 }}
+                  style={{
+                    minWidth: '32px',
+                    padding: '4px 8px',
+                    fontSize: '11px',
+                    fontWeight: 700
+                  }}
                   onClick={() => setGridScale('lg')}
                 >
                   L
@@ -810,8 +897,13 @@ export default function InventorySessionPage({
 
           {/* Hide Completed Checkbox */}
           <div className="form-group checkbox-group" style={{ minWidth: '120px' }}>
-            <label className="form-label" style={{ userSelect: 'none' }}>&nbsp;</label>
-            <div className="checkbox-control-wrapper" style={{ display: 'flex', alignItems: 'center', height: '34px', gap: '8px' }}>
+            <label className="form-label" style={{ userSelect: 'none' }}>
+              &nbsp;
+            </label>
+            <div
+              className="checkbox-control-wrapper"
+              style={{ display: 'flex', alignItems: 'center', height: '34px', gap: '8px' }}
+            >
               <input
                 type="checkbox"
                 id="hide-completed-toggle"
@@ -823,7 +915,17 @@ export default function InventorySessionPage({
                 }}
                 style={{ width: '16px', height: '16px', cursor: 'pointer' }}
               />
-              <label htmlFor="hide-completed-toggle" style={{ margin: 0, cursor: 'pointer', userSelect: 'none', fontWeight: 600, fontSize: '13px', color: 'var(--text-secondary)' }}>
+              <label
+                htmlFor="hide-completed-toggle"
+                style={{
+                  margin: 0,
+                  cursor: 'pointer',
+                  userSelect: 'none',
+                  fontWeight: 600,
+                  fontSize: '13px',
+                  color: 'var(--text-secondary)'
+                }}
+              >
                 Hide Completed
               </label>
             </div>
@@ -845,7 +947,12 @@ export default function InventorySessionPage({
           <div
             className={`parts-grid parts-grid-${gridScale}`}
             ref={gridRef}
-            style={{ '--card-min-width': gridScale === 'sm' ? '150px' : gridScale === 'lg' ? '270px' : '210px' } as React.CSSProperties}
+            style={
+              {
+                '--card-min-width':
+                  gridScale === 'sm' ? '150px' : gridScale === 'lg' ? '270px' : '210px'
+              } as React.CSSProperties
+            }
           >
             {visibleItems.map((item, idx) => {
               const hasCounted = item.counted_qty !== null
@@ -890,11 +997,7 @@ export default function InventorySessionPage({
                       ) : (
                         <HelpCircle size={32} style={{ color: '#475569' }} />
                       )}
-                      {item.is_spare && (
-                        <span className="part-card-spare-badge">
-                          Spare
-                        </span>
-                      )}
+                      {item.is_spare && <span className="part-card-spare-badge">Spare</span>}
                     </div>
 
                     <div className="part-card-info">
@@ -919,8 +1022,27 @@ export default function InventorySessionPage({
                   {/* Middle block: Quantities & Status badge */}
                   <div className="part-card-middle">
                     <div className="part-card-qtys-compact">
-                      <span>Exp: <strong>{item.expected_qty}</strong></span>
-                      <span>Count: <strong style={{ color: hasCounted ? 'inherit' : '#64748b' }}>{hasCounted ? item.counted_qty : '—'}</strong></span>
+                      <span>
+                        Exp:{' '}
+                        <Tooltip content="Click to override expected quantity">
+                          <strong
+                            style={{
+                              cursor: 'pointer',
+                              textDecoration: 'underline dotted var(--accent)',
+                              color: 'var(--accent)'
+                            }}
+                            onClick={() => handleOverrideExpected(item.id, item.expected_qty)}
+                          >
+                            {item.expected_qty}
+                          </strong>
+                        </Tooltip>
+                      </span>
+                      <span>
+                        Count:{' '}
+                        <strong style={{ color: hasCounted ? 'inherit' : '#64748b' }}>
+                          {hasCounted ? item.counted_qty : '—'}
+                        </strong>
+                      </span>
                     </div>
                     <div className="part-card-status-badge-container">
                       <span className={`badge badge-${item.status}`}>
@@ -1095,9 +1217,23 @@ export default function InventorySessionPage({
                     <span style={{ fontSize: '13px' }}>{item.color_name}</span>
                   </div>
 
-                  <span className="part-row-text" style={{ fontWeight: 700, textAlign: 'center' }}>
-                    {item.expected_qty}
-                  </span>
+                  <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+                    <Tooltip content="Click to override expected quantity">
+                      <span
+                        className="part-row-text"
+                        style={{
+                          fontWeight: 700,
+                          textAlign: 'center',
+                          cursor: 'pointer',
+                          textDecoration: 'underline dotted var(--accent)',
+                          color: 'var(--accent)'
+                        }}
+                        onClick={() => handleOverrideExpected(item.id, item.expected_qty)}
+                      >
+                        {item.expected_qty}
+                      </span>
+                    </Tooltip>
+                  </div>
 
                   <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
                     <span

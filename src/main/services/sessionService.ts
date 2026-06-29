@@ -626,6 +626,75 @@ export function getGeneralStats(): any {
   }
 }
 
+export function updateExpectedQty(itemId: number, expectedQty: number): void {
+  const db = getDb()
+  const now = new Date().toISOString()
+
+  // 1. Get current item details
+  const item = db
+    .prepare('SELECT session_id, part_num, color_id, is_spare, counted_qty FROM check_items WHERE id = ?')
+    .get(itemId) as
+    | {
+        session_id: number
+        part_num: string
+        color_id: number
+        is_spare: number
+        counted_qty: number | null
+      }
+    | undefined
+
+  if (!item) {
+    throw new Error(`Check Item with ID ${itemId} not found.`)
+  }
+
+  // 2. Get session details to find set_num
+  const session = db
+    .prepare('SELECT set_num FROM check_sessions WHERE id = ?')
+    .get(item.session_id) as { set_num: string } | undefined
+
+  if (!session) {
+    throw new Error(`Check Session with ID ${item.session_id} not found.`)
+  }
+
+  // 3. Find the inventory ID
+  const inventory = db
+    .prepare('SELECT id FROM inventories WHERE set_num = ? ORDER BY version ASC LIMIT 1')
+    .get(session.set_num) as { id: number } | undefined
+
+  const status = calculateItemStatus(expectedQty, item.counted_qty)
+
+  db.transaction(() => {
+    // 4. Update expected_qty and status in check_items
+    db.prepare(
+      `
+      UPDATE check_items
+      SET expected_qty = ?, status = ?, updated_at = ?
+      WHERE id = ?
+    `
+    ).run(expectedQty, status, now, itemId)
+
+    // 5. Update quantity in inventory_parts if inventory exists
+    if (inventory) {
+      db.prepare(
+        `
+        UPDATE inventory_parts
+        SET quantity = ?
+        WHERE inventory_id = ? AND part_num = ? AND color_id = ? AND is_spare = ?
+      `
+      ).run(expectedQty, inventory.id, item.part_num, item.color_id, item.is_spare)
+    }
+
+    // 6. Touch the session updated_at
+    db.prepare(
+      `
+      UPDATE check_sessions
+      SET updated_at = ?
+      WHERE id = ?
+    `
+    ).run(now, item.session_id)
+  })()
+}
+
 function calculateProgress(items: any[]): ProgressSummary {
   const totalRows = items.length
   let checkedRows = 0

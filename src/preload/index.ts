@@ -42,6 +42,9 @@ const api = {
   updateCountedQty: (itemId: number, countedQty: number | null) =>
     ipcRenderer.invoke('update-counted-qty', itemId, countedQty),
 
+  updateExpectedQty: (itemId: number, expectedQty: number) =>
+    ipcRenderer.invoke('update-expected-qty', itemId, expectedQty),
+
   updateItemNotes: (itemId: number, notes: string | null) =>
     ipcRenderer.invoke('update-item-notes', itemId, notes),
 

@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useRef } from 'react'
 import {
   FolderOpen,
   Save,
@@ -86,6 +86,7 @@ export default function SettingsPage({ onSettingsSaved }: SettingsPageProps) {
     localStats: any
     remoteStats: any
   } | null>(null)
+  const isFetchingRemoteDbsRef = useRef(false)
 
   const loadSettings = async () => {
     try {
@@ -114,6 +115,25 @@ export default function SettingsPage({ onSettingsSaved }: SettingsPageProps) {
       if (config.email) {
         fetchRemoteDbs(config)
       }
+
+      // Check current sync status on load (in case conflict was detected during startup/background sync)
+      const statusRes = await window.api.syncGetStatus()
+      if (statusRes.success) {
+        if (statusRes.status === 'conflict') {
+          setSyncStatusMsg('Sync conflict detected.')
+          setSyncStatusTone('error')
+          if (statusRes.conflictStats) {
+            setConflictData(statusRes.conflictStats)
+          }
+        } else if (statusRes.status === 'error') {
+          setSyncStatusMsg('Sync failed.')
+          setSyncStatusTone('error')
+        } else if (statusRes.status === 'syncing') {
+          setIsSyncing(true)
+          setSyncStatusMsg('Syncing...')
+          setSyncStatusTone('info')
+        }
+      }
     } catch (err) {
       console.error('Failed to load sync config:', err)
     }
@@ -122,6 +142,8 @@ export default function SettingsPage({ onSettingsSaved }: SettingsPageProps) {
   const fetchRemoteDbs = async (configOverride?: any) => {
     const activeConfig = configOverride || syncConfig
     if (!activeConfig.email) return
+    if (isFetchingRemoteDbsRef.current) return
+    isFetchingRemoteDbsRef.current = true
     setIsLoadingDbs(true)
     try {
       const result = await window.api.syncListRemoteDatabases()
@@ -134,6 +156,7 @@ export default function SettingsPage({ onSettingsSaved }: SettingsPageProps) {
       console.error('Error fetching remote databases:', err)
     } finally {
       setIsLoadingDbs(false)
+      isFetchingRemoteDbsRef.current = false
     }
   }
 

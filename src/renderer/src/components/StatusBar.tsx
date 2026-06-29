@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { Database, Info, Hammer, Terminal } from 'lucide-react'
+import { Database, Info, Hammer, Terminal, Cloud } from 'lucide-react'
 
 interface StatusBarProps {
   isDbPopulated: boolean
@@ -9,6 +9,8 @@ interface StatusBarProps {
   isLogPanelOpen: boolean
   onToggleLogPanel: () => void
   logCounts: { warning: number; error: number }
+  syncStatus?: 'idle' | 'syncing' | 'error' | 'conflict'
+  onNavigateToSettings?: () => void
 }
 
 export default function StatusBar({
@@ -18,9 +20,11 @@ export default function StatusBar({
   onAboutClick,
   isLogPanelOpen,
   onToggleLogPanel,
-  logCounts
+  logCounts,
+  syncStatus = 'idle',
+  onNavigateToSettings
 }: StatusBarProps) {
-  const [version, setVersion] = useState<string>('1.4.0')
+  const [version, setVersion] = useState<string>('1.8.0')
 
   useEffect(() => {
     window.api
@@ -41,6 +45,43 @@ export default function StatusBar({
           <span className={`statusbar-dot ${isDbPopulated ? '' : 'red'}`}></span>
           <span>{isDbPopulated ? 'DB Connected' : 'DB Data Missing'}</span>
         </div>
+
+        {syncStatus && syncStatus !== 'idle' && (
+          <div
+            className="statusbar-item clickable"
+            title={`Cloud Sync Status: ${syncStatus}. Click to open Settings.`}
+            onClick={onNavigateToSettings}
+            style={{
+              cursor: 'pointer',
+              color:
+                syncStatus === 'conflict'
+                  ? 'var(--status-missing)'
+                  : syncStatus === 'error'
+                    ? 'var(--status-missing)'
+                    : 'var(--primary)'
+            }}
+          >
+            <Cloud
+              size={12}
+              className={syncStatus === 'syncing' ? 'animate-spin' : ''}
+              style={{
+                color:
+                  syncStatus === 'conflict'
+                    ? 'var(--status-missing)'
+                    : syncStatus === 'error'
+                      ? 'var(--status-missing)'
+                      : 'var(--primary)'
+              }}
+            />
+            <span style={{ fontWeight: 600 }}>
+              {syncStatus === 'conflict'
+                ? 'Sync Conflict Detected'
+                : syncStatus === 'error'
+                  ? 'Sync Error'
+                  : 'Syncing Cloud...'}
+            </span>
+          </div>
+        )}
 
         {isDbPopulated && dbStats && (
           <div className="statusbar-item" title="Catalog counts">

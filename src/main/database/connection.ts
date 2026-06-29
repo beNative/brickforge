@@ -285,8 +285,15 @@ function rebuildTechnicGroupMappings(database: Database.Database): void {
 }
 
 export async function backupDatabase(filePath: string): Promise<void> {
+  info(`[Database] Starting backup of active database to: ${filePath}`)
   const activeDb = getDb()
-  await activeDb.backup(filePath)
+  try {
+    await activeDb.backup(filePath)
+    info(`[Database] Database backup successfully completed at: ${filePath}`)
+  } catch (err: any) {
+    error(`[Database] Database backup failed for destination ${filePath}:`, err)
+    throw err
+  }
 }
 
 export function getDatabaseStatsForFile(filePath: string) {

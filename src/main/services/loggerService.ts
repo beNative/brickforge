@@ -77,12 +77,19 @@ export function log(level: 'DEBUG' | 'INFO' | 'WARNING' | 'ERROR', message: stri
   }
 
   // Also print to console for development convenience
+  const reset = '\x1b[0m'
   if (level === 'ERROR') {
-    console.error(`[${level}] ${message}`)
+    const red = '\x1b[31m'
+    console.error(`${red}[${level}] ${message}${reset}`)
   } else if (level === 'WARNING') {
-    console.warn(`[${level}] ${message}`)
+    const yellow = '\x1b[33m'
+    console.warn(`${yellow}[${level}] ${message}${reset}`)
+  } else if (level === 'DEBUG') {
+    const green = '\x1b[32m'
+    console.log(`${green}[${level}] ${message}${reset}`)
   } else {
-    console.log(`[${level}] ${message}`)
+    const blue = '\x1b[34m'
+    console.log(`${blue}[${level}] ${message}${reset}`)
   }
 }
 

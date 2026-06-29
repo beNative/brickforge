@@ -2,6 +2,23 @@
 
 This document logs all released versions of BrickForge, detailing features, updates, and bug fixes.
 
+## v1.8.0 — Expected Quantity Overrides & Cloud Sync Conflict Management (June 2026)
+
+This release introduces expected part count overrides during active check sessions, carriage return markdown parsing fixes on Windows, and fully integrated cloud sync conflict notifications and automatic resolution triggers.
+
+### Added
+
+- **Expected Quantity Overrides:** Allows users to correct incorrect expected part counts during an inventory check session. Hovering over the expected count in Grid or List view exposes an interactive dotted underline trigger; clicking it prompts the user to enter the overridden count, which writes immediately to both the session check item and global database catalog tables in a transaction.
+- **Global Sync Conflict Warnings:** Subscribed globally to cloud sync events in the main app layout. An interactive warning banner (**"Sync Conflict Detected"**) appears in the status bar if a conflict halts periodic or startup synchronization.
+- **Auto-Open Conflict Resolution:** Clicking the status bar warning redirects the user to the Settings page and automatically launches the conflict comparison and resolution modal.
+- **Detailed Sync Logging:** Implemented super detailed logging at all stages of local database backup, checksum calculations, file uploads, file downloads, and comparison checks.
+- **Log Panel/Console Level Coloring:** Integrated ANSI colored output in development consoles and matched styles (blue for `INFO`, red for `ERROR`, green for `DEBUG`, and yellow for `WARNING`) in the UI console log viewer.
+- **Log Request Deduplication:** Resolved duplicate token refreshes and remote file lists caused by StrictMode render duplicates in dev environments.
+
+### Fixed
+
+- **Markdown Windows Line Endings:** Handled Windows-specific carriage returns (`\r`) in the Help & Manual parser to ensure regex-based formatting parses correctly.
+
 ---
 
 ## v1.7.0 — BrickLink XML Exporter & Category Mapping Improvements (June 2026)

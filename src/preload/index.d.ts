@@ -42,6 +42,10 @@ export interface BrickForgeAPI {
     itemId: number,
     countedQty: number | null
   ) => Promise<{ success: boolean; error?: string }>
+  updateExpectedQty: (
+    itemId: number,
+    expectedQty: number
+  ) => Promise<{ success: boolean; error?: string }>
   updateItemNotes: (
     itemId: number,
     notes: string | null
@@ -159,6 +163,8 @@ export interface BrickForgeAPI {
     email: string | null
     enabled: boolean
     lastCompletedAt: string | null
+    status?: 'idle' | 'syncing' | 'error' | 'conflict'
+    conflictStats?: { localStats: any; remoteStats: any } | null
   }>
   syncGetConfig: () => Promise<{
     syncEnabled: boolean

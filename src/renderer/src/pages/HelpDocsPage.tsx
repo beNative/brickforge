@@ -11,7 +11,7 @@ type DocTab = 'manual' | 'changelog'
  */
 function renderMarkdown(raw: string): string {
   let html = ''
-  const lines = raw.split('\n')
+  const lines = raw.replace(/\r/g, '').split('\n')
   let inCodeBlock = false
   let codeBuffer: string[] = []
   let inList: 'ul' | 'ol' | null = null

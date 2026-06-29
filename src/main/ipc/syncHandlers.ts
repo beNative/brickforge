@@ -5,7 +5,9 @@ import {
   runSyncInternal,
   startPeriodicSync,
   stopPeriodicSync,
-  setOAuthServerCloseFn
+  setOAuthServerCloseFn,
+  getSyncStatus,
+  getConflictStats
 } from '../services/syncService'
 import { GoogleDriveService } from '../services/gdriveService'
 import { info, error } from '../services/loggerService'
@@ -168,7 +170,9 @@ export function registerSyncHandlers(): void {
       success: true,
       email: config.email ?? null,
       enabled: config.syncEnabled ?? false,
-      lastCompletedAt: config.lastCompletedAt ?? null
+      lastCompletedAt: config.lastCompletedAt ?? null,
+      status: getSyncStatus(),
+      conflictStats: getConflictStats()
     }
   })
 }

@@ -72,6 +72,29 @@ function App() {
     }
   }, [])
 
+  const [syncStatus, setSyncStatus] = useState<'idle' | 'syncing' | 'error' | 'conflict'>('idle')
+
+  // Setup sync status subscriber
+  useEffect(() => {
+    // Get initial sync status
+    window.api
+      .syncGetStatus()
+      .then((res) => {
+        if (res.success && res.status) {
+          setSyncStatus(res.status)
+        }
+      })
+      .catch((err) => {
+        console.error('Failed to get initial sync status:', err)
+      })
+
+    const unsubscribe = window.api.onSyncStatus((payload) => {
+      setSyncStatus(payload.status as any)
+    })
+
+    return unsubscribe
+  }, [])
+
   // Calculate log counts for warnings/errors
   const logCounts = (() => {
     let warning = 0
@@ -287,6 +310,8 @@ function App() {
         isLogPanelOpen={isLogPanelOpen}
         onToggleLogPanel={() => setIsLogPanelOpen((prev) => !prev)}
         logCounts={logCounts}
+        syncStatus={syncStatus}
+        onNavigateToSettings={() => setCurrentPage('settings')}
       />
       <AboutDialog isOpen={isAboutOpen} onClose={() => setIsAboutOpen(false)} />
     </CustomDialogProvider>

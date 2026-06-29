@@ -108,8 +108,9 @@ When you start or resume counting, you are presented with the **Inventory Sessio
    - Adjust your counted quantity using the `+` and `-` buttons.
    - Directly type the counted amount into the input box.
    - Click **Checkmark** (in grid card) to quickly mark the item as complete (matches expected quantity).
-5. **Item Notes:** Click the pencil/note icon on any part card to record a comment (e.g., "Replaced with alternative black color").
-6. **Part Completeness Status:**
+5. **Override Expected Quantity:** If you find that the expected part count in the official catalog is wrong, you can correct it directly in the active session. Hover over the expected quantity label (styled with a dotted underline) and click it. A prompt dialog will open allowing you to enter the correct quantity, which automatically overrides the expected count in both the current session and the global database catalog.
+6. **Item Notes:** Click the pencil/note icon on any part card to record a comment (e.g., "Replaced with alternative black color").
+7. **Part Completeness Status:**
    - **Not Checked (Gray):** Quantities have not yet been verified.
    - **Complete (Green):** Count matches expected count.
    - **Missing (Red):** Count is less than expected.
@@ -223,6 +224,8 @@ Because BrickForge respects user privacy and doesn't run middleware servers, it 
   - **Ask:** Displays an interactive comparison modal showing file parameters (sizes, modification dates, count statistics). You can select which version to preserve.
   - **Prefer Local:** Automatically pushes local changes, overwriting cloud versions.
   - **Prefer Cloud:** Automatically pulls remote changes, overwriting local databases.
+  > [!IMPORTANT]
+  > If a conflict or error occurs during background sync or startup sync, an interactive warning banner (**"Sync Conflict Detected"**) will appear in the bottom status bar. Clicking this warning will automatically redirect you to the Settings tab and launch the Conflict Resolution Modal immediately, letting you resolve the conflict without having to manually start a new sync.
 - **Sync Now:** Manually run a sync check.
 
 ### Software Updates

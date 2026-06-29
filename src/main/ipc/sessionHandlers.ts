@@ -16,7 +16,8 @@ import {
   addToCollection,
   setCollectionManualComplete,
   removeFromCollection,
-  isSetInCollection
+  isSetInCollection,
+  updateExpectedQty
 } from '../services/sessionService'
 
 export function registerSessionHandlers(): void {
@@ -51,6 +52,19 @@ export function registerSessionHandlers(): void {
         return { success: true }
       } catch (error: any) {
         console.error('Error updating counted quantity:', error)
+        return { success: false, error: error.message }
+      }
+    }
+  )
+
+  ipcMain.handle(
+    'update-expected-qty',
+    async (_event, itemId: number, expectedQty: number) => {
+      try {
+        updateExpectedQty(itemId, expectedQty)
+        return { success: true }
+      } catch (error: any) {
+        console.error('Error updating expected quantity:', error)
         return { success: false, error: error.message }
       }
     }
