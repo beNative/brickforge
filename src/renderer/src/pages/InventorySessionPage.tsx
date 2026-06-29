@@ -218,7 +218,7 @@ export default function InventorySessionPage({
 
       if (counted !== null) {
         checkedRows++
-        totalCountedQty += counted
+        totalCountedQty += Math.min(counted, expected)
         const diff = counted - expected
 
         if (diff < 0) {

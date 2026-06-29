@@ -558,7 +558,7 @@ export function getRecentSessions(): any[] {
         COUNT(*) as total,
         SUM(CASE WHEN counted_qty IS NOT NULL THEN 1 ELSE 0 END) as checked,
         SUM(expected_qty) as total_qty,
-        SUM(COALESCE(counted_qty, 0)) as counted_qty
+        SUM(MIN(COALESCE(counted_qty, 0), expected_qty)) as counted_qty
       FROM check_items
       WHERE session_id = ?
     `
@@ -713,7 +713,7 @@ function calculateProgress(items: any[]): ProgressSummary {
 
     if (counted !== null) {
       checkedRows++
-      totalCountedQty += counted
+      totalCountedQty += Math.min(counted, expected)
       const diff = counted - expected
 
       if (diff < 0) {

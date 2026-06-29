@@ -317,7 +317,7 @@ function importCsv(filePath, type, parserSchema) {
                 parseInt(row.id, 10),
                 row.name,
                 row.rgb || 'FFFFFF',
-                row.is_trans === 't' || row.is_trans === '1' || row.is_trans === 'true' ? 1 : 0
+                (row.is_trans || '').trim().toLowerCase() === 't' || (row.is_trans || '').trim().toLowerCase() === '1' || (row.is_trans || '').trim().toLowerCase() === 'true' ? 1 : 0
               )
             } else if (type === 'part_categories') {
               insertStmt.run(parseInt(row.id, 10), row.name)
@@ -355,7 +355,7 @@ function importCsv(filePath, type, parserSchema) {
                 row.part_num,
                 parseInt(row.color_id, 10),
                 parseInt(row.quantity, 10),
-                row.is_spare === 't' || row.is_spare === '1' || row.is_spare === 'true' ? 1 : 0,
+                (row.is_spare || '').trim().toLowerCase() === 't' || (row.is_spare || '').trim().toLowerCase() === '1' || (row.is_spare || '').trim().toLowerCase() === 'true' ? 1 : 0,
                 row.img_url || null
               )
             }

@@ -8,7 +8,10 @@ export const ColorCsvSchema = z.object({
     .optional()
     .nullable()
     .transform((val) => val || 'FFFFFF'),
-  is_trans: z.string().transform((val) => val === 't' || val === '1' || val === 'true')
+  is_trans: z.string().transform((val) => {
+    const clean = val.trim().toLowerCase()
+    return clean === 't' || clean === '1' || clean === 'true'
+  })
 })
 
 export const PartCategoryCsvSchema = z.object({
@@ -52,6 +55,9 @@ export const InventoryPartCsvSchema = z.object({
   part_num: z.string().min(1),
   color_id: z.coerce.number(),
   quantity: z.coerce.number(),
-  is_spare: z.string().transform((val) => val === 't' || val === '1' || val === 'true'),
+  is_spare: z.string().transform((val) => {
+    const clean = val.trim().toLowerCase()
+    return clean === 't' || clean === '1' || clean === 'true'
+  }),
   img_url: z.string().optional().nullable()
 })
