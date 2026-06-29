@@ -10,7 +10,8 @@ export function searchParts(
   const q = `%${query}%`
 
   let sql = `
-    SELECT p.part_num, p.name, p.part_cat_id, pc.name as part_category_name, p.part_img_url,
+    SELECT p.part_num, p.name, p.part_cat_id, pc.name as part_category_name,
+           (SELECT img_url FROM inventory_parts WHERE part_num = p.part_num AND img_url IS NOT NULL AND img_url != '' LIMIT 1) as part_img_url,
            m.technic_group_id, tg.name as technic_group_name
     FROM parts p
     LEFT JOIN part_categories pc ON p.part_cat_id = pc.id
@@ -50,7 +51,8 @@ export function getPartDetails(partNum: string): { part: any; crossReferences: a
   const part = db
     .prepare(
       `
-    SELECT p.part_num, p.name, p.part_cat_id, pc.name as part_category_name, p.part_img_url,
+    SELECT p.part_num, p.name, p.part_cat_id, pc.name as part_category_name,
+           (SELECT img_url FROM inventory_parts WHERE part_num = p.part_num AND img_url IS NOT NULL AND img_url != '' LIMIT 1) as part_img_url,
            m.technic_group_id, tg.name as technic_group_name
     FROM parts p
     LEFT JOIN part_categories pc ON p.part_cat_id = pc.id
